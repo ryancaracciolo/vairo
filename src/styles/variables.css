@@ -1,0 +1,55 @@
+/* Filo Color Palette */
+:root {
+    --dark-color: #3B3B3B;
+    --grey-dark-color: #36454F;
+    --grey-medium-color: #708090;
+    --grey-light-color: #B8C3CD;
+    --grey-extralight-color: #DFE3EA;
+    --blue-medium-color: #0060E6;
+    --blue-light-color: #488FF3;
+    --purple-color: #A43FE7;
+
+    /* Filo Font Family */
+    --font-thin: 'BA-Thin', sans-serif;
+    --font-light: 'BA-Light', sans-serif;
+    --font-regular: 'BA-Light', sans-serif;
+    --font-reg: 'BA-Regular', sans-serif;
+    --font-bold: 'BA-Bold', sans-serif;
+    --font-extraBold: 'BA-ExtraBold', sans-serif;
+}
+
+/* Vairo Font Family */
+@font-face {
+    font-family: "BA-Regular";
+    src: url(../assets/fonts/BuenosAires-Regular.ttf) format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BA-Bold";
+    src: url(../assets/fonts/BuenosAires-Bold.ttf) format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BA-Light";
+    src: url(../assets/fonts/BuenosAires-Light.ttf) format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BA-Thin";
+    src: url(../assets/fonts/BuenosAires-Thin.ttf) format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BA-ExtraBold";
+    src: url(../assets/fonts/BuenosAires-Black.ttf) format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}

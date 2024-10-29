@@ -1,0 +1,31 @@
+
+
+  .circle-initials .circle-image {
+    width: 35px; /* Adjust size as needed */
+    height: 35px; /* Adjust size as needed */
+    box-sizing: border-box;
+    background-color: white;
+    padding: 2px;
+    border-radius: 50%;
+    margin: 0;
+  }
+
+  .circle-initials .circle-p {
+    width: 35px; /* Adjust size as needed */
+    height: 35px; /* Adjust size as needed */
+    text-align: center;
+    align-content: center;
+    box-sizing: border-box;
+    padding: 2px;
+    background-color: #d6b8eb;
+    border-radius: 50%;
+    margin: 0;
+    font-family: var(--font-bold);
+    text-transform: uppercase; /* Ensure initials are uppercase */
+    color: white;
+  }
+
+  .circle-initials .circle-p:hover {
+    background-color: #e4c4fa;
+  }
+  

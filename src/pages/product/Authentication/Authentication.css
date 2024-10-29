@@ -1,0 +1,243 @@
+.login-container {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  background-color: var(--background-color);
+}
+
+.left-side {
+  position: relative;
+  flex: 1;
+  background-color: var(--teal-medium-color);
+  display: flex;
+  color: white;
+  overflow: hidden;
+}
+
+.left-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10%;
+  padding-top: 5%;
+  text-align: center;
+}
+
+.filo-logo {
+  width: 60%;
+  margin-bottom: 5vh;
+  filter: brightness(0) invert(1);
+  object-fit: contain;
+}
+
+.left-side h1 {
+  font-size: clamp(30px, 3vw, 50px);
+  margin-bottom: 10px;
+  font-family: var(--font-bold);
+}
+
+.left-side p {
+  font-size: clamp(12px, 1.2vw, 20px);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-family: var(--font-regular);
+}
+
+.left-side hr {
+  width: 50%;
+  border: 1px solid var(--background-color);
+  margin: 20px 0;
+}
+
+.left-side h2 {
+  font-size: clamp(20px, 1.8vw, 40px);
+  margin-bottom: 10px;
+  font-family: var(--font-bold);
+}
+
+.login-background {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  opacity: 10%;
+}
+
+.right-side {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 10vw;
+  padding-right: 10vw;
+  text-align: center;
+}
+
+.right-side h2 {
+  font-size: clamp(20px, 1.8vw, 40px);
+  color: var(--teal-medium-color);
+  margin-bottom: 3.0vh;
+  font-family: var(--font-bold);
+}
+
+.right-side .dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.right-side .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--teal-medium-color);
+}
+
+.right-side p {
+  font-size: clamp(12px, 1.2vw, 20px);
+  color: #777;
+  margin-bottom: 4vh;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-family: var(--font-regular);
+
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 4vh;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-bottom: 2px solid #dddddd;
+  gap: 5px;
+}
+
+.input-wrapper .email-icon {
+  width: 22px;
+  height: 22px;
+  fill: #aaaaaa;
+}
+
+.email-input {
+  width: 100%;
+  padding: 5px;
+  border: 0px;
+  font-size: clamp(12px, 1.2vw, 20px);
+  box-sizing: border-box;
+  font-family: var(--font-light);
+  color: var(--grey-dark-color);
+  outline: none; /* Removes default browser focus border */
+}
+
+.email-input:focus {
+  border: none;
+}
+
+.submit-btn {
+  width: 75%;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--teal-medium-color);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: clamp(12px, 1.2vw, 20px);
+  font-family: var(--font-bold);
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: var(--teal-light-color);
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-family: var(--font-light);
+}
+
+.toggle-auth-mode {
+  background: none;
+  border: none;
+  color: var(--teal-medium-color);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 15px;
+  display: block;
+}
+
+.toggle-auth-mode:hover {
+  color: var(--teal-dark-color);
+}
+
+.support-text {
+  margin-top: 40px;
+  color: #777;
+  font-size: clamp(8px, 1vw, 16px) !important;
+}
+
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .left-side {
+    background-color: var(--background-color);
+    color: #777;
+  }
+
+  .left-content {
+    padding: 7%;
+    padding-bottom: 0;
+  }
+
+  .left-side h1 {
+    color: #4e4e4e;
+  }
+
+  .left-side hr {
+    border: 1px solid #777;
+    opacity: 30%;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .filo-logo {
+    width: 50%;
+    filter: brightness(1) invert(0);
+  }
+
+  .left-content h2 {
+    display: none;
+  }
+
+  .left-content .sub-p {
+    display: none;
+  }
+
+  .login-background {
+    display: none;
+  }
+
+  .right-content hr {
+    display: none;
+  }
+
+}

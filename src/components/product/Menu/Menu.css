@@ -1,0 +1,108 @@
+.ProductMenu {
+    flex: 0;
+    background-color: var(--blue-dark-color);
+    z-index: 1001;
+    border-top-right-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+  
+.ProductMenu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px;
+    margin-top: 10px;
+}
+  
+.ProductMenu li {
+    display: flex;
+    justify-content: center;
+    height: clamp(45px, 4vw, 65px);
+    padding-left: 15px;
+    padding-right: 30px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    height: auto;
+    padding: 8px 0;
+}
+
+.ProductMenu li a {
+    display: flex; /* Make the Link a flex container */
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    align-items: center; /* Vertically align items */
+    text-decoration: none; /* Remove underline from link text */
+    text-align: center;
+}
+
+.ProductMenu .menu-icon {
+    width: 22px;
+    height: 22px;
+    fill: var(--blue-light-color);
+}
+
+.ProductMenu li .menu-label {
+    margin: 4px;
+    margin-bottom: 0px;
+    color: var(--blue-light-color);
+    text-decoration: none;
+    font-family: var(--font-bold);
+    font-size: 12px;
+}
+  
+.menu-item.active {
+    background-color: var(--blue-medium-color);
+}
+
+.ProductMenu .sign-out {
+    display: flex;
+    height: clamp(45px, 4vw, 65px);
+    padding-left: 15px;
+    padding-right: 30px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .ProductMenu {
+        order: 2;
+        border-radius: 0;
+        background-color: white;
+        border-top: 1px solid lightgray;
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        height: 100px;
+    }
+
+    .ProductMenu ul {
+        display: flex;
+        justify-content: center;
+        gap: 15%;
+        margin-bottom: 25px;
+    }
+
+    .ProductMenu ul .menu-item.active {
+        background-color: transparent;
+    }
+
+    .ProductMenu li .menu-label.active {
+        color: var(--teal-medium-color);
+    }
+
+    .ProductMenu li .menu-icon {
+        fill: grey;
+    }
+
+    .ProductMenu li .menu-icon.active {
+        fill: var(--teal-medium-color);
+    }
+
+    .ProductMenu .sign-out {
+        display: none;
+    }
+}
+  
+

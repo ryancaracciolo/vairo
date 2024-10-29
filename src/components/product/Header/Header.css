@@ -1,0 +1,121 @@
+
+.product-header {
+  background-color: var(--blue-dark-color);
+  padding-right: 5px;
+}
+
+.product-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4vh;
+    background-color: transparent;
+}
+
+.product-header .logo img {
+    height: clamp(30px, 2vw, 38px);
+}
+
+.product-header .profile-button {
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.product-header .profile-button h3 {
+    color: var(--grey-light-color);
+    font-family: var(--font-bold);
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.product-header .button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 15px;  
+}
+
+.product-header .header-button {
+    fill: var(--grey-light-color);
+    width: 22px;
+    height: 22px;
+}
+
+.product-header .header-button:hover {
+    fill: var(--blue-medium-color);
+}
+
+.search-bar-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+  }
+
+  .search-bar {
+    width: 100%;
+    padding: 4px 12px;
+    margin-left: 10vw;
+    margin-right: 10vw;
+    background-color: var(--blue-medium-color); /* Grey background */
+    color: var(--grey-dark-color);
+    border: 1px solid rgba(77, 76, 76, 0.2);
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Smooth transition on hover */
+    font-family: var(--font-light);
+  }
+  
+  .search-bar::placeholder {
+    color: var(--grey-light-color); /* Light grey placeholder text */
+  }
+  
+  .search-bar:hover {
+    background-color: var(--blue-light-color); /* Lighter grey on hover */
+    color: var(--grey-dark-color);
+  }
+
+  .user-profile-wrapper {
+    width: 300px;
+    height: auto;
+    background-color: white;
+    border-radius: 15px;
+    margin: 15px;
+    padding: 15px;
+  }
+
+  .user-profile-wrapper .user-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .user-profile-wrapper h2 {
+    font-family: var(--font-bold);
+    color: var(--grey-dark-color);
+    margin: 0;
+  }
+
+  .user-profile-wrapper button {
+    font-family: var(--font-bold);
+    color: var(--grey-dark-color);
+  }
+
+
+@media (max-width: 768px) {
+  .product-header .search-bar {
+    display: none;
+  }
+
+  .product-header .profile-button h3 {
+    display: none;
+  }
+}
+  
