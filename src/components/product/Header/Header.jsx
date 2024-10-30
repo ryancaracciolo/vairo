@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import './Header.css';
-import logo from '../../../assets/images/vairo-logo-light.png';
+import logo from '../../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
 import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
 import {ReactComponent as BellIcon} from '../../../assets/icons/bell-icon.svg';
@@ -39,8 +39,8 @@ const Header = () => {
                     <input type="text" placeholder="Search for Anything..." className="search-bar" value={searchText} onChange={handleSearch} />
                 </div>
                 <div className='button-container'>
-                    <BellIcon className='header-button'/>
                     <SettingsIcon className='header-button'/>
+                    <BellIcon className='header-button'/>
                     <button className="profile-button" onClick={handleProfileClick}>
                         <CircleInitials businessName={business.name}/>
                         <h3>{business.name}</h3>

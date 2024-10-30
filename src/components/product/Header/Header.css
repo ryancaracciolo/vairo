@@ -1,6 +1,6 @@
 
 .product-header {
-  background-color: var(--blue-dark-color);
+  background-color: white;
   padding-right: 5px;
 }
 
@@ -8,7 +8,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 4vh;
+    height: 20px;
     background-color: transparent;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .product-header .profile-button h3 {
-    color: var(--grey-light-color);
+    color: var(--grey-medium-color);
     font-family: var(--font-bold);
     font-size: 14px;
     margin-left: 10px;
@@ -41,43 +41,43 @@
 }
 
 .product-header .header-button {
-    fill: var(--grey-light-color);
+    fill: var(--grey-medium-color);
     width: 22px;
     height: 22px;
 }
 
 .product-header .header-button:hover {
-    fill: var(--blue-medium-color);
+    fill: var(--grey-medium-color);
 }
 
 .search-bar-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: 0 20px;
+    flex: none;
+    position: absolute;
+    left: 220px;
   }
 
   .search-bar {
-    width: 100%;
-    padding: 4px 12px;
-    margin-left: 10vw;
-    margin-right: 10vw;
-    background-color: var(--blue-medium-color); /* Grey background */
+    width: 30vw;
+    padding: 6px 12px;
+    background-color: var(--bg-light-color); 
     color: var(--grey-dark-color);
-    border: 1px solid rgba(77, 76, 76, 0.2);
     border-radius: 6px;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Smooth transition on hover */
+    transition: background-color 0.3s ease-in-out; 
     font-family: var(--font-light);
+    box-sizing: border-box;
+    letter-spacing: 0.5px;
+    border: none;
   }
   
   .search-bar::placeholder {
-    color: var(--grey-light-color); /* Light grey placeholder text */
+    color: var(--grey-medium-color); 
   }
   
-  .search-bar:hover {
-    background-color: var(--blue-light-color); /* Lighter grey on hover */
+  .search-bar:focus {
+    width: 40vw;
+    background-color: var(--grey-light-color); 
     color: var(--grey-dark-color);
   }
 

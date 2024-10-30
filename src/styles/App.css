@@ -1,12 +1,29 @@
-body, .landing, .app {
+body {
   margin: 0;
   padding: 0;
-  background-color: var(--grey-dark-color);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: space-between;
-  min-height: 100vh;
-  width: 100%;
   overflow-x: hidden;
 }
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: flex-start;
+  background-color: white;
+}
+
+.product-main {
+  flex-grow: 1;
+  display: flex;
+  align-items: stretch;
+  padding: 0px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .product-main {
+    flex-direction: column;
+  }
+}
+
+

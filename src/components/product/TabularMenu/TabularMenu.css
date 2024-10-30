@@ -1,0 +1,125 @@
+
+.content-menu {
+    padding: 0px 15px;
+    padding-right: 8px;
+    background-color: var(--grey-extralight-color);
+    border-right: 1px solid rgba(0, 0, 0, 0.1); /* Light bottom border */
+    position: relative;
+    border-top-left-radius: 8px;
+    overflow: visible;
+}
+
+.content-menu.closed {
+    width: 0px;
+    padding-right: 0;
+    padding-left: 0;
+    border: none;
+    background-color: var(--bg-light-color);
+}
+
+.content-menu .menu-toggle {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    right: -11px;
+    top: calc(25px - 11px);
+    background-color: var(--grey-light-color);
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.content-menu .menu-toggle-img {
+    width: 22px;
+    height: 22px;
+    transform: rotate(90deg);
+}
+
+.content-menu .menu-toggle-img.closed {
+    transform: rotate(270deg);
+    right: -22px;
+}
+
+.content-menu .menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    overflow: hidden;
+}
+
+.content-menu .menu-container h1 {
+    font-family: var(--font-extraBold);
+    color: var(--blue-dark-color);
+    font-size: clamp(16px, 1.6vw, 26px);
+    margin: 0;
+    padding: 5px 0;
+    height: 40px;
+    display: flex;
+    align-items: flex-end;
+    border-top-left-radius: 8px;
+}
+
+.content-menu .menu-container.closed h1 {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Light bottom border */
+}
+
+.menu-tabs {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    width: 15vw;
+    position: relative;
+    background-color: transparent;
+    margin-top: 10px;
+}
+
+.menu-tabs p {
+    margin: 0;
+    padding: 0;
+    color: rgb(117, 119, 122);
+}
+
+.menu-tab {
+    padding: 8px 10px;
+    cursor: pointer;
+    border: none;
+    font-size: clamp(14px, 1.2vw, 18px);
+    font-family: var(--font-regular);
+    position: relative;
+    transition: color 0.3s;
+    color: var(--grey-dark-color);
+    background-color: transparent;
+    text-align: left;
+    border-radius: 7px;
+}
+
+.menu-tab.active {
+    font-family: var(--font-bold);
+    background-color: var(--grey-light-color);
+}
+
+@media (max-width: 768px) {
+    .content-menu {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: auto;
+        padding: 0;
+    }
+
+    .content-menu h1 {
+        width: 100%;
+        align-self: stretch;
+        padding-left: 7%;
+        margin-bottom: 0;
+    }
+
+    .content-menu .menu-tabs {
+        width: 100%;
+    }
+}

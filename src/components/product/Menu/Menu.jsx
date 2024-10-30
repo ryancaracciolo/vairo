@@ -1,22 +1,20 @@
-import React, { useState, useContext } from 'react';
-import { BusinessContext } from '../../../objects/Context';
+import React, { useState } from 'react';
 import { ReactComponent as PartnershipIcon } from '../../../assets/icons/handshake-icon.svg';
 import { ReactComponent as OpportIcon } from '../../../assets/icons/list-icon.svg';
 import { ReactComponent as PurchIcon } from '../../../assets/icons/tag-icon.svg';
-import { ReactComponent as SignOutIcon } from '../../../assets/icons/logout-icon.svg';
 import MenuItem from './MenuItem';
 import './Menu.css';
 import { Link } from 'react-router-dom';
 
 function Menu({activeMenuIndex }) {
-    const { setBusiness } = useContext(BusinessContext);
     const [selectedItem, setSelectedItem] = useState((activeMenuIndex ? activeMenuIndex : 0));
 
 
     const menuItems = [
-        { label: 'Analyze', icon: PartnershipIcon, path: '/app/analyze' },
-        { label: 'My Data', icon: OpportIcon, path: '/app/data' },
-        { label: 'Docs', icon: PurchIcon, path: '/app/docs' }
+        { label: 'Threads', icon: PartnershipIcon, path: '/app/threads' },
+        { label: 'Dashboard', icon: OpportIcon, path: '/app/dashboards' },
+        { label: 'Data Sources', icon: PurchIcon, path: '/app/data-sources' },
+        { label: 'Resources', icon: PurchIcon, path: '/app/resources' }
     ];
     
 
@@ -24,16 +22,6 @@ function Menu({activeMenuIndex }) {
         setSelectedItem(index);
     }
 
-     // Sign out function
-    const handleSignOut = async () => {
-        // try {
-        // await signOut();
-        // localStorage.removeItem('business'); // Remove the business item from localStorage
-        // setBusiness(null);
-        // } catch (error) {
-        // console.log('Error signing out: ', error);
-        //}
-    };
 
     return (
         <nav className='ProductMenu'>
@@ -45,22 +33,10 @@ function Menu({activeMenuIndex }) {
                         label={item.label}
                         to={item.path}
                         isSelected={selectedItem === index}
-                        onClick={() => {
-                            if (item.label === 'Sign Out') {
-                                handleSignOut();
-                            } else {
-                                handleMenuClicked(index);
-                            }
-                        }}
+                        onClick={() => { handleMenuClicked(index); }}
                     />
                 ))}
             </ul>
-            <li className='sign-out' onClick={() => {handleSignOut()}}>
-                <Link to='app/login'>
-                    <SignOutIcon className="menu-icon" />
-                    <p>Sign Out</p>
-                </Link>
-            </li>
         </nav>
     );
 }

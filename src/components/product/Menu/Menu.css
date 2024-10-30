@@ -1,69 +1,58 @@
 .ProductMenu {
-    flex: 0;
-    background-color: var(--blue-dark-color);
+    flex-basis: 220px;
     z-index: 1001;
-    border-top-right-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
   
 .ProductMenu ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
-    margin: 5px;
-    margin-top: 10px;
+    margin: 20px 20px;
 }
   
 .ProductMenu li {
     display: flex;
-    justify-content: center;
-    height: clamp(45px, 4vw, 65px);
-    padding-left: 15px;
-    padding-right: 30px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    height: auto;
-    padding: 8px 0;
+    justify-content: flex-start;
+    align-items: center;
+    height: 20px;
+    padding: 8px 8px;
+    margin-bottom: 5px;
+    border-radius: 7px;
 }
 
 .ProductMenu li a {
-    display: flex; /* Make the Link a flex container */
-    flex-direction: column;
-    justify-content: center;
-    gap: 0;
-    align-items: center; /* Vertically align items */
-    text-decoration: none; /* Remove underline from link text */
-    text-align: center;
-}
-
-.ProductMenu .menu-icon {
-    width: 22px;
-    height: 22px;
-    fill: var(--blue-light-color);
-}
-
-.ProductMenu li .menu-label {
-    margin: 4px;
-    margin-bottom: 0px;
-    color: var(--blue-light-color);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
     text-decoration: none;
-    font-family: var(--font-bold);
-    font-size: 12px;
+    text-align: center;
+    gap: 10px;
+}
+
+.menu-icon {
+    width: 18px;
+    height: 18px;
+    fill: var(--grey-medium-color);
+}
+
+.menu-label {
+    margin: 0;
+    color: var(--grey-medium-color);
+    font-family: var(--font-regular);
+    letter-spacing: 0.5px;
+    font-size: 13px;
 }
   
 .menu-item.active {
-    background-color: var(--blue-medium-color);
+    background-color: var(--bg-light-color);
 }
 
-.ProductMenu .sign-out {
-    display: flex;
-    height: clamp(45px, 4vw, 65px);
-    padding-left: 15px;
-    padding-right: 30px;
-    margin-bottom: 5px;
-    border-radius: 8px;
+.menu-item.active .menu-label {
+    font-family: var(--font-bold);
 }
+
 
 @media (max-width: 768px) {
     .ProductMenu {
@@ -84,25 +73,22 @@
         margin-bottom: 25px;
     }
 
-    .ProductMenu ul .menu-item.active {
+    .menu-item.active {
         background-color: transparent;
     }
 
-    .ProductMenu li .menu-label.active {
+    .menu-label.active {
         color: var(--teal-medium-color);
     }
 
-    .ProductMenu li .menu-icon {
+    .menu-icon {
         fill: grey;
     }
 
-    .ProductMenu li .menu-icon.active {
+    .menu-icon.active {
         fill: var(--teal-medium-color);
     }
 
-    .ProductMenu .sign-out {
-        display: none;
-    }
 }
   
 

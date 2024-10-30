@@ -1,0 +1,12 @@
+.dashboard-wrapper {
+    display: flex;
+    flex-grow: 1;
+    border-top-left-radius: 8px;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    background-color: var(--bg-light-color);
+    padding: 0 20px;
+    border-top-left-radius: 8px;
+}

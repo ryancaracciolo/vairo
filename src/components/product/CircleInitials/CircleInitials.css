@@ -17,7 +17,7 @@
     align-content: center;
     box-sizing: border-box;
     padding: 2px;
-    background-color: #d6b8eb;
+    background-color: var(--blue-light-color);
     border-radius: 50%;
     margin: 0;
     font-family: var(--font-bold);
