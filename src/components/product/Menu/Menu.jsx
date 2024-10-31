@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ReactComponent as ThreadIcon } from '../../../assets/icons/threads-icon.svg';
 import { ReactComponent as DashboardIcon } from '../../../assets/icons/dashboard-icon.svg';
 import { ReactComponent as DataSourceIcon } from '../../../assets/icons/data-icon.svg';
 import { ReactComponent as DocumentIcon } from '../../../assets/icons/docs-icon.svg';
 import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
-import { ReactComponent as ConnectIcon } from '../../../assets/icons/connect-icon.svg';
-import { ReactComponent as ShareIcon } from '../../../assets/icons/share-icon.svg';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit-icon.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/delete-icon.svg';
-
-import MenuItem from './MenuItem';
-import SubMenu from './SubMenu';
-import './Menu.css';
+import { ReactComponent as DownIcon } from '../../../assets/icons/down-icon.svg';
 import { Link } from 'react-router-dom';
 
-function Menu({ activeMenuIndex }) {
-    const [selectedItem, setSelectedItem] = useState(activeMenuIndex || 0);
+import MenuItem from './MenuItem';
+import './Menu.css';
+import { ActiveMenuIndexContext } from '../../../objects/Context';
+
+function Menu() {
+    const {activeMenuIndex, setActiveMenuIndex} = useContext(ActiveMenuIndexContext);
+    const [contentItems, setContentItems] = useState([]);
+
+    console.log("Active Menu Index:", activeMenuIndex);
 
     const menuItems = [
         { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
@@ -24,25 +24,18 @@ function Menu({ activeMenuIndex }) {
         { label: 'Resources', icon: DocumentIcon, path: '/app/resources' }
     ];
 
-        // [
-        //     { label: 'New Thread', icon: AddIcon, path: '/app/threads?action=new' },
-        //     { label: 'Connect Data Source', icon: ConnectIcon, path: '/app/threads?action=connect' },
-        //     { label: 'Share / Embed', icon: ShareIcon, path: '/app/threads?action=share' },
-        // ],
-        // [
-        //     { label: 'New Dashboard', icon: AddIcon, path: '/app/dashboards?action=new' },
-        //     { label: 'Connect Data Source', icon: ConnectIcon, path: '/app/dashboards?action=connect' },
-        //     { label: 'Share / Embed', icon: ShareIcon, path: '/app/dashboards?action=share' },
-        //     { label: 'Edit', icon: EditIcon, path: '/app/dashboards?action=edit' },
-        // ],
-        // [
-        //     { label: 'New Data Source', icon: AddIcon, path: '/app/data-sources?action=new' },
-        //     { label: 'Edit', icon: EditIcon, path: '/app/data-sources?action=edit' },
-        // ],
-        // [],
+    const actionItem = activeMenuIndex === 0 ? "New Thread" : 
+                      activeMenuIndex === 1 ? "New Dashboard" :
+                      activeMenuIndex === 2 ? "Add Data Source" : null;
+    
+    const actionPath = activeMenuIndex === 0 ? "/app/threads?action=new-thread" : 
+                      activeMenuIndex === 1 ? "/app/dashboards?action=new-dashboard" :
+                      activeMenuIndex === 2 ? "/app/data-sources?action=add-data-source" : null;
 
-    const handleMenuClicked = (index) => {
-        setSelectedItem(index);
+    const handleNewThreadClick = () => {
+        if (activeMenuIndex === 0) {
+            setContentItems([...contentItems, { label: 'New Thread', path: '/app/threads/new-thread' }]);
+        }
     };
 
     return (
@@ -54,13 +47,43 @@ function Menu({ activeMenuIndex }) {
                         icon={item.icon}
                         label={item.label}
                         to={item.path}
-                        isSelected={selectedItem === index}
-                        onClick={() => { handleMenuClicked(index); }}
+                        isSelected={activeMenuIndex === index}
+                        onClick={() => { /* handleMenuClicked logic if needed */ }}
                     />
                 ))}
             </ul>
             <hr />
-            <SubMenu selectedItem={selectedItem} />
+            <div className="sub-menu-container">
+                {actionItem && (
+                    <Link to={actionPath} className="sub-menu-button" onClick={handleNewThreadClick}>
+                        <AddIcon className="add-icon" />
+                        <p className="add-label">{actionItem}</p>
+                    </Link>
+                )}
+                <div className="sub-menu-content">
+                    <div className="content-title">
+                        <p className="title-label">My Threads</p>
+                        <DownIcon className="title-icon" />
+                    </div>
+                    {contentItems && contentItems.length > 0 ? (
+                        <ul>
+                            {contentItems.map((item, index) => (
+                                <li key={index} className="item">
+                                    <Link className="menu-item-container" to={item.path}>
+                                        <p className="menu-label">{item.label}</p>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <ul>
+                            <li className="item">
+                                <p className="menu-label">No History</p>
+                            </li>
+                        </ul>
+                    )}
+                </div>
+            </div>
         </nav>
     );
 }

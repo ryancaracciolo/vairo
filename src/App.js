@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import './styles/App.css';
-import { BusinessContext } from './objects/Context';
+import { BusinessContext, ActiveMenuIndexContext } from './objects/Context';
 import { Navigate } from 'react-router-dom';
 
 // Landing Components
@@ -20,7 +20,7 @@ import LoadingScreen from './components/product/LoadingScreen/LoadingScreen';
 import Authentication from './pages/product/Authentication/Authentication';
 
 function App() {
-  const [activeMenuIndex, setActiveMenuIndex] = useState(0);
+  const { activeMenuIndex, setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
   const { business, setBusiness } = useContext(BusinessContext);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -35,9 +35,8 @@ function App() {
     } else if (location.pathname === '/app/resources') {
       setActiveMenuIndex(3);
     }
-  }, [location.pathname]);
+  }, [location.pathname, setActiveMenuIndex]);
 
-  
   useEffect(() => {
     const storedBusiness = localStorage.getItem('business');
     if (storedBusiness) {
@@ -58,11 +57,11 @@ function App() {
             <>
               <Header />
               <main className="product-main">
-                <Menu activeMenuIndex={activeMenuIndex} />
+                <Menu />
                 <Routes>
                   <Route path="/app/threads/action?" element={<Threads />} />
-                  <Route path="/app/dashboards" element={<Dashboard />} />
-                  <Route path="/app/data-sources" element={<DataSources />} />
+                  <Route path="/app/dashboards/action?" element={<Dashboard />} />
+                  <Route path="/app/data-sources/action?" element={<DataSources />} />
                   <Route path="/app/resources" element={<Resources />} />
                   <Route path="*" element={<Navigate to="/app/threads" />} />
                 </Routes>

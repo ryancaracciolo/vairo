@@ -10,7 +10,7 @@ export const BusinessProvider = ({ children }) => {
         {children}
       </BusinessContext.Provider>
     );
-  };
+};
 
 // Create Search Context
 export const SearchContext = createContext();
@@ -22,4 +22,40 @@ export const SearchProvider = ({ children }) => {
         {children}
       </SearchContext.Provider>
     );
-  };
+};
+
+// Create ActiveMenuIndex Context
+export const ActiveMenuIndexContext = createContext(0);
+export const ActiveMenuIndexProvider = ({ children }) => {
+    const [activeMenuIndex, setActiveMenuIndex] = useState(0);
+    return (
+        <ActiveMenuIndexContext.Provider value={{ activeMenuIndex, setActiveMenuIndex }}>
+            {children}
+        </ActiveMenuIndexContext.Provider>
+    );
+};
+
+// Create User Context
+export const UserContext = createContext();
+export const UserProvider = ({ children }) => {
+    const [user, setUser] = useState({id: '', name: '', email: ''});
+  
+    return (
+      <UserContext.Provider value={{ user, setUser }}>
+        {children}
+      </UserContext.Provider>
+    );
+};
+
+// Create Combined Context Provider
+export const CombinedProvider = ({ children }) => (
+    <BusinessProvider>
+        <SearchProvider>
+            <ActiveMenuIndexProvider>
+                <UserProvider>
+                    {children}
+                </UserProvider>
+            </ActiveMenuIndexProvider>
+        </SearchProvider>
+    </BusinessProvider>
+);

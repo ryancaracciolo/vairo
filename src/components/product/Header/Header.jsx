@@ -2,18 +2,20 @@ import React, { useContext, useState } from 'react';
 import './Header.css';
 import logo from '../../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
-import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
-
-import { BusinessContext, SearchContext } from '../../../objects/Context';
+import {ReactComponent as AddIcon} from '../../../assets/icons/add-icon.svg';
+import {ReactComponent as DataSourceIcon} from '../../../assets/icons/upload-icon.svg';
+import {ReactComponent as EditIcon} from '../../../assets/icons/edit-icon.svg';
+import {ReactComponent as ShareIcon} from '../../../assets/icons/share-icon.svg';
+import { BusinessContext, SearchContext, ActiveMenuIndexContext } from '../../../objects/Context';
 import Popup from '../Popup/Popup';
 import CircleInitials from '../CircleInitials/CircleInitials'
 
 const Header = () => {
     const { business } = useContext(BusinessContext);
     const { searchText, setSearchText } = useContext(SearchContext);
-    const [showPopup, setShowPopup] = useState(false); // popup state
-     
-    
+    const { activeMenuIndex } = useContext(ActiveMenuIndexContext);
+    const [showPopup, setShowPopup] = useState(false);
+
     const handleProfileClick = () => {
         setShowPopup(!showPopup);
     };
@@ -28,6 +30,11 @@ const Header = () => {
         }
     };
 
+    const iconButtons = activeMenuIndex === 0 ? [AddIcon, DataSourceIcon, EditIcon, ShareIcon] :
+                        activeMenuIndex === 1 ? [AddIcon, DataSourceIcon, EditIcon, ShareIcon] :
+                        activeMenuIndex === 2 ? [AddIcon, EditIcon] :
+                        [ShareIcon];
+
     return (
         <header className='product-header'>
             <div className="container">
@@ -38,10 +45,12 @@ const Header = () => {
                     <input type="text" placeholder="Search for Anything..." className="search-bar" value={searchText} onChange={handleSearch} />
                 </div>
                 <div className='button-container'>
-                    <SettingsIcon className='header-button'/>
-                    <div className='header-divider'>|</ div>
+                    {iconButtons.map((IconComponent, index) => (
+                        <IconComponent key={index} className='header-icon-button' />
+                    ))}
+                    <div className='header-divider'>|</div>
                     <button className="profile-button" onClick={handleProfileClick}>
-                        <CircleInitials businessName={business.name}/>
+                        <CircleInitials businessName={business.name} size='30px' fontSize='12px'/>
                         <h3>Dubin Clark</h3>
                         <DownIcon className='header-button'/>
                     </button>
