@@ -60,7 +60,7 @@ function App() {
               <main className="product-main">
                 <Menu activeMenuIndex={activeMenuIndex} />
                 <Routes>
-                  <Route path="/app/threads" element={<Threads />} />
+                  <Route path="/app/threads/action?" element={<Threads />} />
                   <Route path="/app/dashboards" element={<Dashboard />} />
                   <Route path="/app/data-sources" element={<DataSources />} />
                   <Route path="/app/resources" element={<Resources />} />

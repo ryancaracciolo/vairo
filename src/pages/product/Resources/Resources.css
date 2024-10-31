@@ -1,12 +1,14 @@
 .resources-wrapper {
     display: flex;
     flex-grow: 1;
-    border-top-left-radius: 8px;
+    border-radius: 8px;
 }
 
 .resources-content {
     flex-grow: 1;
     background-color: var(--bg-light-color);
     padding: 0 20px;
-    border-top-left-radius: 8px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
 }

@@ -3,7 +3,6 @@ import './Header.css';
 import logo from '../../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
 import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
-import {ReactComponent as BellIcon} from '../../../assets/icons/bell-icon.svg';
 
 import { BusinessContext, SearchContext } from '../../../objects/Context';
 import Popup from '../Popup/Popup';
@@ -40,10 +39,10 @@ const Header = () => {
                 </div>
                 <div className='button-container'>
                     <SettingsIcon className='header-button'/>
-                    <BellIcon className='header-button'/>
+                    <div className='header-divider'>|</ div>
                     <button className="profile-button" onClick={handleProfileClick}>
                         <CircleInitials businessName={business.name}/>
-                        <h3>{business.name}</h3>
+                        <h3>Dubin Clark</h3>
                         <DownIcon className='header-button'/>
                     </button>
                 </div>
