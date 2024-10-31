@@ -51,6 +51,7 @@
 
 .menu-item.active .menu-label {
     font-family: var(--font-bold);
+    color: var(--grey-dark-color);
 }
 
 .menu-item:nth-child(1) .menu-icon {
@@ -75,6 +76,104 @@
     margin: 0 20px;
 }
 
+.sub-menu-container {
+    margin: 20px;
+}
+
+.sub-menu-button {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 18px;
+    padding: 6px 6px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    background-color: var(--grey-dark-color);
+    gap: 10px;
+    text-decoration: none;
+}
+
+.sub-menu-button .add-label {
+    color: var(--grey-light-color);
+    font-family: var(--font-bold);
+    font-size: 13px;
+    margin: 0;
+    line-height: 18px;
+    letter-spacing: 0.5px;
+}
+
+.sub-menu-button .add-icon {
+    fill: var(--grey-light-color);
+    width: 18px;
+    height: 18px;
+}
+
+.sub-menu-content {
+    margin-top: 20px;
+}
+
+.sub-menu-content ul {
+    list-style: none;
+    padding: 0px;
+}
+
+.sub-menu-content li {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 18px;
+    padding: 6px 6px;
+    margin-bottom: 5px;
+    border-radius: 7px;
+}
+
+.sub-menu-content li a {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-decoration: none;
+    text-align: center;
+    gap: 10px;
+}
+
+.sub-menu-content .menu-icon {
+    width: 18px;
+    height: 18px;
+    fill: var(--grey-medium-color);
+}
+
+.sub-menu-content .menu-label {
+    margin: 0;
+    color: var(--grey-medium-color);
+    font-family: var(--font-regular);
+    letter-spacing: 0.5px;
+    font-size: 13px;
+}
+
+.sub-menu-content .content-title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 6px 6px;
+    margin-bottom: 0px;
+    border-radius: 7px;
+}
+
+.sub-menu-content .content-title .title-label {
+    color: var(--grey-dark-color);
+    font-family: var(--font-bold);
+    font-size: 14px;
+    margin: 0;
+    line-height: 18px;
+    letter-spacing: 0.5px;
+}
+
+.sub-menu-content .content-title .title-icon {
+    fill: var(--grey-dark-color);
+    width: 18px;
+    height: 18px;
+}
+
 @media (max-width: 768px) {
     .ProductMenu {
         order: 2;
@@ -95,7 +194,7 @@
     }
 
     .menu-item.active {
-        background-color: transparent;
+        background-color: var(--bg-light-color);
     }
 
     .menu-label.active {
@@ -109,7 +208,6 @@
     .menu-icon.active {
         fill: var(--teal-medium-color);
     }
-
 }
   
 

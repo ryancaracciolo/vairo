@@ -1,24 +1,29 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './Dashboard.css';
 import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import axios from 'axios';
 
 function Dashboard() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [data, setData] = useState([]);
 
-    if (loading) {
-        return <LoadingScreen isLoading={loading} />;
-    } else if (error) {
-        return <div>Error: {error}</div>;
-    }
+     useEffect(() => {
+       axios.get('/api/businesses')
+         .then(response => {
+           setData(response.data);
+         })
+         .catch(error => console.error('Error fetching data:', error));
+     }, []);
 
-    return (
-        <div className="dashboard-wrapper">
-            <div className="dashboard-content">
-                <h1>Dashboard</h1>
-            </div>
-        </div>
-    );
+     return (
+       <div>
+         <h1>Data from Backend</h1>
+         <ul>
+           {data.map((item, index) => (
+             <li key={index}>{JSON.stringify(item)}</li>
+           ))}
+         </ul>
+       </div>
+     );
 };
 
 export default Dashboard;
