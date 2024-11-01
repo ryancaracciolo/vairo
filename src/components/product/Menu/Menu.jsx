@@ -1,21 +1,20 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { ReactComponent as ThreadIcon } from '../../../assets/icons/threads-icon.svg';
 import { ReactComponent as DashboardIcon } from '../../../assets/icons/dashboard-icon.svg';
 import { ReactComponent as DataSourceIcon } from '../../../assets/icons/data-icon.svg';
 import { ReactComponent as DocumentIcon } from '../../../assets/icons/docs-icon.svg';
 import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
 import { ReactComponent as DownIcon } from '../../../assets/icons/down-icon.svg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import MenuItem from './MenuItem';
 import './Menu.css';
 import { ActiveMenuIndexContext } from '../../../objects/Context';
 
 function Menu() {
-    const {activeMenuIndex, setActiveMenuIndex} = useContext(ActiveMenuIndexContext);
+    const { activeMenuIndex, setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
     const [contentItems, setContentItems] = useState([]);
-
-    console.log("Active Menu Index:", activeMenuIndex);
+    const navigate = useNavigate();
 
     const menuItems = [
         { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
@@ -32,9 +31,53 @@ function Menu() {
                       activeMenuIndex === 1 ? "/app/dashboards?action=new-dashboard" :
                       activeMenuIndex === 2 ? "/app/data-sources?action=add-data-source" : null;
 
-    const handleNewThreadClick = () => {
+    const contentTitle = activeMenuIndex === 0 ? "My Threads" : 
+                         activeMenuIndex === 1 ? "My Dashboards" :
+                         activeMenuIndex === 2 ? "My Data Sources" : 
+                         activeMenuIndex === 3 ? "Resources" : "";
+
+    useEffect(() => {
+        const handleThreadNameUpdate = (event) => {
+            const { threadId, newName } = event.detail;
+            setContentItems(prevItems => 
+                prevItems.map(item => {
+                    if (item.timestamp.toString() === threadId) {
+                        return { ...item, label: newName };
+                    }
+                    return item;
+                })
+            );
+        };
+
+        window.addEventListener('updateThreadName', handleThreadNameUpdate);
+        return () => window.removeEventListener('updateThreadName', handleThreadNameUpdate);
+    }, []);
+
+    useEffect(() => {
+        if (activeMenuIndex === 0 && contentItems.length === 0) {
+            const timestamp = new Date().getTime();
+            setContentItems([{ 
+                label: 'New Thread',
+                path: `/app/threads?thread=${timestamp}`,
+                timestamp 
+            }]);
+            navigate(`/app/threads?thread=${timestamp}`);
+        }
+    }, [activeMenuIndex, contentItems.length]);
+
+    const handleNewThreadClick = (e) => {
         if (activeMenuIndex === 0) {
-            setContentItems([...contentItems, { label: 'New Thread', path: '/app/threads/new-thread' }]);
+            const existingNewThread = contentItems.find(item => item.label === 'New Thread');
+            if (!existingNewThread) {
+                const timestamp = new Date().getTime();
+                const newThreadPath = `/app/threads?thread=${timestamp}`;
+                setContentItems([...contentItems, { 
+                    label: 'New Thread',
+                    path: newThreadPath,
+                    timestamp 
+                }]);
+                navigate(newThreadPath);
+            }
         }
     };
 
@@ -55,33 +98,29 @@ function Menu() {
             <hr />
             <div className="sub-menu-container">
                 {actionItem && (
-                    <Link to={actionPath} className="sub-menu-button" onClick={handleNewThreadClick}>
+                    <Link 
+                        to={actionPath} 
+                        className="sub-menu-button" 
+                        onClick={handleNewThreadClick}
+                    >
                         <AddIcon className="add-icon" />
                         <p className="add-label">{actionItem}</p>
                     </Link>
                 )}
                 <div className="sub-menu-content">
                     <div className="content-title">
-                        <p className="title-label">My Threads</p>
+                        <p className="title-label">{contentTitle}</p>
                         <DownIcon className="title-icon" />
                     </div>
-                    {contentItems && contentItems.length > 0 ? (
-                        <ul>
-                            {contentItems.map((item, index) => (
-                                <li key={index} className="item">
-                                    <Link className="menu-item-container" to={item.path}>
-                                        <p className="menu-label">{item.label}</p>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <ul>
-                            <li className="item">
-                                <p className="menu-label">No History</p>
+                    <ul>
+                        {contentItems.map((item, index) => (
+                            <li key={index} className="item">
+                                <Link className="menu-item-container" to={item.path}>
+                                    <p className="menu-label">{item.label}</p>
+                                </Link>
                             </li>
-                        </ul>
-                    )}
+                        ))}
+                    </ul>
                 </div>
             </div>
         </nav>

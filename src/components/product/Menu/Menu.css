@@ -1,5 +1,7 @@
 .ProductMenu {
     flex-basis: 220px;
+    min-width: 220px;
+    max-width: 220px;
     z-index: 1001;
     display: flex;
     flex-direction: column;
@@ -132,8 +134,9 @@
     justify-content: flex-start;
     align-items: center;
     text-decoration: none;
-    text-align: center;
+    text-align: left;
     gap: 10px;
+    width: 100%;
 }
 
 .sub-menu-content .menu-icon {
@@ -148,6 +151,10 @@
     font-family: var(--font-regular);
     letter-spacing: 0.5px;
     font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 .sub-menu-content .content-title {
@@ -183,6 +190,8 @@
         position: sticky;
         bottom: 0;
         width: 100%;
+        max-width: 100%;
+        min-width: auto;
         height: 100px;
     }
 
