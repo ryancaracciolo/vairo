@@ -3,7 +3,7 @@ import React, { createContext, useState } from 'react';
 // Create CurrentBusiness Context
 export const BusinessContext = createContext();
 export const BusinessProvider = ({ children }) => {
-    const [business, setBusiness] = useState({id:'', name:'', logo:'', desc:'', owner:'', industry:'', address:'', email:'', phone:'', website:''});
+    const [business, setBusiness] = useState({id:'', name:''});
   
     return (
       <BusinessContext.Provider value={{ business, setBusiness }}>
@@ -38,7 +38,7 @@ export const ActiveMenuIndexProvider = ({ children }) => {
 // Create User Context
 export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState({id: '', name: '', email: ''});
+    const [user, setUser] = useState({id: '', name: '', email: '', businessId: '', businessName: ''});
   
     return (
       <UserContext.Provider value={{ user, setUser }}>

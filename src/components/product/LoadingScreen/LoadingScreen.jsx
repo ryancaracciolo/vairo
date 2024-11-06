@@ -1,8 +1,7 @@
 import React from 'react';
 import './LoadingScreen.css';
 
-const LoadingScreen = ({ isLoading }) => {
-    if (!isLoading) { return null;}
+const LoadingScreen = () => {
 
     return (
         <div className="loading-overlay">

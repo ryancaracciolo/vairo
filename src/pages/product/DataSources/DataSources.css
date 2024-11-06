@@ -2,13 +2,111 @@
     display: flex;
     flex-grow: 1;
     border-radius: 8px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    height: auto;
+    font-family: var(--font-regular);
+    letter-spacing: 0.5px;
+    background-color: var(--bg-light-color);
+    min-width: 0;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .data-sources-content {
     flex-grow: 1;
-    background-color: var(--bg-light-color);
-    padding: 0 20px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    padding: 15px 15px 10px 15px;
+    margin-bottom: 0px;
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    min-width: 0;
 }
+  
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Adds vertical spacing (8px gap) */
+    background-color: transparent; /* Table background is transparent */
+}
+  
+thead th {
+    padding: 10px;
+    padding-left: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    color: grey;
+    font-family: var(--font-bold);
+    font-size: 13px;
+    width: auto; /* Ensure headers take up space according to content */
+}
+
+.detail-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.detail-header h2 {
+    margin: 10px 0;
+    font-family: var(--font-bold);
+    font-size: 22px;
+    color: var(--grey-dark-color);
+}
+
+.detail-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+  
+.detail-header-actions .header-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.detail-header-actions .header-action .icon {
+    width: 18px;
+    height: 18px; 
+    fill: var(--grey-light-color);   
+}
+
+.detail-header-actions .header-action span {
+    font-family: var(--font-reg);
+    font-size: 13px;
+    color: var(--grey-light-color);
+}
+
+.detail-header-actions .header-action.add {
+    background-color: var(--blue-light-color);
+}
+
+.detail-header-actions .header-action.add .icon {
+    fill: white;
+}
+
+.detail-header-actions .header-action.add span {
+    color: white;
+}
+
+.detail-header-actions .header-action.active span {
+    color: var(--grey-dark-color);
+}
+
+.detail-header-actions .header-action.active .icon {
+    fill: var(--grey-dark-color);
+}
+
+
+  

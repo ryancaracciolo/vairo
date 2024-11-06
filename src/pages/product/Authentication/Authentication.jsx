@@ -1,177 +1,177 @@
-import React, { useState, useEffect } from 'react';
+// Authentication.js
+import React, { useState } from 'react';
 import './Authentication.css';
-import logo from '../../../assets/images/vairo-logo-light.png';
+import logo from '../../../assets/images/vairo-logo-whiteBlue.png';
 import { ReactComponent as EmailIcon } from '../../../assets/icons/email-icon.svg';
 import { ReactComponent as PasswordIcon } from '../../../assets/icons/password-icon.svg';
 import ConfirmationCode from './ConfirmCode';
 import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import axios from 'axios';
 
+// Initialize userPool outside the component to avoid re-initialization on every render
+const userPool = new CognitoUserPool({
+  UserPoolId: process.env.REACT_APP_USER_POOL_ID,
+  ClientId: process.env.REACT_APP_CLIENT_ID,
+});
 
-function Authentication({setBusiness}) {
+function Authentication() {
+  // State variables
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [step, setStep] = useState(1); // Step 1: Enter email, Step 2: Enter code
+  const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
-  const [isSignIn, setIsSignIn] = useState(true); // Toggle between sign-in and sign-up
-  const [isSubmitting, setIsSubmitting] = useState(false); // Prevent multiple submissions
-  const [loading, setLoading] = useState(true); // loading state to track authentication check
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-
-  const fetchBusiness = async (email) => {
-    // try {
-    //     const response = await axios.post((process.env.REACT_APP_API_BASE_URL)+'/api/businesses/get-business-byemail',{email});
-    //     console.log("response!: "+response.data)
-    //     localStorage.setItem('business', JSON.stringify(response.data));
-    //     setBusiness(response.data);
-    // } catch (err) {
-    //     console.error('Error fetching business:', err.response?.data || err.message);
-    //     setError(err.response?.data?.error || 'An error occurred while fetching business.');
-    //     console.log(err);
-    // } finally {
-    //     setLoading(false);
-    // }
+  const fetchUserData = async (userEmail) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/users/get-user-by-email/${userEmail}`);
+      console.log('User fetched:', response.data);
+      localStorage.setItem('user', JSON.stringify(response.data[0]));
+      window.location.href = '/app';
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   };
 
-  const checkExistence = async (email) => {
-    // try {
-    //     const response = await axios.post((process.env.REACT_APP_API_BASE_URL)+'/api/businesses/check-existence',{email});
-    //     return response.data?.exists
-    // } catch (err) {
-    //     console.error('Error confirming email:', err.response?.data || err.message);
-    //     return true;
-    // }
+  const createUser = async (userData) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/users/add-user`, userData);
+      console.log('User created:', response.data);
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
   };
 
-  useEffect(() => {
-    // // Check if a user is already authenticated
-    // getCurrentUser()
-    //   .then(user => {
-    //     console.log('User Found');
-    //     fetchBusiness(user.signInDetails.loginId)
-    //   })
-    //   .catch(() => {
-    //     console.log('No user logged in');
-    //     setLoading(false); // No user logged in, stop loading
-    //   });
-  }, []);
+  // Handle email and password submission
+  const handleEmailSubmit = (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
 
-  const handleEmailSubmit = async (e) => {
-    // console.log('Email Submit');
-    // e.preventDefault();
-    // setError(null);
-  
-    // if (isSubmitting) return; // Prevent multiple submissions
-    // setIsSubmitting(true);
-  
-    // try {
-    //   if (isSignIn) {
-    //     // Sign in flow
-    //     await signIn({ username: email, password });
-    //     const user = await getCurrentUser();
-    //     console.log('Successfully signed in:', { user });
-    //     fetchBusiness(user.signInDetails.loginId);
-    //   } else {
-    //     // Sign up flow
-    //     await handleSignUpFlow();
-    //   }
-    // } catch (error) {
-    //   setError(error.message || 'An error occurred during the process.');
-    // } finally {
-    //   setIsSubmitting(false); // Enable submitting again
-    // }
-  };
-  
-  const handleSignUpFlow = async () => {
-    // const emailExists = await checkExistence(email);
-  
-    // if (!emailExists) {
-    //   setError('This email is not associated with a Chamber account.');
-    //   setIsSubmitting(false); // Ensure submitting is re-enabled after error
-    //   return; // Stop the sign-up process if the email exists
-    // }
-  
-    // // Proceed with sign-up if email exists
-    // await signUp({
-    //   username: email,
-    //   password,
-    //   attributes: { email }, // User attribute
-    // });
-  
-    // console.log('Verification code sent to email');
-    // setStep(2); // Move to step 2: verification code
+    setIsSubmitting(true);
+    setError(null);
+
+    if (isSignIn) {
+      // Sign-in flow
+      const authenticationDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+      });
+
+      const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: userPool,
+      });
+
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+          console.log('Successfully signed in:', result);
+          fetchUserData(email); // Fetch user data
+          setIsSubmitting(false);
+        },
+        onFailure: (err) => {
+          setError(err.message || 'An error occurred during sign-in.');
+          setIsSubmitting(false);
+        },
+      });
+    } else {
+      // Sign-up flow
+      userPool.signUp(email, password, [], null, (err, result) => {
+        setIsSubmitting(false);
+        if (err) {
+          setError(err.message || 'An error occurred during sign-up.');
+          return;
+        }
+        console.log('Verification code sent to email');
+        setStep(2);
+      });
+    }
   };
 
-  const handleCodeSubmit = async (code) => {
-    // setError(null);
+  // Handle confirmation code submission
+  const handleCodeSubmit = (code) => {
+    if (isSubmitting) return;
 
-    // if (isSubmitting) return; // Prevent multiple submissions
-    // setIsSubmitting(true);
+    setIsSubmitting(true);
+    setError(null);
 
-    // try {
-    //   // Confirm sign-up
-    //   await confirmSignUp({
-    //     username: email,
-    //     confirmationCode: code
-    //   });
-    //   console.log("Email confirmed");
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: userPool,
+    });
 
-    //   // Automatically sign the user in after confirmation
-    //   await signIn({ username: email, password });
-    //   const user = await getCurrentUser();
-    //   console.log("Successfully signed in");
-    //   fetchBusiness(user.signInDetails.loginId);
-    //   //navigate('/app/partnerships'); // Redirect after login
-    // } catch (error) {
-    //   setError(error.message);
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    cognitoUser.confirmRegistration(code, true, (err, result) => {
+      if (err) {
+        setError(err.message || 'An error occurred during confirmation.');
+        setIsSubmitting(false);
+        return;
+      }
+      console.log('Email confirmed');
+
+      // Create user in the database
+      createUser({ email });
+
+      // Automatically sign in the user after confirmation
+      const authenticationDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+      });
+
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+          console.log('Successfully signed in:', result);
+          fetchUserData(email); // Fetch user data
+          setIsSubmitting(false);
+        },
+        onFailure: (err) => {
+          setError(err.message || 'An error occurred during sign-in.');
+          setIsSubmitting(false);
+        },
+      });
+    });
   };
 
+  // Display loading screen if needed
   if (loading) {
-    console.log('Loading...');
-    return <LoadingScreen isLoading={loading}/>;
+    return <LoadingScreen isLoading={loading} />;
   }
 
   return (
     <div className="login-container">
+      {/* Left Side */}
       <div className="left-side">
         <div className="left-content">
-          <img src={logo} alt="Filo Logo" className="filo-logo" />
-          <h1>Welcome to Filo!</h1>
-          <p>
-            Filo has partnered with your Chamber to help unlock new opportunities for you. 
-            Your Chamber network is powerful, and we are here to help you leverage it to collaborate, grow, and thrive.
-          </p>
-          <hr />
-          <h2>Ready to get started?</h2>
-          <p className='sub-p'>
-            {isSignIn
-              ? 'Log in with your Chamber email to access your network and explore everything Filo has to offer.'
-              : 'Sign up with your Chamber email to access your network and explore everything Filo has to offer.'}
-          </p>
+          <img src={logo} alt="Logo" className="vairo-logo" />
+          <div>
+            <h1>Your Personal Data Analyst</h1>
+            <p>Enable your business users to explore data on their own, with plain English.</p>
+          </div>
         </div>
       </div>
 
+      {/* Right Side */}
       <div className="right-side">
         <div className="right-content">
-          <h2>{isSignIn ? 'Log in to Filo' : 'Start your Journey with Filo'}</h2>
-          <div className='dots'>
-            <div className='dot'></div>
-            <div className='dot'></div>
-            <div className='dot'></div>
+          <h2>{isSignIn ? 'Log in to Filo' : 'Start Using Filo'}</h2>
+          <div className="dots">
+            <div className="dot" />
+            <div className="dot" />
+            <div className="dot" />
           </div>
           <p>
             {step === 1
-              ? `${isSignIn ? 'Please enter your email and password associated with your account' : 'To begin using Filo, please enter your business email address associated with your Chamber of Commerce Membership'}`
+              ? isSignIn
+                ? 'Please enter your email and password associated with your account.'
+                : 'To begin using Filo, please enter your business email address.'
               : 'Enter the verification code sent to your email.'}
           </p>
 
           {step === 1 && (
             <form onSubmit={handleEmailSubmit}>
-              <div className='input-wrapper'>
-                <EmailIcon className='email-icon'/>
+              <div className="input-wrapper">
+                <EmailIcon className="email-icon" />
                 <input
                   type="email"
                   className="email-input"
@@ -181,8 +181,8 @@ function Authentication({setBusiness}) {
                   required
                 />
               </div>
-              <div className='input-wrapper'>
-                <PasswordIcon className='email-icon'/>
+              <div className="input-wrapper">
+                <PasswordIcon className="email-icon" />
                 <input
                   type="password"
                   className="email-input"
@@ -192,8 +192,8 @@ function Authentication({setBusiness}) {
                   required
                 />
               </div>
-              <button type="submit" className="submit-btn">
-                {isSignIn ? 'Log In' : 'Sign Up'}
+              <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                {isSubmitting ? 'Processing...' : isSignIn ? 'Log In' : 'Sign Up'}
               </button>
             </form>
           )}
@@ -204,12 +204,19 @@ function Authentication({setBusiness}) {
 
           {error && <p className="error-message">{error}</p>}
 
-          <button className="toggle-auth-mode" onClick={() => setIsSignIn(!isSignIn)}>
+          <button
+            className="toggle-auth-mode"
+            onClick={() => {
+              setIsSignIn(!isSignIn);
+              setError(null);
+              setStep(1);
+            }}
+          >
             {isSignIn ? 'Don’t have an account? Sign Up' : 'Already have an account? Log In'}
           </button>
 
           <p className="support-text">
-            Have questions? Please contact <a href="mailto:ryan@filosolutions.co">ryan@filosolutions.co</a>
+            Have questions? Please contact <a href="mailto:ryan@vairo.co">ryan@vairo.co</a>
           </p>
         </div>
       </div>

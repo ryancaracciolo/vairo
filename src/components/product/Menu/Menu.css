@@ -11,7 +11,7 @@
 .ProductMenu ul {
     list-style: none;
     padding: 0;
-    margin: 10px 20px;
+    margin: 20px 20px;
 }
   
 .ProductMenu li {
@@ -21,10 +21,21 @@
     height: 18px;
     padding: 8px 8px;
     margin-bottom: 5px;
-    border-radius: 7px;
+    border-radius: 8px;
 }
 
-.ProductMenu li a {
+.sub-menu-content li {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 18px;
+    padding: 8px 8px;
+    margin-bottom: 5px;
+    border-radius: 0px;
+}
+
+.ProductMenu li a,
+.sub-menu-content li a {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -33,25 +44,29 @@
     gap: 10px;
 }
 
-.menu-icon {
+.menu-icon,
+.sub-menu-content .menu-icon {
     width: 18px;
     height: 18px;
     fill: var(--grey-medium-color);
 }
 
-.menu-label {
+.menu-label,
+.sub-menu-content .menu-label {
     margin: 0;
     color: var(--grey-medium-color);
     font-family: var(--font-regular);
     letter-spacing: 0.5px;
     font-size: 13px;
 }
-  
+
 .menu-item.active {
+    font-family: var(--font-bold);
+    color: var(--grey-dark-color);
     background-color: var(--bg-light-color);
 }
 
-.menu-item.active .menu-label {
+.menu-label.active {
     font-family: var(--font-bold);
     color: var(--grey-dark-color);
 }
@@ -93,6 +108,7 @@
     background-color: var(--grey-dark-color);
     gap: 10px;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .sub-menu-button .add-label {
@@ -116,45 +132,58 @@
 
 .sub-menu-content ul {
     list-style: none;
-    padding: 0px;
+    padding-left: 10px;
+    margin: 0;
+    gap: 0px;
 }
 
 .sub-menu-content li {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    height: 18px;
-    padding: 6px 6px;
-    margin-bottom: 5px;
-    border-radius: 7px;
+    padding: 6px 0px;
+    margin: 0px;
+    position: relative;
+    overflow: hidden;
 }
 
 .sub-menu-content li a {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    text-decoration: none;
     text-align: left;
-    gap: 10px;
-    width: 100%;
-}
-
-.sub-menu-content .menu-icon {
-    width: 18px;
-    height: 18px;
-    fill: var(--grey-medium-color);
+    width: calc(100% - 20px);
+    padding-left: 12px;
+    margin: 0;
 }
 
 .sub-menu-content .menu-label {
-    margin: 0;
-    color: var(--grey-medium-color);
-    font-family: var(--font-regular);
-    letter-spacing: 0.5px;
-    font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+}
+
+.sub-menu-content .menu-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    border-radius: 1px;
+    height: 100%;
+    background-color: var(--grey-light-color);
+}
+
+.sub-menu-content .horiz-line {
+    display: none;
+}
+
+.sub-menu-content .horiz-line-active {
+    position: absolute;
+    left: 0;
+    top: calc(50% - 1px);
+    width: 5px;
+    border-radius: 1px;
+    height: 1px;
+    background-color: var(--grey-light-color);
+}
+
+.sub-menu-content li:last-child .menu-line {
+    height: 50%;
 }
 
 .sub-menu-content .content-title {
@@ -179,6 +208,35 @@
     fill: var(--grey-dark-color);
     width: 18px;
     height: 18px;
+    cursor: pointer;
+}
+
+.sub-menu-content .thread-icons {
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    position: absolute;
+    display: flex;
+    right: 0px;
+    background-color: white;
+}
+
+.sub-menu-content li:hover .thread-icons {
+    opacity: 1;
+}
+
+.sub-menu-content .edit-icon,
+.sub-menu-content .delete-icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--grey-medium-color);
+    cursor: pointer;
+    transition: fill 0.2s;
+}
+
+.sub-menu-content .edit-icon:hover,
+.sub-menu-content .delete-icon:hover {
+    fill: var(--grey-dark-color);
 }
 
 @media (max-width: 768px) {
@@ -202,19 +260,15 @@
         margin-bottom: 25px;
     }
 
-    .menu-item.active {
-        background-color: var(--bg-light-color);
-    }
-
-    .menu-label.active {
+    .sub-menu-content .menu-label.active {
         color: var(--teal-medium-color);
     }
 
-    .menu-icon {
+    .sub-menu-content .menu-icon {
         fill: grey;
     }
 
-    .menu-icon.active {
+    .sub-menu-content .menu-icon.active {
         fill: var(--teal-medium-color);
     }
 }

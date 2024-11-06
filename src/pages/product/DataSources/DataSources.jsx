@@ -1,24 +1,147 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
+import { UserContext } from '../../../objects/Context';
 import './DataSources.css';
+import Row from '../../../components/product/Row/Row';
 import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import {ReactComponent as EditIcon} from '../../../assets/icons/edit-icon.svg'
+import {ReactComponent as AddIcon} from '../../../assets/icons/add-noFill-icon.svg'
+import {ReactComponent as CloseIcon} from '../../../assets/icons/close-icon.svg'
+
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function DataSources() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const { user } = useContext(UserContext);
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('All Referrals');
+    const [selectAll, setSelectAll] = useState(false);
+    const [selectedDataSources, setSelectedDataSources] = useState({});
+    const [itemSelected, setItemSelected] = useState(false);
+    const [dataSources, setDataSources] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    if (loading) {
-        return <LoadingScreen isLoading={loading} />;
-    } else if (error) {
-        return <div>Error: {error}</div>;
+    useEffect(() => {
+        const fetchDataSources = async () => {
+            try {
+                const response = await axios.get(`/api/users/get-data-sources/${user.id}`);
+                setDataSources(response.data);
+            } catch (error) {
+                console.error('Error fetching data sources:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDataSources();
+    }, []);
+
+    const updateDataSourceList = ({dataSourceId, newStatus}) => {
+        setDataSources((prevDataSources) => 
+            prevDataSources.map((dataSource) => 
+                dataSource.id === dataSourceId ? { ...dataSource, status: newStatus } : dataSource
+            )
+        );
     }
+
+    const removeDataSourceFromList = ({ dataSourceId }) => {
+        setDataSources((prevDataSources) =>
+          prevDataSources.filter((dataSource) => dataSource.id !== dataSourceId)
+        );
+    };
+
+    const dataSourceSelected = ({ dataSource }) => {
+        setSelectedDataSources((prevSelected) => {
+            const updatedDataSources = {
+                ...prevSelected,
+                [dataSource.id]: !prevSelected[dataSource.id],
+            };
+            setItemSelected(Object.values(updatedDataSources).some((isSelected) => isSelected));
+            return updatedDataSources;
+        });
+    };
+
+    const allSelected = () => {
+        setSelectAll(!selectAll);
+        const newSelectedDataSources = {};
+        dataSources.forEach((dataSource) => {
+            newSelectedDataSources[dataSource.id] = !selectAll;
+        });
+        setSelectedDataSources(newSelectedDataSources);
+        setItemSelected(Object.values(newSelectedDataSources).some((isSelected) => isSelected));
+    }
+
+    const deleteSelectedDataSources = () => {
+        for (let dataSourceId in selectedDataSources) {
+            if (selectedDataSources[dataSourceId]) {
+                removeDataSourceFromList({ dataSourceId });
+            }
+        }
+        setSelectedDataSources({});
+        setItemSelected(false);
+        setSelectAll(false);
+    };
+
+    const createDataSource = () => {
+        navigate('/app/data-sources/add');
+    };
+
+    const handleEditClick = (dataSource) => {
+        navigate(`/app/data-sources/edit/${dataSource}`);
+    };
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = '';
+        };
+    }, []);
 
     return (
         <div className="data-sources-wrapper">
-            <div className="data-sources-content">
-                <h1>Data Sources</h1>
-            </div>
+            {loading ? (
+                <LoadingScreen />
+            ) : (
+                <div className="data-sources-content">
+                    <div className='detail-header'>
+                        <h2>{activeTab}</h2>
+                        <div className='detail-header-actions'>
+                            <div onClick={() => handleEditClick(selectedDataSources[0])} className={'header-action edit'+(itemSelected ? ' active' : '')}>
+                                <EditIcon className={'icon edit'+(itemSelected ? ' active' : '')} />
+                                <span className={(itemSelected ? ' active' : '')}>Edit</span>
+                            </div>
+                            <div onClick={itemSelected ? deleteSelectedDataSources : null} className={'header-action delete'+(itemSelected ? ' active' : '')}>
+                                <CloseIcon onClick={deleteSelectedDataSources} className={'icon delete'+(itemSelected ? ' active' : '')} />
+                                <span className={(itemSelected ? ' active' : '')}>Remove</span>
+                            </div>
+                            <div onClick={createDataSource} className='header-action add'>
+                                <AddIcon onClick={deleteSelectedDataSources} className={'icon add'} />
+                                <span>Add Data Source</span>
+                            </div>
+                        </div>
+                    </div>
+                    <table className="data-sources-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" checked={selectAll} onChange={() => allSelected()}/></th>
+                                <th>Connection Name</th>
+                                <th>Data Source</th>
+                                <th>Date Created</th>
+                                <th>User Access</th>
+                                <th>Host</th>
+                                <th>Port</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {dataSources.map(dataSource => (
+                                <Row key={dataSource.id} dataSourceData={dataSource} updateDataSource={updateDataSourceList} dataSourceSelected={dataSourceSelected} checked={selectedDataSources[dataSource.id]} />
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };
 
-export default DataSources; 
+export default DataSources;

@@ -2,22 +2,45 @@ import React, { useContext, useState } from 'react';
 import './Header.css';
 import logo from '../../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
-import {ReactComponent as AddIcon} from '../../../assets/icons/add-icon.svg';
-import {ReactComponent as DataSourceIcon} from '../../../assets/icons/upload-icon.svg';
-import {ReactComponent as EditIcon} from '../../../assets/icons/edit-icon.svg';
-import {ReactComponent as ShareIcon} from '../../../assets/icons/share-icon.svg';
-import { BusinessContext, SearchContext, ActiveMenuIndexContext } from '../../../objects/Context';
+import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
+import {ReactComponent as LogoutIcon} from '../../../assets/icons/logout-icon.svg';
+
+import { UserContext, SearchContext } from '../../../objects/Context';
 import Popup from '../Popup/Popup';
 import CircleInitials from '../CircleInitials/CircleInitials'
+import { CognitoUserPool } from 'amazon-cognito-identity-js';
+
+// Initialize userPool outside the component to avoid re-initialization on every render
+const userPool = new CognitoUserPool({
+  UserPoolId: process.env.REACT_APP_USER_POOL_ID,
+  ClientId: process.env.REACT_APP_CLIENT_ID,
+});
 
 const Header = () => {
-    const { business } = useContext(BusinessContext);
+    const { user, setUser } = useContext(UserContext);
     const { searchText, setSearchText } = useContext(SearchContext);
-    const { activeMenuIndex } = useContext(ActiveMenuIndexContext);
     const [showPopup, setShowPopup] = useState(false);
 
     const handleProfileClick = () => {
         setShowPopup(!showPopup);
+    };
+
+    const handleLogout = () => {
+        // Get the current Cognito user
+        const cognitoUser = userPool.getCurrentUser();
+
+        if (cognitoUser) {
+            cognitoUser.signOut();
+        }
+
+        // Clear user data from local storage
+        localStorage.removeItem('user');
+        
+        // Clear user data from context
+        setUser(null);
+
+        // Redirect to login page
+        window.location.href = '/app/login'; // Adjust the path as needed
     };
 
     const handleSearch = (e) => {
@@ -30,11 +53,6 @@ const Header = () => {
         }
     };
 
-    const iconButtons = activeMenuIndex === 0 ? [AddIcon, DataSourceIcon, EditIcon, ShareIcon] :
-                        activeMenuIndex === 1 ? [AddIcon, DataSourceIcon, EditIcon, ShareIcon] :
-                        activeMenuIndex === 2 ? [AddIcon, EditIcon] :
-                        [ShareIcon];
-
     return (
         <header className='product-header'>
             <div className="container">
@@ -45,22 +63,30 @@ const Header = () => {
                     <input type="text" placeholder="Search for Anything..." className="search-bar" value={searchText} onChange={handleSearch} />
                 </div>
                 <div className='button-container'>
-                    {iconButtons.map((IconComponent, index) => (
-                        <IconComponent key={index} className='header-icon-button' />
-                    ))}
+                    <SettingsIcon className='header-icon-button' />
                     <div className='header-divider'>|</div>
                     <button className="profile-button" onClick={handleProfileClick}>
-                        <CircleInitials businessName={business.name} size='30px' fontSize='12px'/>
-                        <h3>Dubin Clark</h3>
+                        <CircleInitials text={user.name} classN='header-initials' />
+                        <h3>{user.name}</h3>
                         <DownIcon className='header-button'/>
                     </button>
                 </div>
             </div>
-            {showPopup ? <Popup content={
-                <div className='user-profile-wrapper'>
-                    <h2>My Card Info</h2>
+            {showPopup ? (
+                <div className='user-profile'>
+                    <CircleInitials text={user.name} classN='profile-initials' />
+                    <div className='user-profile-details'>
+                        <h3 className='user-name'>{user.name}</h3>
+                        <h3 className='user-email'>{user.email}</h3>
+                        <h3 className='user-business-name'>{user.businessName}</h3>
+                        <hr />
+                        <div className='logout-button' onClick={handleLogout}>
+                            <LogoutIcon className='logout-icon'/>
+                            <h3>Sign Out</h3>
+                        </div>
+                    </div>
                 </div>
-            } onClose={handleProfileClick} /> : null }
+            ) : (null)}
         </header>
     );
 };

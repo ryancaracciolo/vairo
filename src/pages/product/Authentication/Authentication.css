@@ -2,15 +2,16 @@
   display: flex;
   flex: 1;
   align-items: stretch;
-  background-color: var(--background-color);
+  font-family: var(--font-regular);
+  letter-spacing: 0.5px;
 }
 
 .left-side {
   position: relative;
   flex: 1;
-  background-color: var(--teal-medium-color);
+  background-color: var(--grey-dark-color);
   display: flex;
-  color: white;
+  color: var(--bg-light-color);
   overflow: hidden;
 }
 
@@ -18,36 +19,36 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   padding: 10%;
-  padding-top: 5%;
   text-align: center;
 }
 
 .filo-logo {
-  width: 60%;
+  width: 30%;
   margin-bottom: 5vh;
-  filter: brightness(0) invert(1);
   object-fit: contain;
 }
 
 .left-side h1 {
-  font-size: clamp(30px, 3vw, 50px);
+  font-size: clamp(28px, 2.5vw, 45px);
   margin-bottom: 10px;
   font-family: var(--font-bold);
+  width: 100%;
 }
 
 .left-side p {
-  font-size: clamp(12px, 1.2vw, 20px);
+  font-size: clamp(15px, 1.5vw, 25px);
   line-height: 1.5;
   margin-bottom: 10px;
   font-family: var(--font-regular);
+  width: 100%;
 }
 
 .left-side hr {
   width: 50%;
-  border: 1px solid var(--background-color);
+  border: 1px solid white;
   margin: 20px 0;
 }
 
@@ -87,7 +88,7 @@
 
 .right-side h2 {
   font-size: clamp(20px, 1.8vw, 40px);
-  color: var(--teal-medium-color);
+  color: var(--blue-light-color);
   margin-bottom: 3.0vh;
   font-family: var(--font-bold);
 }
@@ -103,7 +104,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: var(--teal-medium-color);
+  background-color: var(--blue-light-color);
 }
 
 .right-side p {
@@ -152,7 +153,7 @@
   width: 75%;
   margin-top: 10px;
   padding: 10px;
-  background-color: var(--teal-medium-color);
+  background-color: var(--blue-light-color);
   color: white;
   border: none;
   border-radius: 10px;
@@ -162,7 +163,7 @@
 }
 
 .submit-btn:hover {
-  background-color: var(--teal-light-color);
+  background-color: var(--blue-medium-color);
 }
 
 .error-message {
@@ -174,7 +175,7 @@
 .toggle-auth-mode {
   background: none;
   border: none;
-  color: var(--teal-medium-color);
+  color: var(--blue-light-color);
   font-size: 0.9rem;
   text-decoration: underline;
   cursor: pointer;
@@ -183,7 +184,7 @@
 }
 
 .toggle-auth-mode:hover {
-  color: var(--teal-dark-color);
+  color: var(--blue-medium-color);
 }
 
 .support-text {

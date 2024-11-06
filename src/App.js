@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import './styles/App.css';
-import { BusinessContext, ActiveMenuIndexContext } from './objects/Context';
+import { UserContext, ActiveMenuIndexContext } from './objects/Context';
 import { Navigate } from 'react-router-dom';
 
 // Landing Components
@@ -15,35 +15,41 @@ import Menu from './components/product/Menu/Menu';
 import Threads from './pages/product/Threads/Threads';
 import Dashboard from './pages/product/Dashboard/Dashboard';
 import DataSources from './pages/product/DataSources/DataSources';
+import AddDataSource from './pages/product/DataSources/AddDataSource';
 import Resources from './pages/product/Resources/Resources';
 import LoadingScreen from './components/product/LoadingScreen/LoadingScreen';
 import Authentication from './pages/product/Authentication/Authentication';
 
 function App() {
-  const { activeMenuIndex, setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
-  const { business, setBusiness } = useContext(BusinessContext);
+  const { setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
+  const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === '/app/threads') {
+    if (location.pathname.startsWith('/app/threads')) {
       setActiveMenuIndex(0);
-    } else if (location.pathname === '/app/dashboards') {
+    } else if (location.pathname.startsWith('/app/dashboards')) {
       setActiveMenuIndex(1);
-    } else if (location.pathname === '/app/data-sources') {
+    } else if (location.pathname.startsWith('/app/data-sources')) {
       setActiveMenuIndex(2);
-    } else if (location.pathname === '/app/resources') {
+    } else if (location.pathname.startsWith('/app/resources')) {
       setActiveMenuIndex(3);
     }
   }, [location.pathname, setActiveMenuIndex]);
 
   useEffect(() => {
-    const storedBusiness = localStorage.getItem('business');
-    if (storedBusiness) {
-      setBusiness(JSON.parse(storedBusiness));
+    const storedUser = localStorage.getItem('user');
+    console.log('Stored user:', storedUser);
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      console.log('Parsed user:', parsedUser);
+      setUser(parsedUser);
+    } else {
+      console.log('No user found in localStorage');
     }
     setLoading(false);
-  }, [setBusiness]);
+  }, [setUser]);
 
   if (loading) {
     return <LoadingScreen isLoading={loading} />;
@@ -53,7 +59,7 @@ function App() {
     <div className="app-wrapper">
       {location.pathname.startsWith('/app') ? (
         <>
-          {business?.id ? (
+          {user?.id ? (
             <>
               <Header />
               <main className="product-main">
@@ -62,6 +68,7 @@ function App() {
                   <Route path="/app/threads/action?" element={<Threads />} />
                   <Route path="/app/dashboards/action?" element={<Dashboard />} />
                   <Route path="/app/data-sources/action?" element={<DataSources />} />
+                  <Route path="/app/data-sources/add" element={<AddDataSource />} />
                   <Route path="/app/resources" element={<Resources />} />
                   <Route path="*" element={<Navigate to="/app/threads" />} />
                 </Routes>
@@ -69,7 +76,7 @@ function App() {
             </>
           ) : (
             <Routes>
-              <Route path="/app/login" element={<Authentication setBusiness={setBusiness} />} />
+              <Route path="/app/login" element={<Authentication />} />
               <Route path="*" element={<Navigate to="/app/login" />} />
             </Routes>
           )}

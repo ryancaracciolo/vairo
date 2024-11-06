@@ -1,130 +1,213 @@
 import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { UserContext } from '../../../objects/Context';
+import shortUUID from 'short-uuid';
 import { ReactComponent as ThreadIcon } from '../../../assets/icons/threads-icon.svg';
 import { ReactComponent as DashboardIcon } from '../../../assets/icons/dashboard-icon.svg';
 import { ReactComponent as DataSourceIcon } from '../../../assets/icons/data-icon.svg';
 import { ReactComponent as DocumentIcon } from '../../../assets/icons/docs-icon.svg';
 import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
 import { ReactComponent as DownIcon } from '../../../assets/icons/down-icon.svg';
-import { Link, useNavigate } from 'react-router-dom';
+import { ReactComponent as EditIcon } from '../../../assets/icons/edit-icon.svg';
+import { ReactComponent as DeleteIcon } from '../../../assets/icons/delete-icon.svg';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-import MenuItem from './MenuItem';
 import './Menu.css';
 import { ActiveMenuIndexContext } from '../../../objects/Context';
 
 function Menu() {
-    const { activeMenuIndex, setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
-    const [contentItems, setContentItems] = useState([]);
-    const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+  const { activeMenuIndex } = useContext(ActiveMenuIndexContext);
+  const [contentItems, setContentItems] = useState([]);
+  const [currentContentId, setCurrentContentId] = useState();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const menuItems = [
-        { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
-        { label: 'Dashboard', icon: DashboardIcon, path: '/app/dashboards' },
-        { label: 'Data Sources', icon: DataSourceIcon, path: '/app/data-sources' },
-        { label: 'Resources', icon: DocumentIcon, path: '/app/resources' }
-    ];
+  const menuItems = [
+    { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
+    { label: 'Dashboard', icon: DashboardIcon, path: '/app/dashboards' },
+    { label: 'Data Sources', icon: DataSourceIcon, path: '/app/data-sources' },
+    { label: 'Resources', icon: DocumentIcon, path: '/app/resources' },
+  ];
 
-    const actionItem = activeMenuIndex === 0 ? "New Thread" : 
-                      activeMenuIndex === 1 ? "New Dashboard" :
-                      activeMenuIndex === 2 ? "Add Data Source" : null;
-    
-    const actionPath = activeMenuIndex === 0 ? "/app/threads?action=new-thread" : 
-                      activeMenuIndex === 1 ? "/app/dashboards?action=new-dashboard" :
-                      activeMenuIndex === 2 ? "/app/data-sources?action=add-data-source" : null;
+  const actionItem = activeMenuIndex === 0 ? 'New Thread' : null;
+  const contentTitle = activeMenuIndex === 0 ? 'My Threads' : null;
 
-    const contentTitle = activeMenuIndex === 0 ? "My Threads" : 
-                         activeMenuIndex === 1 ? "My Dashboards" :
-                         activeMenuIndex === 2 ? "My Data Sources" : 
-                         activeMenuIndex === 3 ? "Resources" : "";
-
-    useEffect(() => {
-        const handleThreadNameUpdate = (event) => {
-            const { threadId, newName } = event.detail;
-            setContentItems(prevItems => 
-                prevItems.map(item => {
-                    if (item.timestamp.toString() === threadId) {
-                        return { ...item, label: newName };
-                    }
-                    return item;
-                })
-            );
-        };
-
-        window.addEventListener('updateThreadName', handleThreadNameUpdate);
-        return () => window.removeEventListener('updateThreadName', handleThreadNameUpdate);
-    }, []);
-
-    useEffect(() => {
-        if (activeMenuIndex === 0 && contentItems.length === 0) {
-            const timestamp = new Date().getTime();
-            setContentItems([{ 
-                label: 'New Thread',
-                path: `/app/threads?thread=${timestamp}`,
-                timestamp 
-            }]);
-            navigate(`/app/threads?thread=${timestamp}`);
-        }
-    }, [activeMenuIndex, contentItems.length]);
-
-    const handleNewThreadClick = (e) => {
-        if (activeMenuIndex === 0) {
-            const existingNewThread = contentItems.find(item => item.label === 'New Thread');
-            if (!existingNewThread) {
-                const timestamp = new Date().getTime();
-                const newThreadPath = `/app/threads?thread=${timestamp}`;
-                setContentItems([...contentItems, { 
-                    label: 'New Thread',
-                    path: newThreadPath,
-                    timestamp 
-                }]);
-                navigate(newThreadPath);
-            }
-        }
+  useEffect(() => {
+    const handleThreadNameUpdate = (event) => {
+      const { threadId, newName } = event.detail;
+      setContentItems((prevItems) =>
+        prevItems.map((item) => (item.id === threadId ? { ...item, label: newName } : item))
+      );
     };
 
-    return (
-        <nav className='ProductMenu'>
-            <ul>
-                {menuItems.map((item, index) => (
-                    <MenuItem
-                        key={index}
-                        icon={item.icon}
-                        label={item.label}
-                        to={item.path}
-                        isSelected={activeMenuIndex === index}
-                        onClick={() => { /* handleMenuClicked logic if needed */ }}
-                    />
-                ))}
-            </ul>
-            <hr />
-            <div className="sub-menu-container">
-                {actionItem && (
-                    <Link 
-                        to={actionPath} 
-                        className="sub-menu-button" 
-                        onClick={handleNewThreadClick}
-                    >
-                        <AddIcon className="add-icon" />
-                        <p className="add-label">{actionItem}</p>
+    window.addEventListener('updateThreadName', handleThreadNameUpdate);
+    return () => window.removeEventListener('updateThreadName', handleThreadNameUpdate);
+  }, []);
+
+  useEffect(() => {
+    if (activeMenuIndex === 0) {
+      axios
+        .get(`/api/users/get-threads/${user.id}`)
+        .then((response) => {
+          setContentItems(
+            response.data.map((thread) => ({
+              label: thread.title || 'Untitled Thread',
+              path: `/app/threads?thread=${thread.id}`,
+              id: thread.id,
+            }))
+          );
+        })
+        .catch((err) => {
+          console.error('Failed to fetch threads', err);
+        });
+    }
+  }, [activeMenuIndex, user.id]);
+
+  useEffect(() => {
+    if (activeMenuIndex === 0) {
+      const searchParams = new URLSearchParams(location.search);
+      const threadId = searchParams.get('thread');
+      if (threadId) {
+        setCurrentContentId(threadId);
+        const existingThread = contentItems.find((item) => item.id === threadId);
+        if (!existingThread) {
+          setContentItems((prevItems) => [
+            ...prevItems,
+            {
+              label: 'New Thread',
+              path: `/app/threads?thread=${threadId}`,
+              id: threadId,
+            },
+          ]);
+        }
+      } else if (contentItems.length === 0) {
+        // No threads exist, create a new thread
+        const id = shortUUID().new();
+        const newThreadPath = `/app/threads?thread=${id}`;
+        setContentItems([
+          {
+            label: 'New Thread',
+            path: newThreadPath,
+            id,
+          },
+        ]);
+        navigate(newThreadPath);
+      }
+    }
+  }, [activeMenuIndex, location.search, navigate]);
+
+  const handleNewThreadClick = () => {
+    if (activeMenuIndex === 0) {
+      const id = shortUUID().new();
+      const newThreadPath = `/app/threads?thread=${id}`;
+      setContentItems((prevItems) => [
+        ...prevItems,
+        {
+          label: 'New Thread',
+          path: newThreadPath,
+          id,
+        },
+      ]);
+      navigate(newThreadPath);
+    }
+  };
+
+  const handleEdit = async (threadId) => {
+    const newTitle = prompt('Enter new title for the thread:');
+    if (newTitle) {
+      try {
+        const response = await axios.put(`/api/threads/edit-thread`, {
+          userId: user.id,
+          threadId,
+          newTitle,
+        });
+        console.log(response.data.message);
+        setContentItems((prevItems) =>
+          prevItems.map((item) => (item.id === threadId ? { ...item, label: newTitle } : item))
+        );
+      } catch (err) {
+        console.error('Failed to edit thread title', err);
+      }
+    }
+  };
+
+  const handleDelete = async (threadId) => {
+    try {
+      const response = await axios.delete(`/api/threads/delete-thread/${user.id}/${threadId}`);
+      console.log(response.data.message);
+      setContentItems((prevItems) => prevItems.filter((item) => item.id !== threadId));
+    } catch (err) {
+      console.error('Failed to delete thread', err);
+    }
+  };
+
+  return (
+    <nav className="ProductMenu">
+      <ul>
+        {menuItems.map((item, index) => (
+          <li
+            key={index}
+            className={`menu-item ${activeMenuIndex === index ? 'active' : ''}`}
+          >
+            <Link to={item.path}>
+              <item.icon className="menu-icon" />
+              <p className={`menu-label ${activeMenuIndex === index ? 'active' : ''}`}>
+                {item.label}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {activeMenuIndex === 0 && (
+        <>
+          <hr />
+          <div className="sub-menu-container">
+            {actionItem && (
+              <div className="sub-menu-button" onClick={handleNewThreadClick}>
+                <AddIcon className="add-icon" />
+                <p className="add-label">{actionItem}</p>
+              </div>
+            )}
+            <div className="sub-menu-content">
+              <div className="content-title">
+                <p className="title-label">{contentTitle}</p>
+                <DownIcon className="title-icon" />
+              </div>
+              <ul>
+                {contentItems.map((item) => (
+                  <li key={item.id} className="item">
+                    <Link className="menu-item-container" to={item.path}>
+                      <div className="menu-line"></div>
+                      <div
+                        className={`horiz-line${
+                          currentContentId === item.id ? '-active' : ''
+                        }`}
+                      ></div>
+                      <p
+                        className={`menu-label${
+                          currentContentId === item.id ? ' active' : ''
+                        }`}
+                      >
+                        {item.label}
+                      </p>
                     </Link>
-                )}
-                <div className="sub-menu-content">
-                    <div className="content-title">
-                        <p className="title-label">{contentTitle}</p>
-                        <DownIcon className="title-icon" />
+                    <div className="thread-icons">
+                      <EditIcon className="edit-icon" onClick={() => handleEdit(item.id)} />
+                      <DeleteIcon
+                        className="delete-icon"
+                        onClick={() => handleDelete(item.id)}
+                      />
                     </div>
-                    <ul>
-                        {contentItems.map((item, index) => (
-                            <li key={index} className="item">
-                                <Link className="menu-item-container" to={item.path}>
-                                    <p className="menu-label">{item.label}</p>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-        </nav>
-    );
+          </div>
+        </>
+      )}
+    </nav>
+  );
 }
 
 export default Menu;
