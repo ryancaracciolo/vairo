@@ -24,9 +24,6 @@ function AddDataSource() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            console.log(user.id);
-            console.log(formData);
-            console.log(process.env.REACT_APP_API_BASE_URL);
             await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/add-data-source`, {
                 creatorUserId: user.id,
                 name: formData.connectionName,
@@ -36,6 +33,16 @@ function AddDataSource() {
                 username: formData.username,
                 password: formData.password
             });
+
+            await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/scrape-database`, {
+                dbConfig: {
+                    host: formData.host,
+                    port: formData.port,
+                    username: formData.username,
+                    password: formData.password
+                }
+            });
+            
             navigate('/app/data-sources');
         } catch (error) {
             console.error('Error adding data source:', error);

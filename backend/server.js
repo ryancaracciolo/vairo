@@ -6,6 +6,7 @@ import businessRoutes from './routes/businessRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import dataSourceRoutes from './routes/dataSourceRoutes.js';
 import threadRoutes from './routes/threadRoutes.js';
+import connectionRoutes from './routes/connectionRoutes.js';
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ app.use('/api/businesses', businessRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/data-sources', dataSourceRoutes);
 app.use('/api/threads', threadRoutes);
+app.use('/api/connections', connectionRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

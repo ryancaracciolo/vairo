@@ -43,12 +43,6 @@ function DataSources() {
         );
     }
 
-    const removeDataSourceFromList = ({ dataSourceId }) => {
-        setDataSources((prevDataSources) =>
-          prevDataSources.filter((dataSource) => dataSource.id !== dataSourceId)
-        );
-    };
-
     const dataSourceSelected = ({ dataSource }) => {
         setSelectedDataSources((prevSelected) => {
             const updatedDataSources = {
@@ -70,10 +64,17 @@ function DataSources() {
         setItemSelected(Object.values(newSelectedDataSources).some((isSelected) => isSelected));
     }
 
-    const deleteSelectedDataSources = () => {
+    const deleteSelectedDataSources = async () => {
         for (let dataSourceId in selectedDataSources) {
             if (selectedDataSources[dataSourceId]) {
-                removeDataSourceFromList({ dataSourceId });
+                try {
+                    //await axios.delete(`/api/data-sources/remove-data-source/${dataSourceId}`);
+                    setDataSources((prevDataSources) =>
+                        prevDataSources.filter((dataSource) => dataSource.id !== dataSourceId)
+                    );
+                } catch (error) {
+                    console.error(`Error deleting data source with id ${dataSourceId}:`, error);
+                }
             }
         }
         setSelectedDataSources({});

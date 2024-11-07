@@ -36,9 +36,24 @@ function Menu() {
   useEffect(() => {
     const handleThreadNameUpdate = (event) => {
       const { threadId, newName } = event.detail;
-      setContentItems((prevItems) =>
-        prevItems.map((item) => (item.id === threadId ? { ...item, label: newName } : item))
-      );
+      setContentItems((prevItems) => {
+        const itemExists = prevItems.some((item) => item.id === threadId);
+        if (itemExists) {
+          return prevItems.map((item) =>
+            item.id === threadId ? { ...item, label: newName, isSaved: true } : item
+          );
+        } else {
+          return [
+            ...prevItems,
+            {
+              id: threadId,
+              label: newName,
+              path: `/app/threads?thread=${threadId}`,
+              isSaved: true,
+            },
+          ];
+        }
+      });
     };
 
     window.addEventListener('updateThreadName', handleThreadNameUpdate);
@@ -55,6 +70,8 @@ function Menu() {
               label: thread.title || 'Untitled Thread',
               path: `/app/threads?thread=${thread.id}`,
               id: thread.id,
+              thread: thread, // Include the full thread object
+              isSaved: true,
             }))
           );
         })
@@ -78,38 +95,35 @@ function Menu() {
               label: 'New Thread',
               path: `/app/threads?thread=${threadId}`,
               id: threadId,
+              isSaved: false,
             },
           ]);
         }
-      } else if (contentItems.length === 0) {
-        // No threads exist, create a new thread
+      }
+    }
+  }, [activeMenuIndex, location.search, contentItems]);
+
+  const handleNewThreadClick = () => {
+    if (activeMenuIndex === 0) {
+      const unsavedThread = contentItems.find(
+        (item) => item.label === 'New Thread' && !item.isSaved
+      );
+      if (unsavedThread) {
+        navigate(unsavedThread.path);
+      } else {
         const id = shortUUID().new();
         const newThreadPath = `/app/threads?thread=${id}`;
-        setContentItems([
+        setContentItems((prevItems) => [
+          ...prevItems,
           {
             label: 'New Thread',
             path: newThreadPath,
             id,
+            isSaved: false,
           },
         ]);
         navigate(newThreadPath);
       }
-    }
-  }, [activeMenuIndex, location.search, navigate]);
-
-  const handleNewThreadClick = () => {
-    if (activeMenuIndex === 0) {
-      const id = shortUUID().new();
-      const newThreadPath = `/app/threads?thread=${id}`;
-      setContentItems((prevItems) => [
-        ...prevItems,
-        {
-          label: 'New Thread',
-          path: newThreadPath,
-          id,
-        },
-      ]);
-      navigate(newThreadPath);
     }
   };
 
@@ -137,6 +151,7 @@ function Menu() {
       const response = await axios.delete(`/api/threads/delete-thread/${user.id}/${threadId}`);
       console.log(response.data.message);
       setContentItems((prevItems) => prevItems.filter((item) => item.id !== threadId));
+      navigate('/app/threads');
     } catch (err) {
       console.error('Failed to delete thread', err);
     }
@@ -177,7 +192,11 @@ function Menu() {
               <ul>
                 {contentItems.map((item) => (
                   <li key={item.id} className="item">
-                    <Link className="menu-item-container" to={item.path}>
+                    <Link
+                      className="menu-item-container"
+                      to={item.path}
+                      state={{ thread: item.thread }} // Pass the full thread object
+                    >
                       <div className="menu-line"></div>
                       <div
                         className={`horiz-line${

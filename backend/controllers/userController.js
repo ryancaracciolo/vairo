@@ -149,28 +149,28 @@ export const getDataSources = async (req, res) => {
 
 
 export const getUserThreads = async (req, res) => {
-    const { userId } = req.params;
-    console.log(userId);
-    const params = {
-      TableName: tableName,
-      KeyConditionExpression: 'PK = :userPk AND begins_with(SK, :threadPrefix)',
-      ExpressionAttributeValues: {
-        ':userPk': `USER#${userId}`,
-        ':threadPrefix': 'THREAD#',
-      },
-      ScanIndexForward: true, // Sorts the results in ascending order
-    };
-  
-    try {
-      const command = new QueryCommand(params);
-      const data = await dynamodb.send(command);
-  
-      // Map the items to Thread instances
-      const threads = data.Items.map((item) => Thread.fromItem(item));
-  
-      res.status(200).json(threads);
-    } catch (err) {
-      console.error('Unable to retrieve threads. Error JSON:', JSON.stringify(err, null, 2));
-      res.status(500).json({ error: 'An error occurred while retrieving threads.' });
-    }
+  const { userId } = req.params;
+  console.log(userId);
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'PK = :userPk AND begins_with(SK, :threadPrefix)',
+    ExpressionAttributeValues: {
+      ':userPk': `USER#${userId}`,
+      ':threadPrefix': 'THREAD#',
+    },
+    ScanIndexForward: true, // Sorts the results in ascending order
   };
+
+  try {
+    const command = new QueryCommand(params);
+    const data = await dynamodb.send(command);
+
+    // Map the items to Thread instances
+    const threads = data.Items.map((item) => Thread.fromItem(item));
+
+    res.status(200).json(threads);
+  } catch (err) {
+    console.error('Unable to retrieve threads. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while retrieving threads.' });
+  }
+};

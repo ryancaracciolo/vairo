@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../../../objects/Context';
+import shortUUID from 'short-uuid';
 import './Threads.css';
 import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
 import vairoLogo from '../../../assets/images/stars.png';
@@ -8,15 +9,23 @@ import Avatar from '../../../components/product/CircleInitials/CircleInitials';
 import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
 import { ReactComponent as DataSourceIcon } from '../../../assets/icons/upload-icon.svg';
 import { ReactComponent as ShareIcon } from '../../../assets/icons/share-icon.svg';
+import { ReactComponent as ConnectionIcon } from '../../../assets/icons/connect-icon.svg';
+import { ReactComponent as XIcon } from '../../../assets/icons/close-icon.svg';
 import axios from 'axios';
 
 function Threads() {
   const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
+  const [isAssistantTyping, setIsAssistantTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState('');
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [currentThreadId, setCurrentThreadId] = useState(null);
+  const [thread, setThread] = useState(null);
+  const [showDataSourcePopup, setShowDataSourcePopup] = useState(false);
+  const [dataSources, setDataSources] = useState([]);
+  const [dataSource, setDataSource] = useState(null);
 
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
@@ -26,43 +35,84 @@ function Threads() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     let threadId = searchParams.get('thread');
+    const locationThread = location.state?.thread;
 
     if (threadId) {
       setCurrentThreadId(threadId);
+      if (locationThread) {
+        setThread(locationThread);
+      } else {
+        setThread(null); // Reset thread
+      }
     } else {
-      // Generate a new thread ID and navigate to it
-      const newThreadId = new Date().getTime().toString();
-      setCurrentThreadId(newThreadId);
-      navigate(`/app/threads?thread=${newThreadId}`, { replace: true });
+      setCurrentThreadId(null);
+      setThread(null);
+      setMessages([]); // Clear messages when no thread is selected
+      // Optionally, redirect or show a message to select a thread
     }
-  }, [location.search, navigate]);
+  }, [location.search, location.state]);
+
+  useEffect(() => {
+    if (currentThreadId) {
+      setThread(null); // Reset thread when thread ID changes
+      setDataSource(null); // Reset data source
+      const locationThread = location.state?.thread;
+      if (locationThread) {
+        setThread(locationThread);
+      } else {
+        axios
+          .get(`${process.env.REACT_APP_API_BASE_URL}/api/threads/get-thread/${user.id}/${currentThreadId}`)
+          .then((response) => {
+            setThread(response.data.thread);
+          })
+          .catch((error) => {
+            console.error('Error fetching thread:', error);
+          });
+      }
+    }
+  }, [currentThreadId, user.id, location.state]);
+
+  useEffect(() => {
+    setIsConnected(thread && thread.dataSourceId != null);
+  }, [thread]);
+
+  useEffect(() => {
+    if (isConnected && thread && thread.dataSourceId) {
+      axios
+        .get(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/get-data-source/${thread.dataSourceId}`)
+        .then((response) => {
+          setDataSource(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching data source:', error);
+        });
+    } else {
+      setDataSource(null); // Reset data source if not connected
+    }
+  }, [isConnected, thread]);
 
   useEffect(() => {
     if (currentThreadId) {
       setLoading(true);
+      setMessages([]);
       axios
         .get(`${process.env.REACT_APP_API_BASE_URL}/api/threads/get-messages/${currentThreadId}`)
         .then((response) => {
           let fetchedMessages = response.data;
 
-          // Ensure fetchedMessages is an array
           if (!Array.isArray(fetchedMessages)) {
             fetchedMessages = [];
           }
 
-          // Remove any existing greeting messages to avoid duplicates
           fetchedMessages = fetchedMessages.filter(
             (msg) => msg.content !== 'Hello! How can I help you today?'
           );
 
-          // Prepend the greeting message
           const greetingMessage = {
             threadId: currentThreadId,
             content: 'Hello! How can I help you today?',
@@ -78,7 +128,6 @@ function Threads() {
           setError('Failed to fetch messages.');
           setLoading(false);
 
-          // Even if fetching fails, show the greeting message
           setMessages([
             {
               threadId: currentThreadId,
@@ -99,6 +148,7 @@ function Threads() {
   };
 
   const handleSendMessage = async () => {
+    setIsAssistantTyping(true);
     if (inputValue.trim()) {
       const newMessage = {
         threadId: currentThreadId,
@@ -107,21 +157,25 @@ function Threads() {
         timestamp: new Date().getTime(),
       };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setInputValue('');
 
       const userMessages = messages.filter((m) => m.direction === 'sent');
-      if (userMessages.length === 0 && currentThreadId) {
+      if (!thread) {
+        // Create the thread in the DB
         const threadName =
           inputValue.length > 30 ? inputValue.substring(0, 27) + '...' : inputValue;
 
         try {
-          // Create the thread on the server
-          await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/threads/create-thread`, {
-            id: currentThreadId,
-            userId: user.id,
-            title: threadName,
-          });
+          const response = await axios.post(
+            `${process.env.REACT_APP_API_BASE_URL}/api/threads/create-thread`,
+            {
+              id: currentThreadId,
+              userId: user.id,
+              title: threadName,
+            }
+          );
 
-          // Update thread name in Menu
+          setThread(response.data.thread); // Update thread state
           updateThreadName(currentThreadId, threadName);
         } catch (error) {
           console.error('Error creating thread:', error);
@@ -129,75 +183,162 @@ function Threads() {
       }
 
       try {
-        // Save the message to the server
-        await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/threads/add-message`, {
-          threadId: currentThreadId,
-          content: newMessage.content,
-          direction: newMessage.direction,
-          timestamp: newMessage.timestamp,
-        });
+        if (!dataSource || !dataSource.id) {
+          setError('No Data Source Connected.');
+          setIsAssistantTyping(false);
+          return;
+        }
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/api/threads/chat`,
+          {
+            threadId: currentThreadId,
+            dataSourceId: dataSource.id,
+            message: newMessage,
+          }
+        );
+        const assistantMessage = response.data.assistantMessage;
+        console.log(assistantMessage);
+        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
       } catch (error) {
         console.error('Error saving message:', error);
       }
-
-      setInputValue('');
+      setIsAssistantTyping(false);
     }
   };
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
-  } else if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const handleSelectDataSource = async (selectedDataSource) => {
+    try {
+      if (!thread) {
+        // Create the thread in the DB
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/api/threads/create-thread`,
+          {
+            id: currentThreadId,
+            userId: user.id,
+            title: 'New Thread',
+          }
+        );
+        setThread(response.data.thread);
+        updateThreadName(currentThreadId, 'New Thread');
+      }
+
+      // Update the thread with the selected data source
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/api/threads/update-thread`,
+        {
+          userId: user.id,
+          threadId: currentThreadId,
+          dataSourceId: selectedDataSource.id,
+        }
+      );
+      setThread(response.data.thread);
+      setDataSource(selectedDataSource);
+      setShowDataSourcePopup(false);
+    } catch (error) {
+      console.error('Error updating thread with data source:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (showDataSourcePopup) {
+      axios
+        .get(`${process.env.REACT_APP_API_BASE_URL}/api/users/get-data-sources/${user.id}`)
+        .then((response) => {
+          setDataSources(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching data sources:', error);
+        });
+    }
+  }, [showDataSourcePopup, user.id]);
 
   return (
     <div className="threads-wrapper">
-      <div className="threads-content">
-        <div className="messages">
-          {messages.map((message, index) => {
-            const isUser = message.direction === 'sent';
-            return (
-              <div
-                key={message.timestamp || index}
-                className={`message ${isUser ? 'sender' : 'receiver'}`}
-              >
-                {!isUser && (
-                  <div className="avatar">
-                    <img src={vairoLogo} alt="Vairo Logo" />
-                  </div>
-                )}
-                <div className="message-bubble">{message.content}</div>
-                {isUser && (
-                  <div className="avatar">
-                    <Avatar text={user.name} classN="message-initials" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="message-input">
-          <div className="floating-wrapper">
-            <div className="avatar input-avatar">
-              <img src={vairoLogo} alt="Vairo Logo" />
+      {loading ? (
+        <LoadingScreen isLoading={loading} />
+      ) : error ? (
+        <div>Error: {error}</div>
+      ) : (
+        <div className="threads-content">
+          <div className="connection-status">
+            <XIcon className={`icon disconnected ${isConnected ? '' : 'active'}`} />
+            <ConnectionIcon className={`icon connected ${isConnected ? 'active' : ''}`} />
+            <div className="status-text">
+              {isConnected
+                ? `Connected to ${dataSource ? dataSource.name : 'Data Source'}`
+                : 'No Data Source Connected.'}
             </div>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type a message..."
-              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            />
-            <button onClick={handleSendMessage}>Send</button>
+            <button
+              className={`connect-button ${isConnected ? '' : 'active'}`}
+              onClick={() => setShowDataSourcePopup(true)}
+            >
+              {isConnected ? 'Change Data Source' : 'Connect'}
+            </button>
           </div>
-          <div className="floating-wrapper actions">
-            <AddIcon className="icon first" />
-            <DataSourceIcon className="icon" />
-            <ShareIcon className="icon" />
+          {showDataSourcePopup && (
+            <div className="popup-overlay">
+              <div className="popup">
+                <h2>Select a Data Source</h2>
+                <ul>
+                  {dataSources.map((ds) => (
+                    <li key={ds.id} onClick={() => handleSelectDataSource(ds)}>
+                      {ds.name}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setShowDataSourcePopup(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
+          <div className="messages">
+            {messages.map((message, index) => {
+              const isUser = message.direction === 'sent';
+              return (
+                <div
+                  key={message.timestamp || index}
+                  className={`message ${isUser ? 'sender' : 'receiver'}`}
+                >
+                  {!isUser && (
+                    <div className="avatar">
+                      <img src={vairoLogo} alt="Vairo Logo" />
+                    </div>
+                  )}
+                  <div className="message-bubble">{message.content}</div>
+                  {isUser && (
+                    <div className="avatar">
+                      <Avatar text={user.name} classN="message-initials" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {isAssistantTyping && (
+              <div className="typing-indicator">Assistant is typing...</div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="message-input">
+            <div className="floating-wrapper">
+              <div className="avatar input-avatar">
+                <img src={vairoLogo} alt="Vairo Logo" />
+              </div>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Type a message..."
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              />
+              <button onClick={handleSendMessage}>Send</button>
+            </div>
+            <div className="floating-wrapper actions">
+              <AddIcon className="icon first" />
+              <DataSourceIcon className="icon" />
+              <ShareIcon className="icon" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

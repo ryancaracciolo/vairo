@@ -1,13 +1,22 @@
-import shortUUID from "short-uuid";
-
 export default class Table {
-  constructor({ dataSourceId, tableName, description, otherTableAttributes }) {
+  constructor({
+    dataSourceId,
+    content: {
+      tableName,
+      description,
+      columns,
+      foreignKeys,
+    },
+  }) {
     this.dataSourceId = dataSourceId;
-    this.tableName = tableName;
-    this.description = description;
-    this.otherTableAttributes = otherTableAttributes || {};
+    this.content = {
+      tableName,
+      description,
+      columns: columns || [],
+      foreignKeys: foreignKeys || [],
+    };
     this.PK = `DATASOURCE#${this.dataSourceId}`;
-    this.SK = `TABLE#${this.tableName}`;
+    this.SK = `TABLE#${this.content.tableName}`;
     this.Type = 'Table';
   }
 
@@ -17,18 +26,14 @@ export default class Table {
       SK: this.SK,
       Type: this.Type,
       dataSourceId: this.dataSourceId,
-      tableName: this.tableName,
-      description: this.description,
-      otherTableAttributes: this.otherTableAttributes,
+      content: this.content,
     };
   }
 
   static fromItem(item) {
     return new Table({
       dataSourceId: item.dataSourceId,
-      tableName: item.tableName,
-      description: item.description,
-      otherTableAttributes: item.otherTableAttributes,
+      content: item.content,
     });
   }
 }
