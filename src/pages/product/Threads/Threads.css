@@ -218,3 +218,129 @@
     background-color: #0056b3;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
+
+.thinking-indicator {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    color: var(--grey-dark-color);
+    letter-spacing: 0.5px;
+    font-family: var(--font-regular);
+    margin-left: 50px;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.thinking-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.thinking-step .loader {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--grey-light-color);
+    box-sizing: border-box;
+}
+
+.thinking-step.active .loader {
+    border: 1.5px dotted var(--grey-light-color);
+    background-color: transparent;
+    animation: spin 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.thinking-step.completed .loader {
+    border: none;
+    background-color: var(--blue-light-color);
+}
+
+.thinking-step p {
+    font-size: 12px;
+    color: var(--grey-dark-color);
+    letter-spacing: 0.5px;
+    font-family: var(--font-regular);
+    margin: 0;
+    padding: 0;
+}
+
+.thinking-indicator .thinking-step.active p::after {
+    content: '';
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 20% {
+        content: '.';
+    }
+    40% {
+        content: '..';
+    }
+    60% {
+        content: '...';
+    }
+    100% {
+        content: '';
+    }
+}
+
+
+.message-bubble {
+    /* Existing styles */
+    word-break: break-word;
+  }
+  
+  .message-bubble h1,
+  .message-bubble h2,
+  .message-bubble h3,
+  .message-bubble h4,
+  .message-bubble h5,
+  .message-bubble h6 {
+    margin: 0;
+  }
+  
+  .message-bubble p {
+    margin: 10px 0px;
+  }
+  
+  .message-bubble ul,
+  .message-bubble ol {
+    margin: 5px 5px;
+    padding-left: 20px;
+  }
+
+  .message-bubble li {
+    margin: 5px 0px;
+  }
+  
+  .message-bubble code {
+    background-color: #f5f5f5;
+    padding: 2px 4px;
+    font-family: monospace;
+    border-radius: 4px;
+  }
+  
+  .message-bubble pre {
+    background-color: transparent;
+    padding: 0px;
+    overflow-x: auto;
+    border-radius: 4px;
+  }
+  
+  .message-bubble blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding-left: 10px;
+    color: #555;
+  }
+  

@@ -25,7 +25,7 @@ function Menu() {
 
   const menuItems = [
     { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
-    { label: 'Dashboard', icon: DashboardIcon, path: '/app/dashboards' },
+    { label: 'Dashboards', icon: DashboardIcon, path: '/app/dashboards' },
     { label: 'Data Sources', icon: DataSourceIcon, path: '/app/data-sources' },
     { label: 'Resources', icon: DocumentIcon, path: '/app/resources' },
   ];

@@ -4,7 +4,9 @@ import shortUUID from "short-uuid";
 import { PutCommand, QueryCommand, UpdateCommand, BatchWriteCommand, DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import Thread from '../objects/Thread.js';
 import Message from '../objects/Message.js';
+import pkg from 'pg';
 
+const { Client } = pkg;
 const tableName = 'vairo-table';
 
 export const createThread = async (req, res) => {
@@ -124,7 +126,7 @@ export const chatWithAI = async (req, res) => {
     }));
 
     // Step 4: Trim Messages to Fit Token Limit
-    const MAX_TOKENS = 3000; 
+    const MAX_TOKENS = 10000; 
     let totalTokens = 0;
     const trimmedMessages = [];
 
@@ -146,28 +148,76 @@ export const chatWithAI = async (req, res) => {
     // Step 5: Combine All Parts into Final Messages
     const finalMessages = [systemPrompt, datasetDescription, ...trimmedMessages];
 
-    console.log(datasetDescription);
+    const tools = [{
+      type: "function",
+      function: {
+        name: "query_database",
+        description: "Query the database structure that was provided to you for information. Call this whenever you need to know something about the data to answer the user's question.",
+        parameters: {
+          type: "object",
+          properties: {
+            query: {
+              type: "string",
+              description: "The SQL query to run on the database.",
+            },
+          },
+          required: ["query"],
+          additionalProperties: false,
+        },
+      }
+    }];
 
     // Step 6: Call OpenAI API
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: finalMessages,
-      max_tokens: 2000, // Adjust based on needs
-      temperature: 0.3, // Adjust creativity
+      max_tokens: 10000,
+      temperature: 0.3,
+      tools: tools,
+      tool_choice: 'auto',
     });
 
-    const assistantContent = response.choices[0].message.content.trim();
+    const assistantResponse = response.choices[0].message;
+    let assistantContent = assistantResponse.content ? assistantResponse.content.trim() : '';
+    let messagesToSave = [];
+    let finalAssistantResponse = assistantResponse;
+
+    if (assistantResponse.tool_calls) {
+      const toolName = assistantResponse.tool_calls[0].function.name;
+      const toolArgs = JSON.parse(assistantResponse.tool_calls[0].function.arguments);
+      let toolResponse;
+      if (toolName === 'query_database') {
+        console.log("Tool args: ", toolArgs);
+        toolResponse = await queryDatabase(toolArgs.query);
+      }
+
+      console.log("Tool response: ", toolResponse);
+      console.log("Tool message: ", JSON.stringify(toolResponse));
+
+      const toolMessage = {
+        role: 'tool',
+        tool_call_id: assistantResponse.tool_calls[0].id,
+        content: JSON.stringify(toolResponse),
+      };
+
+      finalMessages.push(assistantResponse);
+      finalMessages.push(toolMessage);
+
+      const secondResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: finalMessages,
+        max_tokens: 10000,
+        temperature: 0.3,
+      });
+
+      finalAssistantResponse = secondResponse.choices[0].message;
+      assistantContent = finalAssistantResponse.content ? finalAssistantResponse.content.trim() : '';
+      messagesToSave = [finalAssistantResponse];
+    } else {
+      messagesToSave = [assistantResponse];
+    }
 
     // Step 7: Save Both Messages to DynamoDB
-    // Create Message instances
-    const assistantMessage = new Message({
-      threadId,
-      content: assistantContent,
-      direction: 'received',
-      timestamp: Date.now(),
-    });
-    const assistantMessageItem = assistantMessage.toItem();
-
     const userMessageInstance = new Message({
       threadId,
       content: message.content,
@@ -183,12 +233,21 @@ export const chatWithAI = async (req, res) => {
           Item: userMessageItem,
         },
       },
-      {
-        PutRequest: {
-          Item: assistantMessageItem,
-        },
-      },
     ];
+
+    messagesToSave.forEach((message) => {
+      const messageInstance = new Message({
+        threadId,
+        content: message.content || '',
+        direction: 'received',
+        timestamp: Date.now(),
+      });
+      const messageItem = messageInstance.toItem();
+
+      putRequests.push({
+        PutRequest: { Item: messageItem },
+      });
+    });
 
     const batchWriteParams = {
       RequestItems: {
@@ -200,7 +259,7 @@ export const chatWithAI = async (req, res) => {
     await dynamodb.send(batchWriteCommand);
 
     // Step 8: Respond to Client
-    res.json({ assistantMessage: assistantMessage });
+    res.json({ assistantMessage: finalAssistantResponse });
 
   } catch (error) {
       if (error.response) {
@@ -212,6 +271,29 @@ export const chatWithAI = async (req, res) => {
       }
   }
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////
+async function queryDatabase(query) {
+  const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    user: 'vairo_user',
+    password: 'Rcooper22!',
+    database: 'VairoDB'
+  });
+
+  try {
+    await client.connect();
+    console.log('Connected to the database successfully.');
+    console.log("Query: ", query);
+    const res = await client.query(query);
+    console.log("Query result: ", res.rows);
+    return res.rows;
+  } catch (err) {
+    console.error('Failed to connect to the database:', err.message);
+    throw new Error(`Database connection error: ${err.message}`);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 export const getThreadMessages = async (req, res) => {

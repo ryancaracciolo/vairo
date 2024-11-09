@@ -11,12 +11,15 @@ import { ReactComponent as DataSourceIcon } from '../../../assets/icons/upload-i
 import { ReactComponent as ShareIcon } from '../../../assets/icons/share-icon.svg';
 import { ReactComponent as ConnectionIcon } from '../../../assets/icons/connect-icon.svg';
 import { ReactComponent as XIcon } from '../../../assets/icons/close-icon.svg';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import axios from 'axios';
 
 function Threads() {
   const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [isAssistantTyping, setIsAssistantTyping] = useState(false);
+  const [thinkingStep, setThinkingStep] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState('');
   const [messages, setMessages] = useState([]);
@@ -148,7 +151,7 @@ function Threads() {
   };
 
   const handleSendMessage = async () => {
-    setIsAssistantTyping(true);
+    setThinkingStep(1);
     if (inputValue.trim()) {
       const newMessage = {
         threadId: currentThreadId,
@@ -185,9 +188,10 @@ function Threads() {
       try {
         if (!dataSource || !dataSource.id) {
           setError('No Data Source Connected.');
-          setIsAssistantTyping(false);
+          setThinkingStep(0);
           return;
         }
+        setThinkingStep(2);
         const response = await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/api/threads/chat`,
           {
@@ -197,12 +201,11 @@ function Threads() {
           }
         );
         const assistantMessage = response.data.assistantMessage;
-        console.log(assistantMessage);
         setMessages((prevMessages) => [...prevMessages, assistantMessage]);
       } catch (error) {
         console.error('Error saving message:', error);
       }
-      setIsAssistantTyping(false);
+      setThinkingStep(0);
     }
   };
 
@@ -294,16 +297,41 @@ function Threads() {
             {messages.map((message, index) => {
               const isUser = message.direction === 'sent';
               return (
-                <div
-                  key={message.timestamp || index}
-                  className={`message ${isUser ? 'sender' : 'receiver'}`}
-                >
+                <div key={message.timestamp || index} className={`message ${isUser ? 'sender' : 'receiver'}`}>
                   {!isUser && (
                     <div className="avatar">
                       <img src={vairoLogo} alt="Vairo Logo" />
                     </div>
                   )}
-                  <div className="message-bubble">{message.content}</div>
+                  <div className="message-bubble">
+                    {isUser ? (
+                      message.content
+                    ) : (
+                      <ReactMarkdown
+                        components={{
+                          code({ node, inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            return !inline && match ? (
+                              <SyntaxHighlighter
+                                style={oneDark}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    )}
+                  </div>
                   {isUser && (
                     <div className="avatar">
                       <Avatar text={user.name} classN="message-initials" />
@@ -312,8 +340,17 @@ function Threads() {
                 </div>
               );
             })}
-            {isAssistantTyping && (
-              <div className="typing-indicator">Assistant is typing...</div>
+            {(thinkingStep > 0) && (
+                <div className="thinking-indicator">
+                  <div className={`thinking-step${thinkingStep > 1 ? ' completed' : ''}${thinkingStep === 1 ? ' active' : ''}`}>
+                    <div className="loader"></div>
+                    <p>Analyzing Question</p>
+                  </div>
+                  <div className={`thinking-step${thinkingStep === 0 ? ' completed' : ''}${thinkingStep === 2 ? ' active' : ''}`}>
+                    <div className="loader"></div>
+                    <p>Crafting Response</p>
+                  </div>
+                </div>
             )}
             <div ref={messagesEndRef} />
           </div>
