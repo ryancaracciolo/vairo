@@ -106,10 +106,27 @@ export const chatWithAI = async (req, res) => {
     }
 
     // Step 3: Construct AI Prompt Components
+
+    const prompt = `
+      You are a friendly AI data analyst dedicated to helping users understand and analyze their data based on the provided dataset structure.
+
+      **Available Resources:**
+      1. **Database Schema**: Tables, columns, and foreign keys.
+      2. **SQL Execution**: Use \`query_database(query)\` to run SQL queries and retrieve data.
+      3. **Visualization**: Generate charts by providing chart.js JSON configurations (type, data, options) where charts should appear (NOTE: providing the JSON creates a chart for the user). Please confirm correct JSON syntax (e.g. do not end a section with a comma).
+
+      **Your Responsibilities:**
+      1. **Understand the Request**: Carefully read the user's question, identify the necessary data, and ask clarifying questions if needed.
+      2. **Retrieve Data**: Create and execute SQL queries using \`query_database(query)\` to obtain the required data.
+      3. **Visualize Data**: When possible, provide JSON configurations for charts to present data visually without prompting (use charts more frequently than tables).
+      4. **Include Insights on Data**: Provide insights on the data retrieved to help the user understand the data.
+      5. **Present Clearly**: Use Markdown for readability (headings, bullet points, bold text) and proper formatting for equations (\$ for inline and \$\$ for block).
+      `;
+
     // a. Define AI Role and Purpose
     const systemPrompt = {
       role: 'system',
-      content: `You are an AI data analyst. Your goal is to help the user understand and analyze their data based on the provided dataset structure and past conversations.`,
+      content: prompt,
     };
 
     // b. Format the Dataset Structure
@@ -183,25 +200,31 @@ export const chatWithAI = async (req, res) => {
     let finalAssistantResponse = assistantResponse;
 
     if (assistantResponse.tool_calls) {
-      const toolName = assistantResponse.tool_calls[0].function.name;
-      const toolArgs = JSON.parse(assistantResponse.tool_calls[0].function.arguments);
-      let toolResponse;
-      if (toolName === 'query_database') {
-        console.log("Tool args: ", toolArgs);
-        toolResponse = await queryDatabase(toolArgs.query);
+      const toolResponses = []; // Array to hold tool responses
+      for (const toolCall of assistantResponse.tool_calls) {
+        const toolName = toolCall.function.name;
+        const toolArgs = JSON.parse(toolCall.function.arguments);
+        let toolResponse;
+
+        if (toolName === 'query_database') {
+          console.log("Tool args: ", toolArgs);
+          toolResponse = await queryDatabase(toolArgs.query);
+        }
+
+        console.log("Tool response: ", toolResponse);
+
+        const toolMessage = {
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(toolResponse),
+        };
+
+        toolResponses.push(toolMessage); // Store the tool message
       }
 
-      console.log("Tool response: ", toolResponse);
-      console.log("Tool message: ", JSON.stringify(toolResponse));
-
-      const toolMessage = {
-        role: 'tool',
-        tool_call_id: assistantResponse.tool_calls[0].id,
-        content: JSON.stringify(toolResponse),
-      };
-
       finalMessages.push(assistantResponse);
-      finalMessages.push(toolMessage);
+      finalMessages.push(...toolResponses); // Append all tool responses to final messages
+      console.log("Final messages: ", finalMessages);
 
       const secondResponse = await openai.chat.completions.create({
         model: 'gpt-4o-mini',

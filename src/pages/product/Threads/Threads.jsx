@@ -1,19 +1,17 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../../../objects/Context';
-import shortUUID from 'short-uuid';
 import './Threads.css';
 import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
 import vairoLogo from '../../../assets/images/stars.png';
 import Avatar from '../../../components/product/CircleInitials/CircleInitials';
+import MessageFormatter from '../../../components/product/MessageFormatter/MessageFormatter';
 import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
 import { ReactComponent as DataSourceIcon } from '../../../assets/icons/upload-icon.svg';
 import { ReactComponent as ShareIcon } from '../../../assets/icons/share-icon.svg';
 import { ReactComponent as ConnectionIcon } from '../../../assets/icons/connect-icon.svg';
 import { ReactComponent as XIcon } from '../../../assets/icons/close-icon.svg';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { ReactComponent as CheckIcon } from '../../../assets/icons/checkmark-icon.svg';
 import axios from 'axios';
 
 function Threads() {
@@ -191,7 +189,10 @@ function Threads() {
           setThinkingStep(0);
           return;
         }
-        setThinkingStep(2);
+        setTimeout(() => {
+          setThinkingStep(2);
+        }, 1500);
+
         const response = await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/api/threads/chat`,
           {
@@ -307,29 +308,7 @@ function Threads() {
                     {isUser ? (
                       message.content
                     ) : (
-                      <ReactMarkdown
-                        components={{
-                          code({ node, inline, className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '');
-                            return !inline && match ? (
-                              <SyntaxHighlighter
-                                style={oneDark}
-                                language={match[1]}
-                                PreTag="div"
-                                {...props}
-                              >
-                                {String(children).replace(/\n$/, '')}
-                              </SyntaxHighlighter>
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            );
-                          },
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
+                      <MessageFormatter message={message} />
                     )}
                   </div>
                   {isUser && (
@@ -343,11 +322,13 @@ function Threads() {
             {(thinkingStep > 0) && (
                 <div className="thinking-indicator">
                   <div className={`thinking-step${thinkingStep > 1 ? ' completed' : ''}${thinkingStep === 1 ? ' active' : ''}`}>
-                    <div className="loader"></div>
+                    {thinkingStep === 1 && <div className="loader"></div>}
+                    {thinkingStep > 1 && <CheckIcon className="icon" />}
                     <p>Analyzing Question</p>
                   </div>
                   <div className={`thinking-step${thinkingStep === 0 ? ' completed' : ''}${thinkingStep === 2 ? ' active' : ''}`}>
-                    <div className="loader"></div>
+                    {thinkingStep !== 1 && <div className="loader"></div>}
+                    {thinkingStep === 0 && <CheckIcon className="icon" />}
                     <p>Crafting Response</p>
                   </div>
                 </div>

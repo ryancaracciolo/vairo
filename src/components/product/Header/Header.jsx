@@ -3,10 +3,9 @@ import './Header.css';
 import logo from '../../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
 import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
+import {ReactComponent as AlertIcon} from '../../../assets/icons/bell-icon.svg';
 import {ReactComponent as LogoutIcon} from '../../../assets/icons/logout-icon.svg';
-
 import { UserContext, SearchContext } from '../../../objects/Context';
-import Popup from '../Popup/Popup';
 import CircleInitials from '../CircleInitials/CircleInitials'
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
 
@@ -63,6 +62,10 @@ const Header = () => {
                     <input type="text" placeholder="Search for Anything..." className="search-bar" value={searchText} onChange={handleSearch} />
                 </div>
                 <div className='button-container'>
+                    <div className='alerts'>
+                        <AlertIcon className='header-icon-button' />
+                        <div className='alerts-count'><span>3</span></div>
+                    </div>
                     <SettingsIcon className='header-icon-button' />
                     <div className='header-divider'>|</div>
                     <button className="profile-button" onClick={handleProfileClick}>

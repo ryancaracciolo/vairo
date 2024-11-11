@@ -45,6 +45,35 @@
     fill: var(--grey-medium-color);
     width: 22px;
     height: 22px;
+    cursor: pointer;
+}
+
+.product-header .header-icon-button:hover {
+    fill: var(--grey-light-color);
+}
+
+.product-header .alerts {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.product-header .alerts-count {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -5px;
+    right: -5px;
+    background-color: plum;
+    border-radius: 50%;
+    padding: 5px 5px;
+    color: white;
+    font-family: var(--font-bold);
+    font-size: 10px;
+    z-index: 10;
+    width: 5px;
+    height: 5px;
 }
 
 .product-header .profile-button:hover .header-button,

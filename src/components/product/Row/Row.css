@@ -1,4 +1,4 @@
-tbody td {
+.data-source-row td {
   padding: 10px 14px;
   border-bottom: 1px solid #eee;
   text-align: left;
@@ -9,7 +9,7 @@ tbody td {
   max-width: 120px; /* Set a maximum width for each cell */
 }
 
-tbody tr {
+.data-source-row {
   background-color: white;
   transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
   box-sizing: border-box;
@@ -21,17 +21,17 @@ tbody tr {
   overflow: visible; /* Allow the dropdown to overflow outside */
 }
   
-tbody tr:hover {
+.data-source-row:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 10; /* Higher z-index on hover to ensure the dropdown and row come to the front */
 }
 
-tbody td:first-child {
+.data-source-row td:first-child {
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 }
 
-tbody td:last-child {
+.data-source-row td:last-child {
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
 }

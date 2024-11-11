@@ -1,20 +1,19 @@
 import React from 'react';
 import './Row.css';
 import CircleInitials from '../CircleInitials/CircleInitials';
-import StatusButton from './StatusButton';
 
 const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) => {
     const formattedDate = new Date(dataSourceData.createdAt).toLocaleDateString('en-US');
 
     // Example list of initials and colors
     const initialsList = [
-        { text: "R C", color: "var(--blue-medium-color)" },
-        { text: "E J", color: "var(--purple-color)" },
-        { text: "M W", color: "red" }
+        { text: "R C", color: "var(--blue-light-color)" },
+        { text: "E J", color: "var(--purple-light-color)" },
+        { text: "M S", color: "lightcoral" }
     ];
 
     return (
-        <tr>
+        <tr className="data-source-row">
             <td><input type="checkbox" checked={checked} onChange={() => dataSourceSelected({dataSource: dataSourceData})} /></td>
             <td>{dataSourceData.name}</td>
             <td>{dataSourceData.dataSourceType}</td>

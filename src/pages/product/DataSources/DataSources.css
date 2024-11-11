@@ -27,14 +27,14 @@
     min-width: 0;
 }
   
-table {
+.data-sources-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 8px; /* Adds vertical spacing (8px gap) */
     background-color: transparent; /* Table background is transparent */
 }
   
-thead th {
+.data-sources-table thead th {
     padding: 10px;
     padding-left: 15px;
     text-align: left;
@@ -45,28 +45,28 @@ thead th {
     width: auto; /* Ensure headers take up space according to content */
 }
 
-.detail-header {
+.data-sources-content .detail-header {
     position: relative;
     display: flex;
     justify-content: space-between;
     padding: 0 5px;
 }
 
-.detail-header h2 {
+.data-sources-content .detail-header h2 {
     margin: 10px 0;
     font-family: var(--font-bold);
     font-size: 22px;
     color: var(--grey-dark-color);
 }
 
-.detail-header-actions {
+.data-sources-content .detail-header-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
 }
   
-.detail-header-actions .header-action {
+.data-sources-content .detail-header-actions .header-action {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -76,35 +76,35 @@ thead th {
     cursor: pointer;
 }
 
-.detail-header-actions .header-action .icon {
+.data-sources-content .detail-header-actions .header-action .icon {
     width: 18px;
     height: 18px; 
     fill: var(--grey-light-color);   
 }
 
-.detail-header-actions .header-action span {
+.data-sources-content .detail-header-actions .header-action span {
     font-family: var(--font-reg);
     font-size: 13px;
     color: var(--grey-light-color);
 }
 
-.detail-header-actions .header-action.add {
+.data-sources-content .detail-header-actions .header-action.add {
     background-color: var(--blue-light-color);
 }
 
-.detail-header-actions .header-action.add .icon {
+.data-sources-content .detail-header-actions .header-action.add .icon {
     fill: white;
 }
 
-.detail-header-actions .header-action.add span {
+.data-sources-content .detail-header-actions .header-action.add span {
     color: white;
 }
 
-.detail-header-actions .header-action.active span {
+.data-sources-content .detail-header-actions .header-action.active span {
     color: var(--grey-dark-color);
 }
 
-.detail-header-actions .header-action.active .icon {
+.data-sources-content .detail-header-actions .header-action.active .icon {
     fill: var(--grey-dark-color);
 }
 
