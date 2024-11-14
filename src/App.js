@@ -15,7 +15,7 @@ import Menu from './components/product/Menu/Menu';
 import Threads from './pages/product/Threads/Threads';
 import Dashboard from './pages/product/Dashboard/Dashboard';
 import DataSources from './pages/product/DataSources/DataSources';
-import AddDataSource from './pages/product/DataSources/AddDataSource';
+import AddDataSource from './pages/product/DataSources/AddDataSource/AddDataSource';
 import Resources from './pages/product/Resources/Resources';
 import LoadingScreen from './components/product/LoadingScreen/LoadingScreen';
 import Authentication from './pages/product/Authentication/Authentication';
@@ -57,7 +57,7 @@ function App() {
 
   return (
     <div className="app-wrapper">
-      {location.pathname.startsWith('/app') ? (
+      {location.pathname.startsWith('/') ? ( //UPDATE THIS TO BE '/app' IF YOU WANT TO USE LANDING PAGE
         <>
           {user?.id ? (
             <>

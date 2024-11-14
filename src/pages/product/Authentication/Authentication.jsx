@@ -1,7 +1,8 @@
 // Authentication.js
 import React, { useState } from 'react';
 import './Authentication.css';
-import logo from '../../../assets/images/vairo-logo-whiteBlue.png';
+import logo from '../../../assets/images/vairo-logo-full-dark.png';
+import ProductImage from '../../../assets/images/product-image.png';
 import { ReactComponent as EmailIcon } from '../../../assets/icons/email-icon.svg';
 import { ReactComponent as PasswordIcon } from '../../../assets/icons/password-icon.svg';
 import ConfirmationCode from './ConfirmCode';
@@ -140,21 +141,19 @@ function Authentication() {
 
   return (
     <div className="login-container">
-      {/* Left Side */}
       <div className="left-side">
+        <img src={ProductImage} alt="Product" className="product-image" />
         <div className="left-content">
           <img src={logo} alt="Logo" className="vairo-logo" />
-          <div>
+          <div className="left-content-text">
             <h1>Your Personal Data Analyst</h1>
             <p>Enable your business users to explore data on their own, with plain English.</p>
           </div>
         </div>
       </div>
-
-      {/* Right Side */}
       <div className="right-side">
         <div className="right-content">
-          <h2>{isSignIn ? 'Log in to Filo' : 'Start Using Filo'}</h2>
+          <h2>{isSignIn ? 'Log in to Vairo' : 'Start Using Vairo'}</h2>
           <div className="dots">
             <div className="dot" />
             <div className="dot" />
@@ -164,7 +163,7 @@ function Authentication() {
             {step === 1
               ? isSignIn
                 ? 'Please enter your email and password associated with your account.'
-                : 'To begin using Filo, please enter your business email address.'
+                : 'To begin using Vairo, please enter your business email address.'
               : 'Enter the verification code sent to your email.'}
           </p>
 
@@ -216,7 +215,7 @@ function Authentication() {
           </button>
 
           <p className="support-text">
-            Have questions? Please contact <a href="mailto:ryan@vairo.co">ryan@vairo.co</a>
+            Have questions? Please contact <a href="mailto:ryan@vairo.ai">ryan@vairo.ai</a>
           </p>
         </div>
       </div>

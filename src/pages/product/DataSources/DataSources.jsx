@@ -115,7 +115,7 @@ function DataSources() {
                                 <span className={(itemSelected ? ' active' : '')}>Remove</span>
                             </div>
                             <div onClick={createDataSource} className='header-action add'>
-                                <AddIcon onClick={deleteSelectedDataSources} className={'icon add'} />
+                                <AddIcon className={'icon add'} />
                                 <span>Add Data Source</span>
                             </div>
                         </div>
