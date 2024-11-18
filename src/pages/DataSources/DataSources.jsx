@@ -1,11 +1,11 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { UserContext } from '../../../objects/Context';
+import { UserContext } from '../../objects/Context';
 import './DataSources.css';
-import Row from '../../../components/product/Row/Row';
-import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
-import {ReactComponent as EditIcon} from '../../../assets/icons/edit-icon.svg'
-import {ReactComponent as AddIcon} from '../../../assets/icons/add-noFill-icon.svg'
-import {ReactComponent as CloseIcon} from '../../../assets/icons/close-icon.svg'
+import Row from '../../components/Row/Row';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import {ReactComponent as EditIcon} from '../../assets/icons/edit-icon.svg'
+import {ReactComponent as AddIcon} from '../../assets/icons/add-noFill-icon.svg'
+import {ReactComponent as CloseIcon} from '../../assets/icons/close-icon.svg'
 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -91,11 +91,11 @@ function DataSources() {
     };
 
     const createDataSource = () => {
-        navigate('/app/data-sources/add');
+        navigate('/data-sources/add');
     };
 
     const handleEditClick = (dataSource) => {
-        navigate(`/app/data-sources/edit/${dataSource}`);
+        navigate(`/data-sources/edit/${dataSource}`);
     };
 
     useEffect(() => {

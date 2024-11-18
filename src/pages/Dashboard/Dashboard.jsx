@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './Dashboard.css';
-import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import axios from 'axios';
 
 function Dashboard() {

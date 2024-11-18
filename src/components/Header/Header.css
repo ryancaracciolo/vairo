@@ -1,19 +1,22 @@
 .product-header {
   background-color: white;
-  padding-right: 5px;
   position: relative;
+  height: 45px;
 }
 
 .product-header .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 20px;
+    height: 45px;
     background-color: transparent;
+    padding: 0 10px;
 }
 
 .product-header .logo img {
     height: clamp(30px, 2vw, 38px);
+    margin-left: 10px;
+    margin-top: 5px;
 }
 
 .product-header .profile-button {

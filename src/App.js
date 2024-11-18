@@ -4,21 +4,16 @@ import './styles/App.css';
 import { UserContext, ActiveMenuIndexContext } from './objects/Context';
 import { Navigate } from 'react-router-dom';
 
-// Landing Components
-import LandingHeader from './components/landing/Header/Header';
-import LandingFooter from './components/landing/Footer/Footer';
-import LandingMain from './components/landing/LandingMain/LandingMain';
-
 // App Components
-import Header from './components/product/Header/Header';
-import Menu from './components/product/Menu/Menu';
-import Threads from './pages/product/Threads/Threads';
-import Dashboard from './pages/product/Dashboard/Dashboard';
-import DataSources from './pages/product/DataSources/DataSources';
-import AddDataSource from './pages/product/DataSources/AddDataSource/AddDataSource';
-import Resources from './pages/product/Resources/Resources';
-import LoadingScreen from './components/product/LoadingScreen/LoadingScreen';
-import Authentication from './pages/product/Authentication/Authentication';
+import Header from './components/Header/Header';
+import Menu from './components/Menu/Menu';
+import Threads from './pages/Threads/Threads';
+import Dashboard from './pages/Dashboard/Dashboard';
+import DataSources from './pages/DataSources/DataSources';
+import AddDataSource from './pages/DataSources/AddDataSource/AddDataSource';
+import Resources from './pages/Resources/Resources';
+import LoadingScreen from './components/LoadingScreen/LoadingScreen';
+import Authentication from './pages/Authentication/Authentication';
 
 function App() {
   const { setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
@@ -27,13 +22,13 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname.startsWith('/app/threads')) {
+    if (location.pathname.startsWith('/threads')) {
       setActiveMenuIndex(0);
-    } else if (location.pathname.startsWith('/app/dashboards')) {
+    } else if (location.pathname.startsWith('/dashboards')) {
       setActiveMenuIndex(1);
-    } else if (location.pathname.startsWith('/app/data-sources')) {
+    } else if (location.pathname.startsWith('/data-sources')) {
       setActiveMenuIndex(2);
-    } else if (location.pathname.startsWith('/app/resources')) {
+    } else if (location.pathname.startsWith('/resources')) {
       setActiveMenuIndex(3);
     }
   }, [location.pathname, setActiveMenuIndex]);
@@ -57,37 +52,27 @@ function App() {
 
   return (
     <div className="app-wrapper">
-      {location.pathname.startsWith('/') ? ( //UPDATE THIS TO BE '/app' IF YOU WANT TO USE LANDING PAGE
-        <>
           {user?.id ? (
             <>
               <Header />
               <main className="product-main">
                 <Menu />
                 <Routes>
-                  <Route path="/app/threads/action?" element={<Threads />} />
-                  <Route path="/app/dashboards/action?" element={<Dashboard />} />
-                  <Route path="/app/data-sources/action?" element={<DataSources />} />
-                  <Route path="/app/data-sources/add" element={<AddDataSource />} />
-                  <Route path="/app/resources" element={<Resources />} />
-                  <Route path="*" element={<Navigate to="/app/threads" />} />
+                  <Route path="/threads/action?" element={<Threads />} />
+                  <Route path="/dashboards/action?" element={<Dashboard />} />
+                  <Route path="/data-sources/action?" element={<DataSources />} />
+                  <Route path="/data-sources/add" element={<AddDataSource />} />
+                  <Route path="/resources" element={<Resources />} />
+                  <Route path="*" element={<Navigate to="/threads" />} />
                 </Routes>
               </main>
             </>
           ) : (
             <Routes>
-              <Route path="/app/login" element={<Authentication />} />
-              <Route path="*" element={<Navigate to="/app/login" />} />
+              <Route path="/login" element={<Authentication />} />
+              <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
           )}
-        </>
-      ) : (
-        <>
-          <LandingHeader />
-          <LandingMain />
-          <LandingFooter />
-        </>
-      )}
     </div>
   );
 }

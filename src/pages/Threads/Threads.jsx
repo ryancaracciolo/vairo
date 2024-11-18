@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { UserContext } from '../../../objects/Context';
+import { UserContext } from '../../objects/Context';
 import './Threads.css';
-import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
-import vairoLogo from '../../../assets/images/stars.png';
-import Avatar from '../../../components/product/CircleInitials/CircleInitials';
-import MessageFormatter from '../../../components/product/MessageFormatter/MessageFormatter';
-import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
-import { ReactComponent as DataSourceIcon } from '../../../assets/icons/upload-icon.svg';
-import { ReactComponent as ShareIcon } from '../../../assets/icons/share-icon.svg';
-import { ReactComponent as ConnectionIcon } from '../../../assets/icons/connect-icon.svg';
-import { ReactComponent as XIcon } from '../../../assets/icons/close-icon.svg';
-import { ReactComponent as CheckIcon } from '../../../assets/icons/checkmark-icon.svg';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import vairoLogo from '../../assets/images/stars.png';
+import Avatar from '../../components/CircleInitials/CircleInitials';
+import MessageFormatter from '../../components/MessageFormatter/MessageFormatter';
+import { ReactComponent as AddIcon } from '../../assets/icons/add-icon.svg';
+import { ReactComponent as DataSourceIcon } from '../../assets/icons/upload-icon.svg';
+import { ReactComponent as ShareIcon } from '../../assets/icons/share-icon.svg';
+import { ReactComponent as ConnectionIcon } from '../../assets/icons/connect-icon.svg';
+import { ReactComponent as XIcon } from '../../assets/icons/close-icon.svg';
+import { ReactComponent as CheckIcon } from '../../assets/icons/checkmark-icon.svg';
 import axios from 'axios';
 
 function Threads() {

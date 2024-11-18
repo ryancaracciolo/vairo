@@ -1,12 +1,12 @@
 // Authentication.js
 import React, { useState } from 'react';
 import './Authentication.css';
-import logo from '../../../assets/images/vairo-logo-full-dark.png';
-import ProductImage from '../../../assets/images/product-image.png';
-import { ReactComponent as EmailIcon } from '../../../assets/icons/email-icon.svg';
-import { ReactComponent as PasswordIcon } from '../../../assets/icons/password-icon.svg';
+import logo from '../../assets/images/vairo-logo-full-dark.png';
+import ProductImage from '../../assets/images/product-image.png';
+import { ReactComponent as EmailIcon } from '../../assets/icons/email-icon.svg';
+import { ReactComponent as PasswordIcon } from '../../assets/icons/password-icon.svg';
 import ConfirmationCode from './ConfirmCode';
-import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 import axios from 'axios';
 
@@ -31,7 +31,7 @@ function Authentication() {
       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/users/get-user-by-email/${userEmail}`);
       console.log('User fetched:', response.data);
       localStorage.setItem('user', JSON.stringify(response.data[0]));
-      window.location.href = '/app';
+      window.location.href = '/';
     } catch (error) {
       console.error('Error fetching user data:', error);
     }

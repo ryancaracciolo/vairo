@@ -1,12 +1,12 @@
 // src/pages/product/DataSources/AddDataSource/StepThree.jsx
 import React, { useState, useContext } from 'react';
-import { UserContext } from '../../../../objects/Context';
+import { UserContext } from '../../../objects/Context';
 import './AddDataSource.css'; // Import the CSS file
-import postgresLogo from '../../../../assets/images/integrations/postgres.png';
-import excelLogo from '../../../../assets/images/integrations/excel.png';
-import quickbooksLogo from '../../../../assets/images/integrations/quickbooks.png';
+import postgresLogo from '../../../assets/images/integrations/postgres.png';
+import excelLogo from '../../../assets/images/integrations/excel.png';
+import quickbooksLogo from '../../../assets/images/integrations/quickbooks.png';
 import PostgresForm from './FormTypes/PostgresForm';
-import { ReactComponent as SuccessIcon } from '../../../../assets/icons/checkmark-icon.svg';
+import { ReactComponent as SuccessIcon } from '../../../assets/icons/checkmark-icon.svg';
 import './FormTypes/PostgresForm.css';
 
 function StepThree({formData, setFormData, schema, selectedSchema, setSelectedSchema}) {

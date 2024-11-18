@@ -1,10 +1,10 @@
 // src/pages/product/DataSources/AddDataSource/StepOne.jsx
 import React, { useState, useContext } from 'react';
-import { UserContext } from '../../../../objects/Context';
+import { UserContext } from '../../../objects/Context';
 import './AddDataSource.css'; // Import the CSS file
-import postgresLogo from '../../../../assets/images/integrations/postgres.png';
-import excelLogo from '../../../../assets/images/integrations/excel.png';
-import quickbooksLogo from '../../../../assets/images/integrations/quickbooks.png';
+import postgresLogo from '../../../assets/images/integrations/postgres.png';
+import excelLogo from '../../../assets/images/integrations/excel.png';
+import quickbooksLogo from '../../../assets/images/integrations/quickbooks.png';
 import PostgresForm from './FormTypes/PostgresForm';
 import './FormTypes/PostgresForm.css';
 

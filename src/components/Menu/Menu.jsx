@@ -1,19 +1,19 @@
 import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { UserContext } from '../../../objects/Context';
+import { UserContext } from '../../objects/Context';
 import shortUUID from 'short-uuid';
-import { ReactComponent as ThreadIcon } from '../../../assets/icons/threads-icon.svg';
-import { ReactComponent as DashboardIcon } from '../../../assets/icons/dashboard-icon.svg';
-import { ReactComponent as DataSourceIcon } from '../../../assets/icons/data-icon.svg';
-import { ReactComponent as DocumentIcon } from '../../../assets/icons/docs-icon.svg';
-import { ReactComponent as AddIcon } from '../../../assets/icons/add-icon.svg';
-import { ReactComponent as DownIcon } from '../../../assets/icons/down-icon.svg';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit-icon.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/delete-icon.svg';
+import { ReactComponent as ThreadIcon } from '../../assets/icons/threads-icon.svg';
+import { ReactComponent as DashboardIcon } from '../../assets/icons/dashboard-icon.svg';
+import { ReactComponent as DataSourceIcon } from '../../assets/icons/data-icon.svg';
+import { ReactComponent as DocumentIcon } from '../../assets/icons/docs-icon.svg';
+import { ReactComponent as AddIcon } from '../../assets/icons/add-icon.svg';
+import { ReactComponent as DownIcon } from '../../assets/icons/down-icon.svg';
+import { ReactComponent as EditIcon } from '../../assets/icons/edit-icon.svg';
+import { ReactComponent as DeleteIcon } from '../../assets/icons/delete-icon.svg';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import './Menu.css';
-import { ActiveMenuIndexContext } from '../../../objects/Context';
+import { ActiveMenuIndexContext } from '../../objects/Context';
 
 function Menu() {
   const { user } = useContext(UserContext);
@@ -24,10 +24,10 @@ function Menu() {
   const location = useLocation();
 
   const menuItems = [
-    { label: 'Threads', icon: ThreadIcon, path: '/app/threads' },
-    { label: 'Dashboards', icon: DashboardIcon, path: '/app/dashboards' },
-    { label: 'Data Sources', icon: DataSourceIcon, path: '/app/data-sources' },
-    { label: 'Resources', icon: DocumentIcon, path: '/app/resources' },
+    { label: 'Threads', icon: ThreadIcon, path: '/threads' },
+    { label: 'Dashboards', icon: DashboardIcon, path: '/dashboards' },
+    { label: 'Data Sources', icon: DataSourceIcon, path: '/data-sources' },
+    { label: 'Resources', icon: DocumentIcon, path: '/resources' },
   ];
 
   const actionItem = activeMenuIndex === 0 ? 'New Thread' : null;
@@ -48,7 +48,7 @@ function Menu() {
             {
               id: threadId,
               label: newName,
-              path: `/app/threads?thread=${threadId}`,
+              path: `/threads?thread=${threadId}`,
               isSaved: true,
             },
           ];
@@ -68,7 +68,7 @@ function Menu() {
           setContentItems(
             response.data.map((thread) => ({
               label: thread.title || 'Untitled Thread',
-              path: `/app/threads?thread=${thread.id}`,
+              path: `/threads?thread=${thread.id}`,
               id: thread.id,
               thread: thread, // Include the full thread object
               isSaved: true,
@@ -93,7 +93,7 @@ function Menu() {
             ...prevItems,
             {
               label: 'New Thread',
-              path: `/app/threads?thread=${threadId}`,
+              path: `/threads?thread=${threadId}`,
               id: threadId,
               isSaved: false,
             },
@@ -112,7 +112,7 @@ function Menu() {
         navigate(unsavedThread.path);
       } else {
         const id = shortUUID().new();
-        const newThreadPath = `/app/threads?thread=${id}`;
+        const newThreadPath = `/threads?thread=${id}`;
         setContentItems((prevItems) => [
           ...prevItems,
           {
@@ -151,7 +151,7 @@ function Menu() {
       const response = await axios.delete(`/api/threads/delete-thread/${user.id}/${threadId}`);
       console.log(response.data.message);
       setContentItems((prevItems) => prevItems.filter((item) => item.id !== threadId));
-      navigate('/app/threads');
+      navigate('/threads');
     } catch (err) {
       console.error('Failed to delete thread', err);
     }

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './Resources.css';
-import LoadingScreen from '../../../components/product/LoadingScreen/LoadingScreen';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 
 function Resources() {
     const [loading, setLoading] = useState(false);

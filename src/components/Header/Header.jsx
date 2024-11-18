@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 import './Header.css';
-import logo from '../../../assets/images/vairo-logo.png';
-import {ReactComponent as DownIcon} from '../../../assets/icons/down-icon.svg';
-import {ReactComponent as SettingsIcon} from '../../../assets/icons/settings-icon.svg';
-import {ReactComponent as AlertIcon} from '../../../assets/icons/bell-icon.svg';
-import {ReactComponent as LogoutIcon} from '../../../assets/icons/logout-icon.svg';
-import { UserContext, SearchContext } from '../../../objects/Context';
+import logo from '../../assets/images/vairo-logo.png';
+import {ReactComponent as DownIcon} from '../../assets/icons/down-icon.svg';
+import {ReactComponent as SettingsIcon} from '../../assets/icons/settings-icon.svg';
+import {ReactComponent as AlertIcon} from '../../assets/icons/bell-icon.svg';
+import {ReactComponent as LogoutIcon} from '../../assets/icons/logout-icon.svg';
+import { UserContext, SearchContext } from '../../objects/Context';
 import CircleInitials from '../CircleInitials/CircleInitials'
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
 
@@ -39,7 +39,7 @@ const Header = () => {
         setUser(null);
 
         // Redirect to login page
-        window.location.href = '/app/login'; // Adjust the path as needed
+        window.location.href = '/login'; // Adjust the path as needed
     };
 
     const handleSearch = (e) => {

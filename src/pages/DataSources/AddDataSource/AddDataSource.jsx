@@ -1,15 +1,15 @@
 // src/pages/product/DataSources/AddDataSource.jsx
 import React, { useState, useContext, useEffect } from 'react';
-import { UserContext } from '../../../../objects/Context';
+import { UserContext } from '../../../objects/Context';
 import { useNavigate } from 'react-router-dom';
 import StepOne from './StepOne';
 import StepTwo from './StepTwo';
 import StepThree from './StepThree';
-import { ReactComponent as ArrowIcon } from '../../../../assets/icons/arrow-right-icon.svg';
+import { ReactComponent as ArrowIcon } from '../../../assets/icons/arrow-right-icon.svg';
 import axios from 'axios';
 import './AddDataSource.css'; // Import the CSS file
 import './AddDataSource-Steps.css'; // Import the CSS file
-import LoadingScreen from '../../../../components/product/LoadingScreen/LoadingScreen'; // Import the LoadingScreen component
+import LoadingScreen from '../../../components/LoadingScreen/LoadingScreen'; // Import the LoadingScreen component
 
 function AddDataSource() {
     const { user } = useContext(UserContext);
@@ -45,7 +45,7 @@ function AddDataSource() {
         if (currentStep > 1) {
             setCurrentStep((prev) => prev - 1);
         } else {
-            navigate('/app/data-sources');
+            navigate('/data-sources');
         }
     };
 
@@ -91,7 +91,7 @@ function AddDataSource() {
                 dataSourceId: dataSourceId,
                 tables: selectedSchema
             });
-            navigate('/app/data-sources');
+            navigate('/data-sources');
         } catch (error) {
             console.error('Error adding data source:', error);
         } finally {

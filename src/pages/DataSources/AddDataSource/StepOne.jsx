@@ -1,11 +1,11 @@
 // src/pages/product/DataSources/AddDataSource/StepOne.jsx
 import React, { useContext } from 'react';
-import { UserContext } from '../../../../objects/Context';
+import { UserContext } from '../../../objects/Context';
 import './AddDataSource.css'; // Import the CSS file
-import postgresLogo from '../../../../assets/images/integrations/postgres.png';
-import excelLogo from '../../../../assets/images/integrations/excel.png';
-import quickbooksLogo from '../../../../assets/images/integrations/quickbooks.png';
-import { ReactComponent as PlusIcon } from '../../../../assets/icons/add-noFill-icon.svg';
+import postgresLogo from '../../../assets/images/integrations/postgres.png';
+import excelLogo from '../../../assets/images/integrations/excel.png';
+import quickbooksLogo from '../../../assets/images/integrations/quickbooks.png';
+import { ReactComponent as PlusIcon } from '../../../assets/icons/add-noFill-icon.svg';
 
 function StepOne({formData, setFormData}) {
     const { user } = useContext(UserContext);
