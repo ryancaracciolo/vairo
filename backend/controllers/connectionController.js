@@ -6,65 +6,19 @@ import { PutCommand, GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynam
 import DataSource from '../objects/DataSource.js';
 import DataSourceAccess from '../objects/DataSourceAccess.js';
 import Table from '../objects/Table.js';
+import { addDataSource } from './dataSourceController.js';
 import pkg from 'pg';
 
 const { Client } = pkg;
 
-const tableName = 'vairo-table'; // Replace with your actual DynamoDB table name
-
-// Existing addTables function remains unchanged
-export const addTables = async (req, res) => {
-  const { dataSourceId, tables } = req.body; // 'tables' is an array of table data including columns and foreign keys
-
-  try {
-    // Prepare transaction items
-    const transactItems = [];
-
-    for (const tableData of tables) {
-      const table = new Table({
-        dataSourceId,
-        content: tableData
-      });
-
-      console.log("table ", table);
-      const item = table.toItem();
-      console.log("tableItem ", item);
-
-
-      transactItems.push({
-        Put: {
-          TableName: tableName,
-          Item: item,
-          ConditionExpression: 'attribute_not_exists(PK) AND attribute_not_exists(SK)',
-        },
-      });
-    }
-
-    // DynamoDB allows a maximum of 25 items per transaction
-    const chunkSize = 25;
-    for (let i = 0; i < transactItems.length; i += chunkSize) {
-      const chunk = transactItems.slice(i, i + chunkSize);
-
-      const params = {
-        TransactItems: chunk,
-      };
-
-      const command = new TransactWriteCommand(params);
-      await dynamodb.send(command);
-    }
-
-    res.status(201).json({ message: 'Tables added successfully.' });
-  } catch (err) {
-    console.error('Unable to add Tables. Error:', err);
-    res.status(500).json({ error: 'An error occurred while adding the Tables.' });
-  }
-};
+const tableName = 'vairo-table'; 
 
 ///////////////////////////////////////////////////////////////
-export const scrapeDatabase = async (req, res) => {
-  const { dbConfig } = req.body;
+export const connectAndCreateDataSource = async (req, res) => {
+  const { creatorUserId, name, dataSourceType, host, port, databaseName, username, password } = req.body;
+  console.log("dbConfig: ", req.body);
 
-  const client = await connectToDatabase(dbConfig);
+  const client = await connectToDatabase(host, port, databaseName, username, password);
 
   try {
     const tables = await getTables(client);
@@ -98,24 +52,51 @@ export const scrapeDatabase = async (req, res) => {
       };
     }
 
-    res.status(200).json(dbStructure);
+    // Add data sources to DynamoDB
+    const addDataSourceReq = {
+      body: {
+        creatorUserId: creatorUserId,
+        name: name,
+        dataSourceType: dataSourceType,
+        host: host,
+        port: port,
+        database: databaseName,
+        user: username,
+        password: password,
+        status: 'pending'
+      }
+    };
+    const addDataSourceResult = await addDataSource(addDataSourceReq);
+
+    if (addDataSourceResult.success) {
+      res.status(200).json({
+        message: 'Data source and tables added successfully.',
+        dbStructure,
+        dataSourceId: addDataSourceResult.dataSourceId,
+      });
+    } else {
+      res.status(500).json({ error: addDataSourceResult.error });
+    }
   } catch (err) {
     console.error('Error retrieving database structure:', err);
-    res.status(500).json({ error: 'Error retrieving database structure' });
-    throw err;
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Error retrieving database structure' });
+    }
   } finally {
     await client.end();
     console.log('Database connection closed.');
   }
 };
 
-async function connectToDatabase(dbConfig) {
+////////////////////////////////////////////////////////////////////////////
+async function connectToDatabase(host, port, databaseName,username, password) {
+
   const client = new Client({
-    host: dbConfig.host,
-    port: dbConfig.port,
-    user: dbConfig.user,
-    password: dbConfig.password,
-    database: dbConfig.database
+    host: host,
+    port: port,
+    user: username,
+    password: password,
+    database: databaseName
   });
 
   try {

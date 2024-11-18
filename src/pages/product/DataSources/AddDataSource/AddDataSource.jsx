@@ -1,37 +1,128 @@
 // src/pages/product/DataSources/AddDataSource.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../../../../objects/Context';
 import { useNavigate } from 'react-router-dom';
 import StepOne from './StepOne';
 import StepTwo from './StepTwo';
 import StepThree from './StepThree';
+import { ReactComponent as ArrowIcon } from '../../../../assets/icons/arrow-right-icon.svg';
 import axios from 'axios';
 import './AddDataSource.css'; // Import the CSS file
+import './AddDataSource-Steps.css'; // Import the CSS file
+import LoadingScreen from '../../../../components/product/LoadingScreen/LoadingScreen'; // Import the LoadingScreen component
 
 function AddDataSource() {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
+    const [validTestFailed, setValidTestFailed] = useState(false);
     const [formData, setFormData] = useState({
-        connectionName: '',
         dataSource: '',
+        connectionName: '',
         host: '',
         port: '',
+        databaseName: '',
         username: '',
         password: ''
     });
+    const [schema, setSchema] = useState([]);
+    const [selectedSchema, setSelectedSchema] = useState({});
+    const [dataSourceId, setDataSourceId] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Add loading state
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const nextStep = () => {
-        setCurrentStep((prev) => prev + 1);
+    const nextStep = async () => {
+        if (isStepValid()) {
+            if (currentStep === 2) {
+                await handleConnect();
+            } else if (currentStep < 3) {
+                setCurrentStep((prev) => prev + 1);
+            }
+        }
     };
 
     const prevStep = () => {
-        setCurrentStep((prev) => prev - 1);
+        setValidTestFailed(false);
+        if (currentStep > 1) {
+            setCurrentStep((prev) => prev - 1);
+        } else {
+            navigate('/app/data-sources');
+        }
+    };
+
+    const handleConnect = async (e) => {
+        setIsLoading(true); // Set loading to true
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/connect`, {
+                creatorUserId: user.id,
+                name: formData.connectionName,
+                dataSourceType: formData.dataSource,
+                host: formData.host,
+                port: formData.port,
+                username: formData.username,
+                password: formData.password,
+                databaseName: formData.databaseName
+            });
+            console.log("Response: ", response.data);
+            if (response.data.dbStructure) {
+                console.log("DB Structure: ", JSON.stringify(response.data.dbStructure, null, 2));
+                setSchema(response.data.dbStructure);
+                setDataSourceId(response.data.dataSourceId);
+                if (currentStep < 3) {
+                    setCurrentStep((prev) => prev + 1);
+                }
+            } else {
+                console.error('Connection test failed: No schema returned');
+            }
+        } catch (error) {
+            console.error('Error testing connection:', error);
+        } finally {
+            setIsLoading(false); // Set loading to false
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!isStepValid()) return;
+        try {
+            await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/add-schema`, {
+                dataSourceId: dataSourceId,
+                tables: selectedSchema
+            });
+            navigate('/app/data-sources');
+        } catch (error) {
+            console.error('Error adding data source:', error);
+        }
+    };
+
+    const isStepValid = () => {
+        switch (currentStep) {
+            case 1:
+                if (formData.dataSource.trim() === '') {
+                    setValidTestFailed(true);
+                    return false;
+                } else {
+                    setValidTestFailed(false);
+                    return true;
+                }
+            case 2:
+                if (formData.connectionName.trim() === '' ||
+                    formData.host.trim() === '' ||
+                    formData.port.trim() === '' ||
+                    formData.databaseName.trim() === '' ||
+                    formData.username.trim() === '' ||
+                    formData.password.trim() === '') {
+                    setValidTestFailed(true);
+                    return false;
+                } else {
+                    setValidTestFailed(false);
+                    return true;
+                }
+            case 3:
+                // Add any validation logic for step 3 if necessary
+                return true;
+            default:
+                return false;
+        }
     };
 
     const renderStep = () => {
@@ -41,125 +132,57 @@ function AddDataSource() {
             case 2:
                 return <StepTwo formData={formData} setFormData={setFormData} />;
             case 3:
-                return <StepThree formData={formData} setFormData={setFormData} />;
+                return <StepThree formData={formData} setFormData={setFormData} schema={schema} selectedSchema={selectedSchema} setSelectedSchema={setSelectedSchema} />;
             default:
                 return <StepOne formData={formData} setFormData={setFormData} />;
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/add-data-source`, {
-                creatorUserId: user.id,
-                name: formData.connectionName,
-                dataSourceType: formData.dataSource,
-                host: formData.host,
-                port: formData.port,
-                username: formData.username,
-                password: formData.password
-            });
-
-            await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/scrape-database`, {
-                dbConfig: {
-                    host: formData.host,
-                    port: formData.port,
-                    username: formData.username,
-                    password: formData.password
-                }
-            });
-            
-            navigate('/app/data-sources');
-        } catch (error) {
-            console.error('Error adding data source:', error);
-        }
-    };
-
     return (
-        <div className="add-data-source-wrapper">
-            <h2 className="form-title">Add Data Source</h2>
-            <div className="progress-bar">
-                <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>1</div>
-                <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>2</div>
-                <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div>
-                <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>4</div>
-            </div>
-
-            <form className="data-source-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="connectionName">Connection Name</label>
-                    <input
-                        type="text"
-                        id="connectionName"
-                        name="connectionName"
-                        placeholder="Enter connection name"
-                        value={formData.connectionName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="dataSource">Data Source</label>
-                    <input
-                        type="text"
-                        id="dataSource"
-                        name="dataSource"
-                        placeholder="Enter data source type"
-                        value={formData.dataSource}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="host">Host</label>
-                    <input
-                        type="text"
-                        id="host"
-                        name="host"
-                        placeholder="Enter host address"
-                        value={formData.host}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="port">Port</label>
-                    <input
-                        type="text"
-                        id="port"
-                        name="port"
-                        placeholder="Enter port number"
-                        value={formData.port}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        placeholder="Enter username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <button type="submit" className="submit-button">Submit</button>
-            </form>
+        <div className="add-datasource-wrapper">
+            {isLoading ? (
+                <LoadingScreen />
+            ) : (
+                <>
+                    <div className="form-header">
+                        {currentStep === 1 && (
+                            <>
+                                <h1 className="form-title">Add Data Source</h1>
+                                <h3 className="form-subtitle">Communicating with your data is just minutes away - follow the steps below to connect a data source to Vairo!</h3>
+                                <hr className="form-divider"/>
+                            </>
+                        )}
+                        <div className="progress-bar">
+                            <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
+                                <div className="step-number">1</div>
+                                <div className="step-title">Select Source</div>
+                                <ArrowIcon className="step-icon" />
+                            </div>
+                            <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
+                                <div className="step-number">2</div>
+                                <div className="step-title">Provide Access</div>
+                                <ArrowIcon className="step-icon" />
+                            </div>
+                            <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
+                                <div className="step-number">3</div>
+                                <div className="step-title">Define Schema</div>
+                            </div>
+                        </div>
+                    </div>
+                    <form className="steps" onSubmit={currentStep === 3 ? handleSubmit : (e) => e.preventDefault()}>
+                        {renderStep()}
+                        <div className="navigation-buttons">
+                            <button type="button" onClick={prevStep} className="back-button">
+                                <ArrowIcon className="back-icon"/>
+                                <span>Back</span>
+                            </button>
+                            <p className="error-message">{validTestFailed ? "Please make sure you have filled out all required fields." : ""}</p>
+                            {currentStep < 3 && (<button type="button" onClick={nextStep} className="next-button" >Continue</button>)}
+                            {currentStep === 3 && (<button type="submit" className="confirm-button" >Confirm</button>)}
+                        </div>
+                    </form>
+                </>
+            )}
         </div>
     );
 }

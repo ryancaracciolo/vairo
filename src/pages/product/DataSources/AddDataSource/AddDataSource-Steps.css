@@ -1,0 +1,175 @@
+.form-step {
+    padding: 0;
+    font-family: var(--font-regular);
+}
+
+.form-step h3 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-family: var(--font-bold);
+    color: var(--grey-medium-color);
+}
+
+.form-step p {
+    margin-top: 0px;
+    margin-bottom: 30px;
+    font-size: 12px;
+    color: var(--grey-medium-color);
+}
+
+.form-step.two p {
+    color: var(--purple-color);
+}
+
+/* Step One */
+.form-step .datasource-options {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 250px));
+    gap: 20px;
+}
+
+.form-step .datasource-option {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    transition: box-shadow 0.3s ease;
+    box-shadow: 0 0px 5px rgba(130, 130, 130, 0.1);
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.form-step .datasource-option.selected {
+    border: 1px solid var(--grey-light-color);
+}
+
+.form-step .datasource-option:hover {
+    box-shadow: 0 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-step .datasource-option img {
+    width: 40px;
+}
+
+.form-step .datasource-option h4 {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-dark-color);
+}
+
+/* Step Two */
+
+.form-step.two .datasource-option {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    max-width: 200px;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 25px;
+    cursor: default;
+}
+
+.form-step.two .datasource-option:hover {
+    box-shadow: 0 0px 5px rgba(130, 130, 130, 0.1);
+}
+
+.form-step.two .datasource-option h4 {
+    color: var(--grey-medium-color);
+    font-size: 12px;
+    margin: 0;
+}
+
+.form-step.two .datasource-option img {
+    width: 25px;
+}
+
+/* Step Three */
+.form-step.three .schema-table-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Add 20px gap between tables */
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+.form-step.three .individual-table {
+    padding: 10px;
+    padding-top: 0px;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.form-step.three table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--grey-medium-color);
+    font-size: 13px;
+    font-family: var(--font-bold);
+}
+
+.form-step.three thead {
+    background-color: transparent;
+}
+
+.form-step.three th,
+.form-step.three td {
+    padding: 8px 10px; /* Reduced padding for skinnier rows */
+    text-align: left; /* Align text to the left */
+}
+
+.form-step.three th {
+    border: none; /* Remove borders from header if needed */
+}
+
+.form-step.three tbody {
+    background-color: white;
+}
+
+.form-step.three th:first-child,
+.form-step.three td:first-child {
+    width: 40px;
+}
+
+.form-step.three tr {
+    font-size: 13px;
+    font-family: var(--font-regular);
+}
+
+.form-step.three tbody tr:first-child td:first-child {
+    border-top-left-radius: 8px;
+}
+
+.form-step.three tbody tr:first-child td:last-child {
+    border-top-right-radius: 8px;
+}
+
+.form-step.three tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.form-step.three tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+.form-step.three input[type="text"] {
+    margin: 0;
+    margin-right: 10px;
+    width: 100%;
+    padding: 8px;
+    border: none; /* Remove border from description input */
+    border-radius: 4px;
+    background-color: #f9f9f9; /* Optional: light background for better visibility */
+    box-sizing: border-box;
+}
+
+.form-step.three input[type="text"]:focus {
+    outline: none;
+}
+
+/* Step Four */

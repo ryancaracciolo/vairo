@@ -1,9 +1,8 @@
 import express from 'express';
-import { scrapeDatabase, addTables } from '../controllers/connectionController.js';
+import { connectAndCreateDataSource } from '../controllers/connectionController.js';
 
 const router = express.Router();
 
-router.post('/scrape-database', scrapeDatabase);
-router.post('/add-tables', addTables);
+router.post('/connect', connectAndCreateDataSource);
 
 export default router;

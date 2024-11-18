@@ -1,17 +1,18 @@
 import shortUUID from "short-uuid";
 
 export default class DataSource {
-  constructor({ id, creatorUserId, name, dataSourceType, createdAt, host, port, user, password, database }) {
-    this.id = id || shortUUID().new(); // Generate or accept a unique DataSource ID
+  constructor({ id, creatorUserId, name, dataSourceType, createdAt, host, port, database, user, password, status }) {
+    this.id = id || shortUUID().new();
     this.creatorUserId = creatorUserId;
     this.name = name;
     this.dataSourceType = dataSourceType;
     this.createdAt = createdAt || new Date().toISOString();
     this.host = host;
     this.port = port;
+    this.database = database;
     this.user = user;
     this.password = password;
-    this.database = database;
+    this.status = status;
     this.PK = `DATASOURCE#${this.id}`;
     this.SK = `METADATA`;
     this.Type = 'DataSource';
@@ -29,9 +30,10 @@ export default class DataSource {
       creatorUserId: this.creatorUserId,
       host: this.host,
       port: this.port,
+      database: this.database,
       user: this.user,
       password: this.password,
-      database: this.database,
+      status: this.status
     };
   }
 
@@ -44,9 +46,10 @@ export default class DataSource {
       createdAt: item.createdAt,
       host: item.host,
       port: item.port,
+      database: item.database,
       user: item.user,
       password: item.password,
-      database: item.database,
+      status: item.status
     });
   }
 }

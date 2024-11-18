@@ -35,8 +35,8 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
             <td>{dataSourceData.port}</td>
             <td>
                 <div className="status-container">
-                    <div className="status-indicator"></div>
-                    Active
+                    <div className={`status-indicator ${dataSourceData.status}`}></div>
+                    {dataSourceData.status === "pending" ? "Pending" : "Active"}
                 </div>
             </td>
         </tr>

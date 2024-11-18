@@ -65,21 +65,29 @@ function DataSources() {
     }
 
     const deleteSelectedDataSources = async () => {
-        for (let dataSourceId in selectedDataSources) {
-            if (selectedDataSources[dataSourceId]) {
-                try {
-                    //await axios.delete(`/api/data-sources/remove-data-source/${dataSourceId}`);
-                    setDataSources((prevDataSources) =>
-                        prevDataSources.filter((dataSource) => dataSource.id !== dataSourceId)
-                    );
-                } catch (error) {
-                    console.error(`Error deleting data source with id ${dataSourceId}:`, error);
-                }
-            }
+        const idsToDelete = Object.keys(selectedDataSources).filter(id => selectedDataSources[id]);
+        
+        if (idsToDelete.length === 0) return;
+
+        // Optimistically update the UI
+        setDataSources((prevDataSources) =>
+            prevDataSources.filter((dataSource) => !idsToDelete.includes(dataSource.id))
+        );
+
+        try {
+            await axios.post('/api/data-sources/remove-data-sources', { ids: idsToDelete, userId: user.id });
+        } catch (error) {
+            console.error('Error deleting data sources:', error);
+            // Revert UI changes if the request fails
+            setDataSources((prevDataSources) => [
+                ...prevDataSources,
+                ...dataSources.filter((dataSource) => idsToDelete.includes(dataSource.id))
+            ]);
+        } finally {
+            setSelectedDataSources({});
+            setItemSelected(false);
+            setSelectAll(false);
         }
-        setSelectedDataSources({});
-        setItemSelected(false);
-        setSelectAll(false);
     };
 
     const createDataSource = () => {
@@ -111,7 +119,7 @@ function DataSources() {
                                 <span className={(itemSelected ? ' active' : '')}>Edit</span>
                             </div>
                             <div onClick={itemSelected ? deleteSelectedDataSources : null} className={'header-action delete'+(itemSelected ? ' active' : '')}>
-                                <CloseIcon onClick={deleteSelectedDataSources} className={'icon delete'+(itemSelected ? ' active' : '')} />
+                                <CloseIcon className={'icon delete'+(itemSelected ? ' active' : '')} />
                                 <span className={(itemSelected ? ' active' : '')}>Remove</span>
                             </div>
                             <div onClick={createDataSource} className='header-action add'>
