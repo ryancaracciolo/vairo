@@ -83,7 +83,10 @@ function AddDataSource() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isStepValid()) return;
+        setIsLoading(true);
         try {
+            console.log("Selected Schema: ", selectedSchema);
+            console.log("DataSource ID: ", dataSourceId);
             await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/add-schema`, {
                 dataSourceId: dataSourceId,
                 tables: selectedSchema
@@ -91,6 +94,8 @@ function AddDataSource() {
             navigate('/app/data-sources');
         } catch (error) {
             console.error('Error adding data source:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -118,8 +123,11 @@ function AddDataSource() {
                     return true;
                 }
             case 3:
-                // Add any validation logic for step 3 if necessary
-                return true;
+                if (Object.keys(selectedSchema).length === 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             default:
                 return false;
         }

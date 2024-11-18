@@ -2,14 +2,15 @@
 
 import dynamodb from '../config/dbConfig.js';
 import shortUUID from "short-uuid";
-import { PutCommand, GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, GetCommand, TransactWriteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import DataSource from '../objects/DataSource.js';
 import DataSourceAccess from '../objects/DataSourceAccess.js';
+import Table from '../objects/Table.js';
 
 const tableName = 'vairo-table';
 
 export const addDataSource = async (req) => {
-    const { creatorUserId, name, dataSourceType, createdAt, host, port, databaseName, username, password, status } = req.body;
+    const { creatorUserId, name, dataSourceType, createdAt, host, port, username, password, status, databaseName } = req.body;
   
     const dataSourceId = shortUUID().new();
   
@@ -21,9 +22,9 @@ export const addDataSource = async (req) => {
       createdAt: createdAt,
       host: host,
       port: port,
-      database: databaseName,
-      user: username,
+      username: username,
       password: password,
+      databaseName: databaseName,
       status: status
     });
     const dataSourceItem = dataSource.toItem();
@@ -148,81 +149,141 @@ export const removeDataSources = async (req, res) => {
         return res.status(400).json({ error: 'No data source IDs provided.' });
     }
 
-    const transactItems = ids.flatMap(id => [
-        {
-            Delete: {
-                TableName: tableName,
-                Key: {
-                    PK: `DATASOURCE#${id}`,
-                    SK: 'METADATA',
-                },
-                ConditionExpression: 'attribute_exists(PK)', // Ensure the data source exists
-            }
-        },
-        {
-            Delete: {
-                TableName: tableName,
-                Key: {
-                    PK: `DATASOURCE#${id}`,
-                    SK: `USER#${userId}`,
-                },
-                ConditionExpression: 'attribute_exists(PK)', // Ensure the access item exists
-            }
-        },
-        {
-            Delete: {
-                TableName: tableName,
-                Key: {
-                    PK: `USER#${userId}`,
-                    SK: `DATASOURCE#${id}`,
-                },
-                ConditionExpression: 'attribute_exists(PK)', // Ensure the access item exists
-            }
-        }
-    ]);
-
     try {
+        // Prepare transaction items
+        const transactItems = [];
+
+        for (const id of ids) {
+            // Query for tables associated with the data source
+            const tableQueryParams = {
+                TableName: tableName,
+                KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+                ExpressionAttributeValues: {
+                    ':pk': `DATASOURCE#${id}`,
+                    ':sk': 'TABLE#',
+                },
+            };
+
+            const tableQueryCommand = new QueryCommand(tableQueryParams);
+            const tableQueryResult = await dynamodb.send(tableQueryCommand);
+
+            // Add delete operations for each table
+            tableQueryResult.Items.forEach(tableItem => {
+                transactItems.push({
+                    Delete: {
+                        TableName: tableName,
+                        Key: {
+                            PK: tableItem.PK,
+                            SK: tableItem.SK,
+                        },
+                        ConditionExpression: 'attribute_exists(PK)', // Ensure the table exists
+                    },
+                });
+            });
+
+            // Add delete operations for the data source and access items
+            transactItems.push(
+                {
+                    Delete: {
+                        TableName: tableName,
+                        Key: {
+                            PK: `DATASOURCE#${id}`,
+                            SK: 'METADATA',
+                        },
+                        ConditionExpression: 'attribute_exists(PK)', // Ensure the data source exists
+                    },
+                },
+                {
+                    Delete: {
+                        TableName: tableName,
+                        Key: {
+                            PK: `DATASOURCE#${id}`,
+                            SK: `USER#${userId}`,
+                        },
+                        ConditionExpression: 'attribute_exists(PK)', // Ensure the access item exists
+                    },
+                },
+                {
+                    Delete: {
+                        TableName: tableName,
+                        Key: {
+                            PK: `USER#${userId}`,
+                            SK: `DATASOURCE#${id}`,
+                        },
+                        ConditionExpression: 'attribute_exists(PK)', // Ensure the access item exists
+                    },
+                }
+            );
+        }
+
+        // Execute the transaction
         const command = new TransactWriteCommand({
             TransactItems: transactItems,
         });
         await dynamodb.send(command);
-        console.log('Deleted data sources and associated access objects:', ids);
+        console.log('Deleted data sources, tables, and associated access objects:', ids);
         res.status(200).json({ success: true, deletedIds: ids });
     } catch (err) {
         console.error(
-            'Unable to delete data sources and access objects. Error JSON:',
+            'Unable to delete data sources, tables, and access objects. Error JSON:',
             JSON.stringify(err, Object.getOwnPropertyNames(err), 2)
         );
-        res.status(500).json({ error: 'An error occurred while deleting the data sources and access objects.' });
+        res.status(500).json({ error: 'An error occurred while deleting the data sources, tables, and access objects.' });
     }
 };
 
 export const addSchema = async (req, res) => {
-  const { dataSourceId, tables } = req.body; // 'tables' is an array of table data including columns and foreign keys
+  const { dataSourceId, tables } = req.body; // 'tables' is expected to be an object with table definitions
+
+  // Check if tables is an object
+  if (typeof tables !== 'object' || tables === null) {
+    return res.status(400).json({ error: 'Invalid input: tables should be an object.' });
+  }
 
   try {
     // Prepare transaction items
     const transactItems = [];
 
-    for (const tableData of tables) {
-      const table = new Table({
-        dataSourceId,
-        content: tableData
-      });
+    // Add tables to transaction items
+    for (const tn in tables) {
+      if (tables.hasOwnProperty(tn)) {
+        const tableData = tables[tn];
+        const table = new Table({
+          dataSourceId,
+          content: tableData
+        });
 
-      console.log("table ", table);
-      const item = table.toItem();
-      console.log("tableItem ", item);
+        const item = table.toItem();
+        console.log("tableItem ", item);
 
-
-      transactItems.push({
-        Put: {
-          TableName: tableName,
-          Item: item,
-          ConditionExpression: 'attribute_not_exists(PK) AND attribute_not_exists(SK)',
-        },
-      });
+        transactItems.push({
+          Put: {
+            TableName: tableName,
+            Item: item,
+            ConditionExpression: 'attribute_not_exists(PK) AND attribute_not_exists(SK)',
+          },
+        });
+      }
     }
+
+    // Add update for DataSource status to "connected"
+    transactItems.push({
+      Update: {
+        TableName: tableName,
+        Key: {
+          PK: `DATASOURCE#${dataSourceId}`,
+          SK: 'METADATA',
+        },
+        UpdateExpression: 'SET #status = :status',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+        },
+        ExpressionAttributeValues: {
+          ':status': 'connected',
+        },
+        ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)', // Ensure the DataSource exists
+      },
+    });
 
     // DynamoDB allows a maximum of 25 items per transaction
     const chunkSize = 25;
@@ -237,9 +298,9 @@ export const addSchema = async (req, res) => {
       await dynamodb.send(command);
     }
 
-    res.status(201).json({ message: 'Tables added successfully.' });
+    res.status(201).json({ message: 'Tables added successfully and DataSource status updated to connected.' });
   } catch (err) {
-    console.error('Unable to add Tables. Error:', err);
-    res.status(500).json({ error: 'An error occurred while adding the Tables.' });
+    console.error('Unable to add Tables or update DataSource status. Error:', err);
+    res.status(500).json({ error: 'An error occurred while adding the Tables or updating the DataSource status.' });
   }
 };

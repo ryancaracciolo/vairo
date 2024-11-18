@@ -6,6 +6,7 @@ import postgresLogo from '../../../../assets/images/integrations/postgres.png';
 import excelLogo from '../../../../assets/images/integrations/excel.png';
 import quickbooksLogo from '../../../../assets/images/integrations/quickbooks.png';
 import PostgresForm from './FormTypes/PostgresForm';
+import { ReactComponent as SuccessIcon } from '../../../../assets/icons/checkmark-icon.svg';
 import './FormTypes/PostgresForm.css';
 
 function StepThree({formData, setFormData, schema, selectedSchema, setSelectedSchema}) {
@@ -76,13 +77,16 @@ function StepThree({formData, setFormData, schema, selectedSchema, setSelectedSc
 
     return (
         <div className="form-step three">
+            <div className="success-response">
+                <SuccessIcon className="success-icon" />
+                <h3>Success! Data Source Added.</h3>
+            </div>
             <h3>Vairo has populated your database schema below.</h3>
             <p>
                 Please select the data tables to include &amp; add definitions as desired to help Vairo
                 understand your data.
             </p>
             <div className="schema-table-list">
-                {console.log("Selected Schema: ", selectedSchema)}
                 {Object.keys(schema).length > 0 ? (
                     Object.keys(schema).map((tableName) => {
                         const table = schema[tableName];

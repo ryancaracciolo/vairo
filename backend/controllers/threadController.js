@@ -61,9 +61,9 @@ function formatDataset(dataItems) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 export const chatWithAI = async (req, res) => {
-  const { threadId, dataSourceId, message } = req.body;
+  const { threadId, dataSource, message } = req.body;
 
-  if (!threadId || !dataSourceId || !message || !message.content) {
+  if (!threadId || !dataSource || !message || !message.content) {
     return res.status(400).json({ error: 'Missing required parameters.' });
   }
 
@@ -85,7 +85,7 @@ export const chatWithAI = async (req, res) => {
       TableName: tableName,
       KeyConditionExpression: 'PK = :dataSourcePk AND begins_with(SK, :tablePrefix)',
       ExpressionAttributeValues: {
-        ':dataSourcePk': `DATASOURCE#${dataSourceId}`,
+        ':dataSourcePk': `DATASOURCE#${dataSource.id}`,
         ':tablePrefix': 'TABLE#',
       },
     };
@@ -208,7 +208,7 @@ export const chatWithAI = async (req, res) => {
 
         if (toolName === 'query_database') {
           console.log("Tool args: ", toolArgs);
-          toolResponse = await queryDatabase(toolArgs.query);
+          toolResponse = await queryDatabase(toolArgs.query, dataSource);
         }
 
         console.log("Tool response: ", toolResponse);
@@ -296,13 +296,13 @@ export const chatWithAI = async (req, res) => {
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-async function queryDatabase(query) {
+async function queryDatabase(query, dataSource) {
   const client = new Client({
-    host: 'localhost',
-    port: 5432,
-    user: 'vairo_user',
-    password: 'Rcooper22!',
-    database: 'VairoDB'
+    host: dataSource.host,
+    port: dataSource.port,
+    user: dataSource.username,
+    password: dataSource.password,
+    database: dataSource.databaseName
   });
 
   try {

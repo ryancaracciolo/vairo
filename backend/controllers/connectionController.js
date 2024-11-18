@@ -60,9 +60,9 @@ export const connectAndCreateDataSource = async (req, res) => {
         dataSourceType: dataSourceType,
         host: host,
         port: port,
-        database: databaseName,
-        user: username,
+        username: username,
         password: password,
+        databaseName: databaseName,
         status: 'pending'
       }
     };

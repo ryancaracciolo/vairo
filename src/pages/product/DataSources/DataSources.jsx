@@ -114,7 +114,7 @@ function DataSources() {
                     <div className='detail-header'>
                         <h2>{activeTab}</h2>
                         <div className='detail-header-actions'>
-                            <div onClick={() => handleEditClick(selectedDataSources[0])} className={'header-action edit'+(itemSelected ? ' active' : '')}>
+                            <div onClick={itemSelected ? () => handleEditClick(selectedDataSources[0]) : null} className={'header-action edit'+(itemSelected ? ' active' : '')}>
                                 <EditIcon className={'icon edit'+(itemSelected ? ' active' : '')} />
                                 <span className={(itemSelected ? ' active' : '')}>Edit</span>
                             </div>
@@ -142,9 +142,15 @@ function DataSources() {
                             </tr>
                         </thead>
                         <tbody>
-                            {dataSources.map(dataSource => (
-                                <Row key={dataSource.id} dataSourceData={dataSource} updateDataSource={updateDataSourceList} dataSourceSelected={dataSourceSelected} checked={selectedDataSources[dataSource.id]} />
-                            ))}
+                            {dataSources.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="no-data-sources">No data sources found. Add a data source to get started!</td>
+                                </tr>
+                            ) : (
+                                dataSources.map(dataSource => (
+                                    <Row key={dataSource.id} dataSourceData={dataSource} updateDataSource={updateDataSourceList} dataSourceSelected={dataSourceSelected} checked={selectedDataSources[dataSource.id]} />
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

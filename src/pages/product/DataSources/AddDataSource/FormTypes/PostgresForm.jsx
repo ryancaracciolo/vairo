@@ -1,6 +1,7 @@
 import React from 'react';
 
 function PostgresForm({ formData, setFormData }) {
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });

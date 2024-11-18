@@ -190,14 +190,17 @@ function Threads() {
           return;
         }
         setTimeout(() => {
-          setThinkingStep(2);
+          if (thinkingStep === 1) {
+            setThinkingStep(2);
+          }
         }, 1500);
 
+        console.log("dataSource: ", dataSource);
         const response = await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/api/threads/chat`,
           {
             threadId: currentThreadId,
-            dataSourceId: dataSource.id,
+            dataSource: dataSource,
             message: newMessage,
           }
         );

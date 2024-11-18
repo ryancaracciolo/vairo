@@ -11,17 +11,18 @@ import './FormTypes/PostgresForm.css';
 function StepTwo({formData, setFormData}) {
     const { user } = useContext(UserContext);
 
+    // Mapping of data sources to their respective image paths
+    const dataSourceImages = {
+        'PostgreSQL': postgresLogo,
+        'Quickbooks': quickbooksLogo,
+        'Excel': excelLogo
+    };
+
     return (
         <div className="form-step two">
             <div className="datasource-option">
                 <img 
-                    src={
-                        formData.dataSource === 'PostgreSQL' 
-                            ? postgresLogo 
-                            : formData.dataSource === 'Quickbooks' 
-                                ? quickbooksLogo 
-                                : excelLogo
-                    } 
+                    src={dataSourceImages[formData.dataSource] || excelLogo} 
                     alt={formData.dataSource} 
                 />
                 <h4>{formData.dataSource}</h4>

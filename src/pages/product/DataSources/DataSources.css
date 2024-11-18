@@ -73,7 +73,6 @@
     gap: 5px;
     padding: 6px 10px;
     border-radius: 7px;
-    cursor: pointer;
 }
 
 .data-sources-content .detail-header-actions .header-action .icon {
@@ -90,6 +89,8 @@
 
 .data-sources-content .detail-header-actions .header-action.add {
     background-color: var(--blue-light-color);
+    cursor: pointer;
+    font-family: var(--font-bold);
 }
 
 .data-sources-content .detail-header-actions .header-action.add .icon {
@@ -98,6 +99,11 @@
 
 .data-sources-content .detail-header-actions .header-action.add span {
     color: white;
+    font-family: var(--font-bold);
+}
+
+.data-sources-content .detail-header-actions .header-action.active {
+    cursor: pointer;
 }
 
 .data-sources-content .detail-header-actions .header-action.active span {
@@ -108,5 +114,12 @@
     fill: var(--grey-dark-color);
 }
 
+.data-sources-content .no-data-sources {
+    text-align: center;
+    padding: 10px;
+    font-family: var(--font-bold);
+    font-size: 14px;
+    color: var(--blue-light-color);
+}
 
   

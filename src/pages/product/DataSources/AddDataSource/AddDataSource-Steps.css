@@ -90,6 +90,27 @@
 }
 
 /* Step Three */
+
+.form-step.three .success-response {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0px 25px 0px;
+}
+
+.form-step.three .success-response .success-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--purple-color);
+}
+
+.form-step.three .success-response h3 {
+    margin: 0;
+    font-size: 14px;
+    font-family: var(--font-bold);
+    color: var(--purple-color);
+}
+
 .form-step.three .schema-table-list {
     margin-top: 20px;
     display: flex;
@@ -99,8 +120,6 @@
 }
 
 .form-step.three .individual-table {
-    padding: 10px;
-    padding-top: 0px;
     border-radius: 8px;
     background-color: transparent;
 }
