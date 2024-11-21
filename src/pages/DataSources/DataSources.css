@@ -93,6 +93,10 @@
     font-family: var(--font-bold);
 }
 
+.data-sources-content .detail-header-actions .header-action.add:hover {
+    background-color: var(--blue-medium-color);
+}
+
 .data-sources-content .detail-header-actions .header-action.add .icon {
     fill: white;
 }
@@ -118,8 +122,35 @@
     text-align: center;
     padding: 10px;
     font-family: var(--font-bold);
-    font-size: 14px;
-    color: var(--blue-light-color);
+    font-size: 20px;
+    color: var(--grey-medium-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
 }
 
+.data-sources-content .no-data-sources p {
+    margin: 10px;
+}
+
+.data-sources-content .no-data-sources .sub-text {
+    font-family: var(--font-regular);
+    font-size: 18px;
+    color: var(--grey-medium-color);
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.data-sources-content .no-data-sources .add-data-source-button {
+    background-color: var(--blue-light-color);
+    cursor: pointer;
+    font-family: var(--font-bold);
+    border-radius: 8px;
+    padding: 5px 10px;
+    color: white;
+    border: none;
+    margin: 0;
+}
   

@@ -33,7 +33,7 @@
 
 .postgres-form .side .form-group input {
     font-family: var(--font-regular);
-    color: var(--grey-medium-color);
+    color: var(--grey-dark-color);
     letter-spacing: 0.5px;
     font-size: 12px;
     padding: 6px;
@@ -50,8 +50,14 @@
 
 .postgres-form .side .form-group input:focus {
     outline: none;
+    box-shadow: none;
+    border-bottom-color: var(--grey-light-color);
 }
 
+.postgres-form .side .form-group input:-webkit-autofill {
+    box-shadow: 0 0 0px 1000px white inset;
+    -webkit-text-fill-color: var(--grey-dark-color);
+}
 
 /* Responsive */
 @media (max-width: 780px) {

@@ -113,7 +113,7 @@ export const chatWithAI = async (req, res) => {
       **Available Resources:**
       1. **Database Schema**: Tables, columns, and foreign keys.
       2. **SQL Execution**: Use \`query_database(query)\` to run SQL queries and retrieve data.
-      3. **Visualization**: Generate charts by providing chart.js JSON configurations (type, data, options) where charts should appear (NOTE: providing the JSON creates a chart for the user). Please confirm correct JSON syntax (e.g. do not end a section with a comma).
+      3. **Visualization**: Generate charts by providing chart.js JSON configurations (type, data, options) where charts should appear (NOTE: the user sees the chart, NOT the JSON, so don't mention the JSON in your response).
 
       **Your Responsibilities:**
       1. **Understand the Request**: Carefully read the user's question, identify the necessary data, and ask clarifying questions if needed.
@@ -121,6 +121,12 @@ export const chatWithAI = async (req, res) => {
       3. **Visualize Data**: When possible, provide JSON configurations for charts to present data visually without prompting (use charts more frequently than tables).
       4. **Include Insights on Data**: Provide insights on the data retrieved to help the user understand the data.
       5. **Present Clearly**: Use Markdown for readability (headings, bullet points, bold text) and proper formatting for equations (\$ for inline and \$\$ for block).
+      
+      **Visualization Guidelines:**
+      - Correct Structure: Ensure that the JSON follows the expected format for Chart.js, including proper nesting.
+      - No Trailing Commas: Ensure there are no trailing commas after the last item in an object or array.
+      - Consistency in Keys: Make sure that all keys used in the configuration are valid and recognized by Chart.js.
+      - Data Types: Ensure that the data types (e.g., numbers, strings) are correctly formatted.
       `;
 
     // a. Define AI Role and Purpose

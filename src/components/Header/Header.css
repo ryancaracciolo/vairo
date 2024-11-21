@@ -120,93 +120,22 @@
     color: var(--grey-dark-color);
   }
 
-  .product-header .user-profile {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    position: absolute;
-    gap: 10px;
-    top: 40px;
-    right: 10px;
-    background-color: white;
-    border-radius: 15px;
-    margin: 10px 5px;
-    padding: 15px 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    font-family: var(--font-regular);
-    color: var(--grey-dark-color);
-    letter-spacing: 0.5px;
-  }
-
   .product-header .circle-wrapper.header-initials {
     width: 32px;
     height: 32px;
   }
 
-  .product-header .circle-wrapper.profile-initials {
-    width: 40px;
-    height: 40px;
+  .product-header .circle-wrapper.header-initials:hover {
+    background-color: var(--blue-light-color);
   }
 
-  .product-header .user-profile-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    text-align: left;
-    gap: 5px;
-    margin-top: 4px;
-  }
-
-  .product-header .user-profile-details h3 {
-    margin: 1px 0;
-    padding: 0;
-    line-height: 12px;
-  }
-
-  .product-header .user-profile-details .user-name {
-    font-family: var(--font-bold);
-    font-size: 14px;
-  }
-
-  .product-header .user-profile-details .user-email {
-    font-family: var(--font-light);
-    color: var(--grey-medium-color);
+  .product-header .header-initials p {
     font-size: 12px;
   }
 
-  .product-header .user-profile-details .user-business-name {
-    font-family: var(--font-bold);
-    color: var(--purple-color);
-    font-size: 12px;
+  .product-header .profile-button:hover .circle-wrapper.header-initials {
+    opacity: 0.8;
   }
-
-  .product-header .user-profile-details hr {
-    margin: 10px 0;
-    background-color: var(--grey-light-color);
-    border: none;
-    height: 0.5px;
-  }
-
-  .product-header .user-profile-details .logout-button {
-    align-self: flex-start;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 5px;
-    cursor: pointer;
-  }
-
-  .product-header .user-profile-details .logout-button .logout-icon {
-    width: 16px;
-    height: 16px;
-    fill: var(--grey-medium-color);
-  }
-
-  .product-header .user-profile-details .logout-button h3 {
-    font-size: 11px;
-    color: var(--grey-medium-color);
-  }
-
 
 
 @media (max-width: 768px) {

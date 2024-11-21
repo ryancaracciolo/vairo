@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import './Header.css';
 import logo from '../../assets/images/vairo-logo.png';
 import {ReactComponent as DownIcon} from '../../assets/icons/down-icon.svg';
@@ -8,6 +8,8 @@ import {ReactComponent as LogoutIcon} from '../../assets/icons/logout-icon.svg';
 import { UserContext, SearchContext } from '../../objects/Context';
 import CircleInitials from '../CircleInitials/CircleInitials'
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
+import axios from 'axios';
+import Profile from './Profile';
 
 // Initialize userPool outside the component to avoid re-initialization on every render
 const userPool = new CognitoUserPool({
@@ -16,13 +18,29 @@ const userPool = new CognitoUserPool({
 });
 
 const Header = () => {
-    const { user, setUser } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext)
     const { searchText, setSearchText } = useContext(SearchContext);
     const [showPopup, setShowPopup] = useState(false);
+    const [workspace, setWorkspace] = useState(null);
 
     const handleProfileClick = () => {
         setShowPopup(!showPopup);
     };
+
+    const fetchWorkspace = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/workspaces/get-workspace/${user.workspaceId}`);
+            setWorkspace(response.data);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error fetching workspace:', error);
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        fetchWorkspace();
+    }, []);
 
     const handleLogout = () => {
         // Get the current Cognito user
@@ -31,19 +49,12 @@ const Header = () => {
         if (cognitoUser) {
             cognitoUser.signOut();
         }
-
-        // Clear user data from local storage
         localStorage.removeItem('user');
-        
-        // Clear user data from context
         setUser(null);
-
-        // Redirect to login page
-        window.location.href = '/login'; // Adjust the path as needed
+        window.location.href = '/login';
     };
 
     const handleSearch = (e) => {
-        console.log(e.target.value);
         const value = e.target.value;
         if (value) {
             setSearchText(value);
@@ -76,19 +87,7 @@ const Header = () => {
                 </div>
             </div>
             {showPopup ? (
-                <div className='user-profile'>
-                    <CircleInitials text={user.name} classN='profile-initials' />
-                    <div className='user-profile-details'>
-                        <h3 className='user-name'>{user.name}</h3>
-                        <h3 className='user-email'>{user.email}</h3>
-                        <h3 className='user-business-name'>{user.businessName}</h3>
-                        <hr />
-                        <div className='logout-button' onClick={handleLogout}>
-                            <LogoutIcon className='logout-icon'/>
-                            <h3>Sign Out</h3>
-                        </div>
-                    </div>
-                </div>
+                <Profile user={user} workspace={workspace} handleLogout={handleLogout} />
             ) : (null)}
         </header>
     );

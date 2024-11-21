@@ -15,20 +15,26 @@ function AddDataSource() {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
-    const [validTestFailed, setValidTestFailed] = useState(false);
-    const [formData, setFormData] = useState({
-        dataSource: '',
-        connectionName: '',
-        host: '',
-        port: '',
-        databaseName: '',
-        username: '',
-        password: ''
-    });
+    const [isValid, setIsValid] = useState(true);
+    const [formData, setFormData] = useState({});
     const [schema, setSchema] = useState([]);
     const [selectedSchema, setSelectedSchema] = useState({});
     const [dataSourceId, setDataSourceId] = useState('');
     const [isLoading, setIsLoading] = useState(false); // Add loading state
+
+    const logFormData = (formData) => {
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+    };
+
+    useEffect(() => {
+        console.log("Form Data: ", formData);
+        if (formData.file instanceof FormData) {
+            console.log("Logging contents of formData.file:");
+            logFormData(formData.file);
+        }
+    }, [formData]);
 
     const nextStep = async () => {
         if (isStepValid()) {
@@ -41,7 +47,7 @@ function AddDataSource() {
     };
 
     const prevStep = () => {
-        setValidTestFailed(false);
+        setIsValid(true);
         if (currentStep > 1) {
             setCurrentStep((prev) => prev - 1);
         } else {
@@ -51,17 +57,16 @@ function AddDataSource() {
 
     const handleConnect = async (e) => {
         setIsLoading(true); // Set loading to true
+        console.log("Form Data: ", formData);
+        const formDataToSend = new FormData();
+        if (formData.file) {
+            formDataToSend.append('file', formData.file);
+        }
+        formDataToSend.append('creatorUserId', user.id);
+        formDataToSend.append('data', JSON.stringify(formData));
+
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/connect`, {
-                creatorUserId: user.id,
-                name: formData.connectionName,
-                dataSourceType: formData.dataSource,
-                host: formData.host,
-                port: formData.port,
-                username: formData.username,
-                password: formData.password,
-                databaseName: formData.databaseName
-            });
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/connect`, formDataToSend);
             console.log("Response: ", response.data);
             if (response.data.dbStructure) {
                 console.log("DB Structure: ", JSON.stringify(response.data.dbStructure, null, 2));
@@ -75,6 +80,9 @@ function AddDataSource() {
             }
         } catch (error) {
             console.error('Error testing connection:', error);
+            if (error.response) {
+                console.error('Error details:', error.response.data);
+            }
         } finally {
             setIsLoading(false); // Set loading to false
         }
@@ -102,30 +110,47 @@ function AddDataSource() {
     const isStepValid = () => {
         switch (currentStep) {
             case 1:
-                if (formData.dataSource.trim() === '') {
-                    setValidTestFailed(true);
+                if (formData.dataSourceType.trim() === '') {
+                    setIsValid(false);
                     return false;
                 } else {
-                    setValidTestFailed(false);
+                    setIsValid(true);
                     return true;
                 }
             case 2:
-                if (formData.connectionName.trim() === '' ||
-                    formData.host.trim() === '' ||
-                    formData.port.trim() === '' ||
-                    formData.databaseName.trim() === '' ||
-                    formData.username.trim() === '' ||
-                    formData.password.trim() === '') {
-                    setValidTestFailed(true);
-                    return false;
-                } else {
-                    setValidTestFailed(false);
-                    return true;
+                switch (formData.dataSourceType) {
+                    case 'PostgreSQL':
+                        if (formData.connectionName === '' ||
+                            formData.host === '' ||
+                            formData.port === '' ||
+                            formData.databaseName === '' ||
+                            formData.username === '' ||
+                            formData.password === '') {
+                            setIsValid(false);
+                            return false;
+                        } else {
+                            setIsValid(true);
+                            return true;
+                        }
+                    case 'Quickbooks':
+                    case 'Excel':
+                        if (formData.connectionName === '' ||
+                            formData.file === '') {
+                            setIsValid(false);
+                            return false;
+                        } else {
+                            setIsValid(true);
+                            return true;
+                        }
+                    default:
+                        return false;
                 }
             case 3:
                 if (Object.keys(selectedSchema).length === 0) {
+                    setIsValid(false);
                     return false;
                 } else {
+                    setIsValid(true);
                     return true;
                 }
             default:
@@ -184,7 +209,7 @@ function AddDataSource() {
                                 <ArrowIcon className="back-icon"/>
                                 <span>Back</span>
                             </button>
-                            <p className="error-message">{validTestFailed ? "Please make sure you have filled out all required fields." : ""}</p>
+                            <p className="error-message">{(!isValid) ? "Please make sure you have filled out all required fields." : ""}</p>
                             {currentStep < 3 && (<button type="button" onClick={nextStep} className="next-button" >Continue</button>)}
                             {currentStep === 3 && (<button type="submit" className="confirm-button" >Confirm</button>)}
                         </div>

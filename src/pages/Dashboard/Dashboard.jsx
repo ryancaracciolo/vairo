@@ -4,25 +4,13 @@ import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import axios from 'axios';
 
 function Dashboard() {
-    const [data, setData] = useState([]);
-
-     useEffect(() => {
-       axios.get('/api/businesses')
-         .then(response => {
-           setData(response.data);
-         })
-         .catch(error => console.error('Error fetching data:', error));
-     }, []);
 
      return (
-       <div>
-         <h1>Data from Backend</h1>
-         <ul>
-           {data.map((item, index) => (
-             <li key={index}>{JSON.stringify(item)}</li>
-           ))}
-         </ul>
-       </div>
+      <div className="dashboard-wrapper">
+          <div className="dashboard-content">
+              <h1>Coming Soon!</h1>
+          </div>
+      </div>
      );
 };
 

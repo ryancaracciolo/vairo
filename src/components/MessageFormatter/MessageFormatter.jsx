@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import 'katex/dist/katex.min.css';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'; // Import the plugin
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
-import remarkMath from 'remark-math'; // Import remark-math
+import remarkMath from 'remark-math';
 import './MessageFormatter.css';
 import { Bar, Line, Pie, Doughnut, Radar } from 'react-chartjs-2';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -55,6 +55,21 @@ const ChartRenderer = React.memo(({ chartConfig }) => {
   }
 });
 
+// Function to attempt JSON correction
+const correctJSON = (jsonString) => {
+  // Replace backticks with double quotes
+  let corrected = jsonString.replace(/`/g, '"');
+  // Replace single quotes with double quotes
+  corrected = corrected.replace(/'/g, '"');
+  // Remove concatenation operators
+  corrected = corrected.replace(/\+/g, '');
+  // Remove \n within strings
+  corrected = corrected.replace(/\\n/g, '');
+  // Remove extra spaces
+  corrected = corrected.trim();
+  return corrected;
+};
+
 // Main component to render the message content
 const MessageFormatter = React.memo(({ message }) => {
 
@@ -79,15 +94,56 @@ const MessageFormatter = React.memo(({ message }) => {
           const isJson = match && match[1] === 'json';
 
           if (!inline && isJson) {
+            let jsonString = String(children).replace(/\n$/, '');
+
             try {
-              const jsonData = JSON.parse(children);
+              let jsonData = JSON.parse(jsonString);
 
               if (isChartConfig(jsonData)) {
                 return <ChartRenderer chartConfig={jsonData} />;
+              } else {
+                return <p>Error: Invalid Chart.js configuration.</p>;
               }
             } catch (error) {
-              console.error('Invalid JSON:', error);
-              return <p>Error: Invalid JSON chart configuration.</p>;
+              // Attempt to correct the JSON
+              let correctedJsonString = correctJSON(jsonString);
+
+              try {
+                let correctedJsonData = JSON.parse(correctedJsonString);
+
+                if (isChartConfig(correctedJsonData)) {
+                  return <ChartRenderer chartConfig={correctedJsonData} />;
+                } else {
+                  return (
+                    <div>
+                      <p>Error: Invalid Chart.js configuration after correction.</p>
+                      <SyntaxHighlighter
+                        style={oneDark}
+                        language="json"
+                        PreTag="div"
+                        {...props}
+                      >
+                        {correctedJsonString}
+                      </SyntaxHighlighter>
+                    </div>
+                  );
+                }
+              } catch (correctError) {
+                console.error('Failed to correct JSON:', correctError);
+                return (
+                  <div>
+                    <p>Error: Invalid JSON chart configuration.</p>
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language="json"
+                      PreTag="div"
+                      {...props}
+                    >
+                      {jsonString}
+                    </SyntaxHighlighter>
+                  </div>
+                );
+              }
             }
           }
 

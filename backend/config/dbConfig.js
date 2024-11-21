@@ -1,6 +1,8 @@
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'; // Correct package for DynamoDBClient
-import dotenv from 'dotenv'; // Package that loads environment variables from a .env file into process.env
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import dotenv from 'dotenv';
+import { S3Client } from '@aws-sdk/client-s3';
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 
 // Load environment variables (optional if you're using Lambda's environment variables)
 // if (process.env.NODE_ENV === 'production') {
@@ -11,10 +13,14 @@ import dotenv from 'dotenv'; // Package that loads environment variables from a 
 
 dotenv.config();
 
-// Create the DynamoDB client without credentials (use Lambda IAM Role)
 const dbClient = new DynamoDBClient();
+const dynamodb = DynamoDBDocumentClient.from(dbClient);
 
-// Create the DynamoDB Document client using the DynamoDB client
-const ddbDocClient = DynamoDBDocumentClient.from(dbClient);
+// Configure AWS SDK v3 S3 client
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: fromNodeProviderChain(),
+});
 
-export default ddbDocClient;
+export default dynamodb;
+export { s3Client };

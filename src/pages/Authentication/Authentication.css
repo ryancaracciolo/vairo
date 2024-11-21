@@ -6,77 +6,78 @@
   letter-spacing: 0.5px;
 }
 
-.left-side {
+.login-container .left-side {
   position: relative;
   flex: 1;
-  background-color: var(--bg-light-color);
+  background-color: var(--grey-dark-color);
   display: flex;
   color: var(--grey-dark-color);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
-.left-content {
+.login-container .left-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
   padding: 15px 35px;
-  text-align: left;
+  text-align: center;
   color: var(--grey-dark-color);
-  background: linear-gradient(to top, rgba(217, 228, 252, 0.9) 0%, var(--bg-light-color) 70%);
+  background-color: transparent;
+  z-index: 10;
 }
 
 
-
-.left-side .vairo-logo {
-  width: 25%;
-  margin-bottom: 5vh;
+.login-container .left-side .vairo-logo {
+  width: 40%;
   object-fit: contain;
 }
 
-.left-side h1 {
+.login-container .left-side h1 {
   font-size: clamp(28px, 2.5vw, 45px);
   margin-bottom: 5px;
   font-family: var(--font-bold);
   width: 100%;
-  color: var(--grey-dark-color);
+  color: var(--bg-light-color);
 }
 
-.left-side p {
+.login-container .left-side p {
   font-size: clamp(15px, 1.2vw, 22px);
   line-height: 1.5;
   margin-bottom: 15px;
-  margin-top: 5px;
+  margin-top: 15px;
   font-family: var(--font-regular);
   width: 100%;
-  color: var(--grey-medium-color);
+  color: var(--bg-light-color);
 }
 
-.left-side hr {
+.login-container .left-side hr {
   width: 50%;
   border: 1px solid white;
   margin: 20px 0;
 }
 
-.left-side h2 {
+.login-container .left-side h2 {
   font-size: clamp(20px, 1.8vw, 40px);
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   font-family: var(--font-bold);
 }
 
-.left-side .product-image {
+.login-container .left-side .product-image {
   position: absolute;
-  top: 8%;
-  left: 30%;
+  top: 0;
+  left: 0;
   width: auto;
-  height: 70%;
+  height: 100%;
   object-fit: contain;
   z-index: 1;
-  opacity: 50%;
+  opacity: 10%;
 }
 
-.login-background {
+.login-container .login-background {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -87,45 +88,47 @@
   opacity: 10%;
 }
 
-.right-side {
+.login-container .right-side {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
-.right-content {
+.login-container .right-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 10vw;
-  padding-right: 10vw;
+  padding-left: 5vw;
+  padding-right: 5vw;
   text-align: center;
+  max-width: 30vw;
 }
 
-.right-side h2 {
+.login-container .right-side h2 {
   font-size: clamp(20px, 1.8vw, 40px);
   color: var(--blue-light-color);
   margin-bottom: 3.0vh;
   font-family: var(--font-bold);
 }
 
-.right-side .dots {
+.login-container .right-side .dots {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
 }
 
-.right-side .dot {
+.login-container .right-side .dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background-color: var(--blue-light-color);
 }
 
-.right-side p {
+.login-container .right-side p {
   font-size: clamp(12px, 1.2vw, 20px);
   color: #777;
   margin-bottom: 4vh;
@@ -135,24 +138,32 @@
 
 }
 
-.input-wrapper {
+.login-container .input-wrapper {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin-bottom: 4vh;
   margin-left: 10px;
   margin-right: 10px;
-  border-bottom: 2px solid #dddddd;
+  border-bottom: 1.5px solid #dddddd;
   gap: 5px;
 }
 
-.input-wrapper .email-icon {
-  width: 22px;
-  height: 22px;
+.login-container .input-wrapper.workspace {
+  border-radius: 10px;
+  padding: 4px 5px;
+  background-color: var(--bg-light-color);
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+.login-container .input-wrapper .email-icon {
+  width: 20px;
+  height: 20px;
   fill: #aaaaaa;
 }
 
-.email-input {
+.login-container .email-input {
   width: 100%;
   padding: 5px;
   border: 0px;
@@ -161,13 +172,14 @@
   font-family: var(--font-light);
   color: var(--grey-dark-color);
   outline: none; /* Removes default browser focus border */
+  background-color: transparent;
 }
 
-.email-input:focus {
+.login-container .email-input:focus {
   border: none;
 }
 
-.submit-btn {
+.login-container .submit-btn {
   width: 75%;
   margin-top: 10px;
   padding: 10px;
@@ -180,17 +192,17 @@
   cursor: pointer;
 }
 
-.submit-btn:hover {
+.login-container .submit-btn:hover {
   background-color: var(--blue-medium-color);
 }
 
-.error-message {
+.login-container .error-message {
   color: red;
   margin-top: 10px;
   font-family: var(--font-light);
 }
 
-.toggle-auth-mode {
+.login-container .toggle-auth-mode {
   background: none;
   border: none;
   color: var(--blue-light-color);
@@ -201,11 +213,11 @@
   display: block;
 }
 
-.toggle-auth-mode:hover {
+.login-container .toggle-auth-mode:hover {
   color: var(--blue-medium-color);
 }
 
-.support-text {
+.login-container .support-text {
   margin-top: 40px;
   color: #777;
   font-size: clamp(8px, 1vw, 16px) !important;
@@ -217,45 +229,45 @@
     flex-direction: column;
   }
 
-  .left-side {
+  .login-container .left-side {
     background-color: var(--background-color);
     color: #777;
   }
 
-  .left-content {
+  .login-container .left-content {
     padding: 7%;
     padding-bottom: 0;
   }
 
-  .left-side h1 {
+  .login-container .left-side h1 {
     color: #4e4e4e;
   }
 
-  .left-side hr {
+  .login-container .left-side hr {
     border: 1px solid #777;
     opacity: 30%;
     width: 100%;
     margin-bottom: 0;
   }
 
-  .filo-logo {
+  .login-container .vairo-logo {
     width: 50%;
     filter: brightness(1) invert(0);
   }
 
-  .left-content h2 {
+  .login-container .left-content h2 {
     display: none;
   }
 
-  .left-content .sub-p {
+  .login-container .left-content .sub-p {
     display: none;
   }
 
-  .login-background {
+  .login-container .login-background {
     display: none;
   }
 
-  .right-content hr {
+  .login-container .right-content hr {
     display: none;
   }
 

@@ -1,5 +1,5 @@
 .data-source-row td {
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-bottom: 1px solid #eee;
   text-align: left;
   white-space: nowrap;
@@ -36,11 +36,30 @@
   border-bottom-right-radius: 6px;
 }
 
-input[type="checkbox"] {
+.data-source-row input[type="checkbox"] {
   margin-right: 10px;
 }
 
-.cust-name {
+.data-source-row .datasource-type {
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0px;
+  padding: 0px;
+}
+
+.data-source-row .datasource-type img {
+  width: 18px;
+  margin-right: 5px;
+}
+
+.data-source-row .datasource-type p {
+  margin: 0px;
+  padding: 0px;
+}
+
+.data-source-row .cust-name {
   display: flex;
   flex-wrap: nowrap;
   gap: 8px;
@@ -48,31 +67,31 @@ input[type="checkbox"] {
   align-items: center;
 }
 
-.cust-email {
+.data-source-row .cust-email {
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.received {
+.data-source-row .received {
   color: var(--teal-light-color);
   font-family: var(--font-bold);
 }
 
-.shared {
+.data-source-row .shared {
   color: var(--purple-color);
   font-family: var(--font-bold);
 }
 
-.partners {
+.data-source-row .partners {
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.user-container {
+.data-source-row .user-container {
   display: flex;
   flex-wrap: nowrap;
   margin-left: 0px;
@@ -80,17 +99,17 @@ input[type="checkbox"] {
   opacity: 0.8;
 }
 
-.user-container .user-initials {
+.data-source-row .user-container .user-initials {
   box-shadow: 0 0px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 
-.user-container .user-initials:not(:first-child) {
+.data-source-row .user-container .user-initials:not(:first-child) {
   margin-left: -15px;
   z-index: 1;
 }
 
-.user-container h4 {
+.data-source-row .user-container h4 {
   font-family: var(--font-light);
   font-size: 12px;
   margin: 0px;
@@ -100,12 +119,12 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.status-container {
+.data-source-row .status-container {
   display: flex;
   align-items: center;
 }
 
-.status-indicator {
+.data-source-row .status-indicator {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -113,6 +132,6 @@ input[type="checkbox"] {
   margin-right: 5px; /* Add some space between the dot and the text */
 }
 
-.status-indicator.pending {
+.data-source-row .status-indicator.pending {
   background-color: var(--purple-color);
 }

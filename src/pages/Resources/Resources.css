@@ -11,4 +11,6 @@
     margin-right: 10px;
     margin-bottom: 10px;
     border-radius: 8px;
+    color: var(--grey-medium-color);
+    font-family: var(--font-bold);
 }

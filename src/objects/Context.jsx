@@ -1,14 +1,14 @@
 import React, { createContext, useState } from 'react';
 
-// Create CurrentBusiness Context
-export const BusinessContext = createContext();
-export const BusinessProvider = ({ children }) => {
-    const [business, setBusiness] = useState({id:'', name:''});
+// Create CurrentWorkspace Context
+export const WorkspaceContext = createContext();
+export const WorkspaceProvider = ({ children }) => {
+    const [workspace, setWorkspace] = useState({id:'', name:''});
   
     return (
-      <BusinessContext.Provider value={{ business, setBusiness }}>
+      <WorkspaceContext.Provider value={{ workspace, setWorkspace }}>
         {children}
-      </BusinessContext.Provider>
+      </WorkspaceContext.Provider>
     );
 };
 
@@ -38,7 +38,7 @@ export const ActiveMenuIndexProvider = ({ children }) => {
 // Create User Context
 export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState({id: '', name: '', email: '', businessId: '', businessName: ''});
+    const [user, setUser] = useState({id: '', name: '', email: '', workspaceId: '', workspaceName: ''});
   
     return (
       <UserContext.Provider value={{ user, setUser }}>
@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
 
 // Create Combined Context Provider
 export const CombinedProvider = ({ children }) => (
-    <BusinessProvider>
+    <WorkspaceProvider>
         <SearchProvider>
             <ActiveMenuIndexProvider>
                 <UserProvider>
@@ -57,5 +57,5 @@ export const CombinedProvider = ({ children }) => (
                 </UserProvider>
             </ActiveMenuIndexProvider>
         </SearchProvider>
-    </BusinessProvider>
+    </WorkspaceProvider>
 );

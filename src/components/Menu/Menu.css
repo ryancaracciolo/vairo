@@ -1,7 +1,7 @@
 .ProductMenu {
-    flex-basis: 220px;
-    min-width: 220px;
-    max-width: 220px;
+    flex-basis: 210px;
+    min-width: 210px;
+    max-width: 210px;
     z-index: 1001;
     display: flex;
     flex-direction: column;
@@ -11,7 +11,7 @@
 .ProductMenu ul {
     list-style: none;
     padding: 0;
-    margin: 20px 20px;
+    margin: 20px 15px;
 }
   
 .ProductMenu li {
@@ -22,6 +22,10 @@
     padding: 8px 8px;
     margin-bottom: 5px;
     border-radius: 8px;
+}
+
+.ProductMenu li .menu-item-link {
+    width: 100%;
 }
 
 .sub-menu-content li {
@@ -238,6 +242,7 @@
 .sub-menu-content .delete-icon:hover {
     fill: var(--grey-dark-color);
 }
+
 
 @media (max-width: 768px) {
     .ProductMenu {

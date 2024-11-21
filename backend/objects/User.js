@@ -1,12 +1,12 @@
 import shortUUID from "short-uuid";
 
 export default class User {
-  constructor({id, name, email, businessId, businessName}) {
+  constructor({id, name, email, workspaceId, role}) { // role can be 'pending', 'member', 'admin'
     this.id = id || shortUUID().new(); // Generate or accept a unique Lead ID
     this.name = name;
     this.email = email;
-    this.businessId = businessId; 
-    this.businessName = businessName;
+    this.workspaceId = workspaceId; 
+    this.role = role;
     this.PK = `USER#${this.id}`;
     this.SK = `METADATA`;
     this.Type = 'User';
@@ -20,8 +20,8 @@ export default class User {
       Type: this.Type,
       name: this.name,
       email: this.email,
-      businessId: this.businessId,
-      businessName: this.businessName,
+      workspaceId: this.workspaceId,
+      role: this.role,
     };
   }
 
@@ -30,8 +30,8 @@ export default class User {
       id: item.id,
       name: item.name,
       email: item.email,
-      businessId: item.businessId,
-      businessName: item.businessName,
+      workspaceId: item.workspaceId,
+      role: item.role,
     });
     return user;
   }  

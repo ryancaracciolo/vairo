@@ -150,6 +150,11 @@ function Threads() {
 
   const handleSendMessage = async () => {
     setThinkingStep(1);
+
+    setTimeout(() => {
+      setThinkingStep(2);
+    }, 1000);
+
     if (inputValue.trim()) {
       const newMessage = {
         threadId: currentThreadId,
@@ -189,11 +194,6 @@ function Threads() {
           setThinkingStep(0);
           return;
         }
-        setTimeout(() => {
-          if (thinkingStep === 1) {
-            setThinkingStep(2);
-          }
-        }, 1500);
 
         console.log("dataSource: ", dataSource);
         const response = await axios.post(
@@ -353,8 +353,7 @@ function Threads() {
               <button onClick={handleSendMessage}>Send</button>
             </div>
             <div className="floating-wrapper actions">
-              <AddIcon className="icon first" />
-              <DataSourceIcon className="icon" />
+              <DataSourceIcon className="icon first" />
               <ShareIcon className="icon" />
             </div>
           </div>

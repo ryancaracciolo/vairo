@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 function DataSources() {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('All Referrals');
     const [selectAll, setSelectAll] = useState(false);
     const [selectedDataSources, setSelectedDataSources] = useState({});
     const [itemSelected, setItemSelected] = useState(false);
@@ -31,6 +30,7 @@ function DataSources() {
                 setLoading(false);
             }
         };
+
 
         fetchDataSources();
     }, []);
@@ -112,7 +112,7 @@ function DataSources() {
             ) : (
                 <div className="data-sources-content">
                     <div className='detail-header'>
-                        <h2>{activeTab}</h2>
+                        <h2>Data Sources</h2>
                         <div className='detail-header-actions'>
                             <div onClick={itemSelected ? () => handleEditClick(selectedDataSources[0]) : null} className={'header-action edit'+(itemSelected ? ' active' : '')}>
                                 <EditIcon className={'icon edit'+(itemSelected ? ' active' : '')} />
@@ -142,17 +142,20 @@ function DataSources() {
                             </tr>
                         </thead>
                         <tbody>
-                            {dataSources.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="no-data-sources">No data sources found. Add a data source to get started!</td>
-                                </tr>
-                            ) : (
-                                dataSources.map(dataSource => (
+                            {dataSources.length != 0 && dataSources.map(dataSource => (
                                     <Row key={dataSource.id} dataSourceData={dataSource} updateDataSource={updateDataSourceList} dataSourceSelected={dataSourceSelected} checked={selectedDataSources[dataSource.id]} />
-                                ))
-                            )}
+                            ))}
                         </tbody>
                     </table>
+                    {dataSources.length === 0 &&
+                        <div className="no-data-sources">
+                            <p>No data sources found.</p>
+                            <p className="sub-text">Add a data source to get started!</p>
+                            <button className="add-data-source-button" onClick={createDataSource}>
+                                <span>Add Data Source</span>
+                            </button>
+                        </div>
+                    }  
                 </div>
             )}
         </div>

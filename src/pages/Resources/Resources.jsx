@@ -15,7 +15,7 @@ function Resources() {
     return (
         <div className="resources-wrapper">
             <div className="resources-content">
-                <h1>Resources</h1>
+                <h1>Coming Soon!</h1>
             </div>
         </div>
     );

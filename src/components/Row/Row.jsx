@@ -1,6 +1,9 @@
 import React from 'react';
 import './Row.css';
 import CircleInitials from '../CircleInitials/CircleInitials';
+import postgresLogo from '../../assets/images/integrations/postgres.png';
+import quickbooksLogo from '../../assets/images/integrations/quickbooks.png';
+import excelLogo from '../../assets/images/integrations/excel.png';
 
 const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) => {
     const formattedDate = new Date(dataSourceData.createdAt).toLocaleDateString('en-US');
@@ -12,11 +15,23 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
         { text: "M S", color: "lightcoral" }
     ];
 
+    // Mapping of data source types to image URLs
+    const typeImages = {
+        "PostgreSQL": postgresLogo,
+        "Quickbooks": quickbooksLogo,
+        "Excel": excelLogo
+    };
+
     return (
         <tr className="data-source-row">
             <td><input type="checkbox" checked={checked} onChange={() => dataSourceSelected({dataSource: dataSourceData})} /></td>
             <td>{dataSourceData.name}</td>
-            <td>{dataSourceData.dataSourceType}</td>
+            <td>
+                <div className="datasource-type">
+                    <img src={typeImages[dataSourceData.dataSourceType]} alt={dataSourceData.dataSourceType} />
+                    <p>{dataSourceData.dataSourceType}</p>
+                </div>
+            </td>
             <td>{formattedDate}</td>
             <td>
                 <div className="user-container">

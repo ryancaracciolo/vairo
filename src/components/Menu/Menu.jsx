@@ -158,14 +158,14 @@ function Menu() {
   };
 
   return (
-    <nav className="ProductMenu">
+    <div className="ProductMenu">
       <ul>
         {menuItems.map((item, index) => (
           <li
             key={index}
             className={`menu-item ${activeMenuIndex === index ? 'active' : ''}`}
           >
-            <Link to={item.path}>
+            <Link className='menu-item-link' to={item.path}>
               <item.icon className="menu-icon" />
               <p className={`menu-label ${activeMenuIndex === index ? 'active' : ''}`}>
                 {item.label}
@@ -225,7 +225,7 @@ function Menu() {
           </div>
         </>
       )}
-    </nav>
+    </div>
   );
 }
 

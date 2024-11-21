@@ -15,12 +15,12 @@
   
   .circle-container {
     display: flex;
-    gap: 15px;
+    gap: 10px;
   }
   
   .loading-circle {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     background-color: var(--grey-medium-color);
     border-radius: 50%;
     animation: pulse 0.5s infinite ease-in-out;

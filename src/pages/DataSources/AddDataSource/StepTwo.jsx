@@ -6,6 +6,7 @@ import postgresLogo from '../../../assets/images/integrations/postgres.png';
 import excelLogo from '../../../assets/images/integrations/excel.png';
 import quickbooksLogo from '../../../assets/images/integrations/quickbooks.png';
 import PostgresForm from './FormTypes/PostgresForm';
+import CSVForm from './FormTypes/CSVForm';
 import './FormTypes/PostgresForm.css';
 
 function StepTwo({formData, setFormData}) {
@@ -18,19 +19,27 @@ function StepTwo({formData, setFormData}) {
         'Excel': excelLogo
     };
 
+    function renderForm() {
+        switch (formData.dataSourceType) {
+            case 'PostgreSQL':
+                return <PostgresForm formData={formData} setFormData={setFormData} />;
+            case 'Excel':
+                return <CSVForm formData={formData} setFormData={setFormData} />;
+            default:
+                return null;
+        }
+    }
+
     return (
         <div className="form-step two">
             <div className="datasource-option">
                 <img 
-                    src={dataSourceImages[formData.dataSource] || excelLogo} 
-                    alt={formData.dataSource} 
+                    src={dataSourceImages[formData.dataSourceType] || excelLogo} 
+                    alt={formData.dataSourceType} 
                 />
-                <h4>{formData.dataSource}</h4>
+                <h4>{formData.dataSourceType}</h4>
             </div>
-            <h3>Please provide credentials below to provide data access to Vairo.</h3>
-            <p>Note: Access required is ‘read-only’, meaning Vairo cannot change or delete your data!</p>
-            {formData.dataSource === 'PostgreSQL' && <PostgresForm formData={formData} setFormData={setFormData} />}
-            {/* Add other forms for Quickbooks and Excel as needed */}
+            {renderForm()}
         </div>
     );
 }

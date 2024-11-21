@@ -18,7 +18,7 @@ function StepOne({formData, setFormData}) {
     ];
 
     const handleOptionClick = (dataSource) => {
-        setFormData({ ...formData, dataSource });
+        setFormData({ ...formData, dataSourceType: dataSource });
     };
 
     return (
@@ -28,7 +28,7 @@ function StepOne({formData, setFormData}) {
                 {dataSources.map((source) => (
                     <div 
                         key={source.name}
-                        className={`datasource-option ${formData.dataSource === source.name ? 'selected' : ''}`} 
+                        className={`datasource-option ${formData.dataSourceType === source.name ? 'selected' : ''}`} 
                         onClick={() => handleOptionClick(source.name)}
                     >
                         {source.logo && source.name !== 'Request Data Source' ? (

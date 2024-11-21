@@ -9,9 +9,9 @@ import Thread from '../objects/Thread.js';
 const tableName = 'vairo-table';
 
 export const addUser = async (req, res) => {
-  const { name, email, businessId, businessName } = req.body;
+  const { name, email, workspaceId, role } = req.body;
 
-  const user = new User({ id: shortUUID().new(), name, email, businessId, businessName });
+  const user = new User({ id: shortUUID().new(), name, email, workspaceId, role });
   const item = user.toItem();
 
   const params = {
