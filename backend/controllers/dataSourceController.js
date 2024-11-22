@@ -10,12 +10,10 @@ import Table from '../objects/Table.js';
 const tableName = 'vairo-table';
 
 export const addDataSource = async (req) => {
-    const { creatorUserId, name, dataSourceType, createdAt, host, port, username, password, status, databaseName } = req.body;
-  
-    const dataSourceId = shortUUID().new();
-  
+    const { id, creatorUserId, name, dataSourceType, createdAt, host, port, username, password, status, databaseName, schemaName } = req.body;
+    
     const dataSource = new DataSource({
-      id: dataSourceId,
+      id: id,
       creatorUserId: creatorUserId,
       name: name,
       dataSourceType: dataSourceType,
@@ -25,6 +23,7 @@ export const addDataSource = async (req) => {
       username: username,
       password: password,
       databaseName: databaseName,
+      schemaName: schemaName,
       status: status
     });
     const dataSourceItem = dataSource.toItem();
@@ -32,7 +31,7 @@ export const addDataSource = async (req) => {
     // Create DataSourceAccess items for the creator under both User and DataSource partitions
     const dataSourceAccessUnderUser = new DataSourceAccess({
       userId: creatorUserId,
-      dataSourceId,
+      dataSourceId: id,
       accessLevel: 'owner',
       partitionType: 'USER',
     });
@@ -40,7 +39,7 @@ export const addDataSource = async (req) => {
   
     const dataSourceAccessUnderDataSource = new DataSourceAccess({
       userId: creatorUserId,
-      dataSourceId,
+      dataSourceId: id,
       accessLevel: 'owner',
       partitionType: 'DATASOURCE',
     });
@@ -92,7 +91,7 @@ export const addDataSource = async (req) => {
       );
       return {
         success: true,
-        dataSourceId,
+        dataSourceId: id,
       };
     } catch (err) {
       console.error(
@@ -237,7 +236,11 @@ export const addSchema = async (req, res) => {
 
   // Check if tables is an object
   if (typeof tables !== 'object' || tables === null) {
-    return res.status(400).json({ error: 'Invalid input: tables should be an object.' });
+    const errorResponse = { error: 'Invalid input: tables should be an object.' };
+    if (res) {
+      return res.status(400).json(errorResponse);
+    }
+    return errorResponse;
   }
 
   try {
@@ -254,7 +257,6 @@ export const addSchema = async (req, res) => {
         });
 
         const item = table.toItem();
-        console.log("tableItem ", item);
 
         transactItems.push({
           Put: {
@@ -298,9 +300,17 @@ export const addSchema = async (req, res) => {
       await dynamodb.send(command);
     }
 
-    res.status(201).json({ message: 'Tables added successfully and DataSource status updated to connected.' });
+    const successResponse = { message: 'Tables added successfully and DataSource status updated to connected.' };
+    if (res) {
+      return res.status(200).json(successResponse);
+    }
+    return successResponse;
   } catch (err) {
     console.error('Unable to add Tables or update DataSource status. Error:', err);
-    res.status(500).json({ error: 'An error occurred while adding the Tables or updating the DataSource status.' });
+    const errorResponse = { error: 'An error occurred while adding the Tables or updating the DataSource status.' };
+    if (res) {
+      return res.status(500).json(errorResponse);
+    }
+    return errorResponse;
   }
 };

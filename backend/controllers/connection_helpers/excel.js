@@ -1,15 +1,16 @@
+import shortUUID from 'short-uuid';
 import XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import dynamodb, { s3Client } from '../../config/dbConfig.js';
-import { addDataSource } from '../dataSourceController.js';
+import csv from 'fast-csv';
+import { addDataSource, addSchema } from '../dataSourceController.js';
+import { connectToSnowflake_general, createDatabaseIfNotExists, createSchemaIfNotExists, addCSVToSnowflake } from '../snowflakeController.js';
 
 
 export const handleExcel = async (req, res) => {
-  const { creatorUserId, data } = req.body;
-  const { connectionName } = JSON.parse(data);
+  const { creatorUserId, workspaceId, data } = req.body;
+  const parsedData = JSON.parse(data);
+  const { connectionName } = parsedData;
   const file = req.file;
 
   try {
@@ -17,33 +18,49 @@ export const handleExcel = async (req, res) => {
       throw new Error('No file uploaded.');
     }
 
+    // Initialize file variables
     const excelFilePath = file.path;
-
-    // Convert Excel to CSV
     const csvFilePath = await convertExcelToCSV(excelFilePath);
+    const csvHeaders = await getCsvHeaders(csvFilePath);
+    const tableName = getTableName(csvFilePath);
 
-    // Upload CSV to S3
-    const s3Key = `${path.basename(csvFilePath)}`;
-    await uploadFileToS3(csvFilePath, s3Key);
+    // Create dataSourceId, databaseName, and schemaName
+    const dataSourceId = shortUUID().new();
+    const databaseName = `customer_${workspaceId}`;
+    const schemaName = `schema_${dataSourceId}`;
 
-    // Trigger Airbyte Sync
-    await triggerAirbyteSync();
-    console.log("File uploaded to S3 with key: ", s3Key);
+    // Step 1: Create the dataSource object using addDataSource 
+    const input = {body: {id: dataSourceId, creatorUserId: creatorUserId, name: connectionName, dataSourceType: 'Excel', databaseName: databaseName, schemaName: schemaName, status: 'pending'}};
+    await addDataSource(input);
 
-    // Clean up local files
-    fs.unlinkSync(excelFilePath);
-    fs.unlinkSync(csvFilePath);
+    // Connect to Snowflake
+    const snowflakeConnection = await connectToSnowflake_general();
 
-    //await addDataSource(creatorUserId, connectionName, dataSourceType, s3Key);
+    // Create database and schema
+    await createDatabaseIfNotExists({connection: snowflakeConnection, databaseName: databaseName});
+    await createSchemaIfNotExists({connection: snowflakeConnection, databaseName: databaseName, schemaName: schemaName});
 
-    res.status(200).send('File uploaded and processed successfully.');
+    // Add the CSV file to the Snowflake database
+    await addCSVToSnowflake({connection: snowflakeConnection, databaseName: databaseName, schemaName: schemaName, csvFilePath: csvFilePath, csvHeaders: csvHeaders, tableName: tableName});
+
+    // Add tables to the dataSource in dynamoDB
+    const tableStructure = await getTableStructure(csvFilePath, csvHeaders);
+    const schemaInput = {body: {dataSourceId: dataSourceId, tables: tableStructure}};
+    await addSchema(schemaInput);
+
+     // Clean up local files
+     fs.unlinkSync(excelFilePath);
+     fs.unlinkSync(csvFilePath);
+
+    res.status(200).send({message: 'File uploaded and processed successfully.', dataSourceId: dataSourceId, dbStructure: tableStructure});
   } catch (error) {
     console.error('Error processing file:', error);
-    res.status(500).send('An error occurred while processing the file.');
+    res.status(500).send({message: 'An error occurred while processing the file.', error: error});
   }
 };
 
-// Function to convert Excel to CSV
+
+// Helper function to convert Excel to CSV
 async function convertExcelToCSV(excelFilePath) {
   if (path.extname(excelFilePath).toLowerCase() === '.xlsx' || path.extname(excelFilePath).toLowerCase() === '.xls') {
     const workbook = XLSX.readFile(excelFilePath);
@@ -59,28 +76,43 @@ async function convertExcelToCSV(excelFilePath) {
   }
 }
 
-// Function to upload file to S3
-async function uploadFileToS3(filePath, key) {
-  const fileContent = fs.readFileSync(filePath);
+// Helper: Extract headers from a CSV file
+function getCsvHeaders(csvFilePath) {
+  return new Promise((resolve, reject) => {
+    // Use fast-csv's "headers: true" configuration to extract headers automatically
+    fs.createReadStream(csvFilePath)
+      .pipe(csv.parse({ headers: true }))
+      .on('headers', (headerList) => {
+        resolve(headerList); // Resolve with the headers
+      })
+      .on('error', (err) => {
+        reject(err); // Reject on error
+      })
+      .on('end', () => {
+      });
+  });
+}
 
-  const uploadParams = {
-    Bucket: process.env.S3_BUCKET,
-    Key: key,
-    Body: fileContent,
+function getTableName(csvFilePath) {
+  const fileName = path.basename(csvFilePath, '.csv'); // Extract base name without extension
+  const tableName = fileName.substring(fileName.indexOf('_') + 1); // Remove text before the first underscore
+  return tableName;
+}
+
+// Helper function to create table metadata from CSV
+async function getTableStructure(csvFilePath, csvHeaders) {
+  const tableName = getTableName(csvFilePath);
+  const columns = csvHeaders.map(header => ({ name: header, type: 'string' }));
+  const tableData = {
+    tableName: {
+      tableName: tableName,
+      description: null,
+      columns,
+      foreignKeys: []
+    }
   };
-
-  const command = new PutObjectCommand(uploadParams);
-  await s3Client.send(command);
+  console.log("tableData: ", tableData);
+  return tableData;
 }
 
-// Function to trigger Airbyte sync
-async function triggerAirbyteSync() {
-  // const airbyteUrl = `${process.env.AIRBYTE_API_URL}/connections/sync`;
-  // const response = await axios.post(airbyteUrl, {
-  //   connectionId: process.env.AIRBYTE_CONNECTION_ID,
-  // });
 
-  // if (response.status !== 200) {
-  //   throw new Error('Failed to trigger Airbyte sync.');
-  // }
-}

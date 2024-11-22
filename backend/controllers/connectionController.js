@@ -5,16 +5,17 @@ import axios from 'axios';
 const tableName = 'vairo-table'; 
 
 export const connectAndCreateDataSource = async (req, res) => {
-  const { creatorUserId, data } = req.body;
-  const { dataSourceType } = JSON.parse(data);  
+  const { data } = req.body;
+  const { dataSourceType } = JSON.parse(data);
+  
+  console.log("Data: ", JSON.parse(data));
+  console.log("File: ", req.file);
 
   switch (dataSourceType) {
     case 'PostgreSQL':
       return await handlePostgres(req, res);
     case 'Excel':
-      if (!req.file) {
-        return res.status(400).json({ error: 'File not uploaded' });
-      }
+      if (!req.file) { return res.status(400).json({ error: 'File not uploaded' }); }
       return await handleExcel(req, res);
     default:
       return res.status(400).json({ error: 'Invalid data source type' });

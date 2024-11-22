@@ -15,7 +15,7 @@ export const linkSourceToSnowflake = async (req, res) => {
     }
 }
 
-async function triggerSync({connectionId}) {
+export async function triggerSync({connectionId}) {
     const accessToken = await getAccessToken({client_id: process.env.AIRBYTE_CLIENT_ID_VAIRO, client_secret: process.env.AIRBYTE_CLIENT_SECRET_VAIRO});
     const options = {
         method: 'POST',
@@ -38,7 +38,7 @@ async function triggerSync({connectionId}) {
 }
 
 
-async function createConnection({sourceId, destinationId}) {
+export async function createConnection({connectionName, sourceId, destinationId, schemaName}) {
     const accessToken = await getAccessToken({client_id: process.env.AIRBYTE_CLIENT_ID_VAIRO, client_secret: process.env.AIRBYTE_CLIENT_SECRET_VAIRO});
     const options = {
         method: 'POST',
@@ -52,7 +52,8 @@ async function createConnection({sourceId, destinationId}) {
             dataResidency: 'us',
             sourceId: sourceId,
             destinationId: destinationId
-        }
+        },
+        name: connectionName
     };
 
     try {
@@ -64,7 +65,7 @@ async function createConnection({sourceId, destinationId}) {
     }
 }
 
-async function createDest_snowflake({businessId, schema}) {
+export async function createDest_snowflake({destName, databaseName, schemaName}) {
     const accessToken = await getAccessToken({client_id: process.env.AIRBYTE_CLIENT_ID_VAIRO, client_secret: process.env.AIRBYTE_CLIENT_SECRET_VAIRO});
     const options = {
         method: 'POST',
@@ -79,29 +80,30 @@ async function createDest_snowflake({businessId, schema}) {
                 credentials: {password: process.env.SNOWFLAKE_AIRBYTE_PASSWORD, auth_type: 'Username and Password'},
                 destinationType: 'snowflake',
                 host: process.env.SNOWFLAKE_HOST,
-                role: 'AIRBYTE_ROLE',
-                warehouse: 'VAIRO_WH',
-                database: 'VAIRO_DB',
-                schema: schema,
+                role: process.env.SNOWFLAKE_AIRBYTE_ROLE,
+                warehouse: process.env.SNOWFLAKE_WAREHOUSE,
+                database: databaseName,
+                schema: schemaName,
                 username: process.env.SNOWFLAKE_AIRBYTE_USERNAME
             },
-            name: `snowflake_${schema}`,
+            name: destName,
             workspaceId: process.env.AIRBYTE_WORKSPACE_ID
         }
     };
 
     try {
         const response = await axios.request(options);
+        console.log("Destination Created: ", response.data);
         return response.data;
     } catch (error) {
         console.error('Error creating destination:', error.message);
-        throw error;
+        return error;
     }
 }
 
 
 // Function to add an AWS S3 source to a workspace
-async function createSource_S3({sourceName, datasetName}) {
+export async function createSource_S3({sourceName, datasetName}) {
     const accessToken = await getAccessToken({client_id: process.env.AIRBYTE_CLIENT_ID_VAIRO, client_secret: process.env.AIRBYTE_CLIENT_SECRET_VAIRO});
     const options = {
       method: 'POST',
@@ -130,10 +132,11 @@ async function createSource_S3({sourceName, datasetName}) {
     
     try {
         const response = await axios.request(options);
+        console.log("Source Created: ", response.data);
         return response.data;
     } catch (error) {
         console.error('Error creating source:', error.message);
-        throw error;
+        return error;
     }
 }
 
@@ -178,5 +181,27 @@ async function getConnection_byId({connectionId}) {
         throw error;
     }  
 }
+
+
+export async function getSource_byId({sourceId}) {
+    const accessToken = await getAccessToken({client_id: process.env.AIRBYTE_CLIENT_ID_VAIRO, client_secret: process.env.AIRBYTE_CLIENT_SECRET_VAIRO});
+    const options = {
+      method: 'GET',
+      url: `https://api.airbyte.com/v1/sources/${sourceId}`,
+      headers: {
+        accept: 'application/json',
+        authorization: `Bearer ${accessToken}`
+      }
+    };
+    
+    try {
+        const response = await axios.request(options);
+        return response.data;
+    } catch (error) {
+        console.error('Error listing sources:', error.message);
+        throw error;
+    }  
+}
+
 
 

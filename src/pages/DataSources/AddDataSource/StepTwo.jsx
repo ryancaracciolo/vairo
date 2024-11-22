@@ -9,7 +9,7 @@ import PostgresForm from './FormTypes/PostgresForm';
 import CSVForm from './FormTypes/CSVForm';
 import './FormTypes/PostgresForm.css';
 
-function StepTwo({formData, setFormData}) {
+function StepTwo({formData, setFormData, setFile}) {
     const { user } = useContext(UserContext);
 
     // Mapping of data sources to their respective image paths
@@ -24,7 +24,7 @@ function StepTwo({formData, setFormData}) {
             case 'PostgreSQL':
                 return <PostgresForm formData={formData} setFormData={setFormData} />;
             case 'Excel':
-                return <CSVForm formData={formData} setFormData={setFormData} />;
+                return <CSVForm formData={formData} setFormData={setFormData} setFile={setFile} />;
             default:
                 return null;
         }

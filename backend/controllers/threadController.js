@@ -1,9 +1,10 @@
 import dynamodb from '../config/dbConfig.js';
 import openai from '../config/openaiClient.js';
-import shortUUID from "short-uuid";
 import { PutCommand, QueryCommand, UpdateCommand, BatchWriteCommand, DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { connectToSnowflake_customer, executeQuery } from './snowflakeController.js';
 import Thread from '../objects/Thread.js';
 import Message from '../objects/Message.js';
+import { translatePostgresToSnowflake } from './helpers/sqlTranslation.js';
 import pkg from 'pg';
 
 const { Client } = pkg;
@@ -127,6 +128,10 @@ export const chatWithAI = async (req, res) => {
       - No Trailing Commas: Ensure there are no trailing commas after the last item in an object or array.
       - Consistency in Keys: Make sure that all keys used in the configuration are valid and recognized by Chart.js.
       - Data Types: Ensure that the data types (e.g., numbers, strings) are correctly formatted.
+
+      **SQL Execution Guidelines:**
+      - The query must be a valid SQL query for the given dataset (either PostgreSQL or Snowflake).
+      - Specifically, for Snowflake, be sure to use double quotes when necessary to ensure correct capitalization.
       `;
 
     // a. Define AI Role and Purpose
@@ -136,10 +141,10 @@ export const chatWithAI = async (req, res) => {
     };
 
     // b. Format the Dataset Structure
-    // Example: Presenting tables and columns in a readable format
+    const dbType = getDatabaseType(dataSource.dataSourceType);
     const datasetDescription = {
       role: 'system',
-      content: `Here is the structure of your dataset:\n\n${formatDataset(datasetItems)}`,
+      content: `Here is the structure of your dataset in ${dbType}:\n\n${formatDataset(datasetItems)}`,
     };
 
     // c. Prepare Past Conversation
@@ -303,24 +308,43 @@ export const chatWithAI = async (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 async function queryDatabase(query, dataSource) {
-  const client = new Client({
-    host: dataSource.host,
-    port: dataSource.port,
-    user: dataSource.username,
-    password: dataSource.password,
-    database: dataSource.databaseName
-  });
+  switch (dataSource.dataSourceType) {
+    case 'PostgreSQL':
+      const client = new Client({
+        host: dataSource.host,
+        port: dataSource.port,
+        user: dataSource.username,
+        password: dataSource.password,
+        database: dataSource.databaseName
+      });
 
-  try {
-    await client.connect();
-    console.log('Connected to the database successfully.');
-    console.log("Query: ", query);
-    const res = await client.query(query);
-    console.log("Query result: ", res.rows);
-    return res.rows;
-  } catch (err) {
-    console.error('Failed to connect to the database:', err.message);
-    throw new Error(`Database connection error: ${err.message}`);
+      try {
+        await client.connect();
+        console.log('Connected to the database successfully.');
+        console.log("Query: ", query);
+        const res = await client.query(query);
+        console.log("Query result: ", res.rows);
+        return res.rows;
+      } catch (err) {
+        console.error('Failed to connect to the database:', err.message);
+        throw new Error(`Database connection error: ${err.message}`);
+      }
+    
+    case 'Excel':
+      const translatedQuery = translatePostgresToSnowflake(query);
+      console.log("Translated query: ", translatedQuery);
+      const snowflakeConnection = await connectToSnowflake_customer({databaseName: dataSource.databaseName, schemaName: dataSource.schemaName});
+      const res = await executeQuery({connection: snowflakeConnection, query: translatedQuery});
+      console.log("Query result: ", res);
+      return res;
+  }
+}
+
+function getDatabaseType(dataSourceType) {
+  if (dataSourceType === 'PostgreSQL') {
+    return 'PostgreSQL';
+  } else if (dataSourceType === 'Excel') {
+    return 'Snowflake';
   }
 }
 

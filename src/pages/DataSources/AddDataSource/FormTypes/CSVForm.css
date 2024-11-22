@@ -1,0 +1,65 @@
+.csv-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    padding: 5px 10px 5px 5px;
+    margin-bottom: 10px;
+    width: 400px;
+
+}
+
+.csv-form .form-group label {
+    font-family: var(--font-bold);
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    color: var(--grey-light-color);
+    padding-left: 4px;
+    margin-bottom: 4px;
+}
+
+.csv-form .form-group input {
+    font-family: var(--font-regular);
+    color: var(--grey-dark-color);
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    padding: 10px;
+    margin: 0 0px;
+    border: none;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.csv-form .form-group.csv input {
+    padding: 0px;
+    padding-left: 5px;
+    border-radius: 0px;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.csv-form .form-group input::placeholder {
+    color: var(--grey-medium-color);
+}
+
+.csv-form .form-group input:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom-color: var(--grey-light-color);
+}
+
+.csv-form .form-group input:-webkit-autofill {
+    box-shadow: 0 0 0px 1000px white inset;
+    -webkit-text-fill-color: var(--grey-dark-color);
+}
+
+.csv-form .csv-file-input {
+    margin: 0px;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: var(--font-regular);
+    color: var(--grey-dark-color);
+    letter-spacing: 0.5px;
+    font-size: 12px;
+}
+

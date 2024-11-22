@@ -17,6 +17,7 @@ function AddDataSource() {
     const [currentStep, setCurrentStep] = useState(1);
     const [isValid, setIsValid] = useState(true);
     const [formData, setFormData] = useState({});
+    const [file, setFile] = useState('');
     const [schema, setSchema] = useState([]);
     const [selectedSchema, setSelectedSchema] = useState({});
     const [dataSourceId, setDataSourceId] = useState('');
@@ -30,11 +31,8 @@ function AddDataSource() {
 
     useEffect(() => {
         console.log("Form Data: ", formData);
-        if (formData.file instanceof FormData) {
-            console.log("Logging contents of formData.file:");
-            logFormData(formData.file);
-        }
-    }, [formData]);
+        console.log("File: ", file);
+    }, [formData, file]);
 
     const nextStep = async () => {
         if (isStepValid()) {
@@ -59,17 +57,23 @@ function AddDataSource() {
         setIsLoading(true); // Set loading to true
         console.log("Form Data: ", formData);
         const formDataToSend = new FormData();
-        if (formData.file) {
-            formDataToSend.append('file', formData.file);
+
+        if (file && file instanceof File) {
+            formDataToSend.append('file', file);
+        } else {
+            console.error('No valid file selected');
         }
         formDataToSend.append('creatorUserId', user.id);
+        formDataToSend.append('workspaceId', user.workspaceId);
         formDataToSend.append('data', JSON.stringify(formData));
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/connect`, formDataToSend);
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/connections/connect`, 
+                formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
+                
             console.log("Response: ", response.data);
             if (response.data.dbStructure) {
-                console.log("DB Structure: ", JSON.stringify(response.data.dbStructure, null, 2));
+                console.log("DB Structure: ", JSON.stringify(response.data.dbStructure, null, 5));
                 setSchema(response.data.dbStructure);
                 setDataSourceId(response.data.dataSourceId);
                 if (currentStep < 3) {
@@ -163,7 +167,7 @@ function AddDataSource() {
             case 1:
                 return <StepOne formData={formData} setFormData={setFormData} />;
             case 2:
-                return <StepTwo formData={formData} setFormData={setFormData} />;
+                return <StepTwo formData={formData} setFormData={setFormData} setFile={setFile} />;
             case 3:
                 return <StepThree formData={formData} setFormData={setFormData} schema={schema} selectedSchema={selectedSchema} setSelectedSchema={setSelectedSchema} />;
             default:
