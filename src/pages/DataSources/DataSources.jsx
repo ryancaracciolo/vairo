@@ -19,21 +19,42 @@ function DataSources() {
     const [dataSources, setDataSources] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchDataSources = async () => {
-            try {
-                const response = await axios.get(`/api/users/get-data-sources/${user.id}`);
-                setDataSources(response.data);
-            } catch (error) {
-                console.error('Error fetching data sources:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
+    const fetchDataSources = async () => {
+        try {
+            const response = await axios.get(`/api/users/get-data-sources/${user.id}`);
+            setDataSources(response.data);
+        } catch (error) {
+            console.error('Error fetching data sources:', error);
+        }
+    };
 
-        fetchDataSources();
-    }, []);
+    const fetchUsersWithAccess = async () => {
+        try {
+            const usersWithAccessPromises = dataSources.map(dataSource =>
+                axios.get(`/api/data-sources/get-users-with-access/${dataSource.id}`)
+            );
+            const usersWithAccessResponses = await Promise.all(usersWithAccessPromises);
+            const usersWithAccessData = usersWithAccessResponses.map(response => response.data);
+
+            // Append usersWithAccessData to each dataSource by matching dataSource.id to accessDataItem.dataSourceId
+            setDataSources((prevDataSources) =>
+                prevDataSources.map((dataSource) => {
+                    const accessDataItem = usersWithAccessData.find(item => item[0].dataSourceId === dataSource.id);
+                    console.log(accessDataItem);
+                    return {
+                        ...dataSource,
+                        usersWithAccess: accessDataItem ? accessDataItem.map(user => ({ userId: user.userId, name: user.name })) : [],
+                    };
+                })
+            );
+
+        } catch (error) {
+            console.error('Error fetching users with access:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const updateDataSourceList = ({dataSourceId, newStatus}) => {
         setDataSources((prevDataSources) => 
@@ -105,6 +126,16 @@ function DataSources() {
         };
     }, []);
 
+    useEffect(() => {
+        fetchDataSources();
+    }, []);
+
+    useEffect(() => {        
+        if (dataSources.length > 0 && loading) {
+            fetchUsersWithAccess();
+        }
+    }, [dataSources]);
+
     return (
         <div className="data-sources-wrapper">
             {loading ? (
@@ -136,8 +167,6 @@ function DataSources() {
                                 <th>Data Source</th>
                                 <th>Date Created</th>
                                 <th>User Access</th>
-                                <th>Host</th>
-                                <th>Port</th>
                                 <th>Status</th>
                             </tr>
                         </thead>

@@ -1,0 +1,236 @@
+.invite-overlay {
+    background-color: transparent;
+    width: 400px;
+    max-width: 95%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 10px;
+    font-family: var(--font-regular);
+    color: var(--grey-medium-color);
+    font-size: 12px;
+}
+
+.invite-overlay .invite-header {
+    flex: 0;
+    align-self: stretch;
+    padding: 0 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    position: relative;
+    border-bottom: 1px solid var(--grey-light-color);
+}
+
+.invite-overlay .invite-header h2 {
+    font-size: 14px;
+    color: var(--grey-dark-color);
+    font-family: var(--font-bold);
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+}
+
+.invite-overlay .invite-header h3 {
+    font-size: 11px;
+    color: var(--grey-medium-color);
+    font-family: var(--font-light);
+    margin: 5px 0;
+    margin-bottom: 12px;
+    padding: 0;
+}
+
+.invite-overlay .invite-header .close-icon {
+    fill: var(--grey-medium-color);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.invite-overlay .invite-content {
+    flex: 1;
+    align-self: stretch;
+    background-color: white;
+    padding: 20px 20px;
+    position: relative;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.invite-overlay .invite-content h3 {
+    font-size: 12px;
+    color: var(--grey-dark-color);
+    font-family: var(--font-regular);
+    margin: 5px 0;
+    margin-top: 20px;
+}
+
+/* Invite Input */
+.invite-overlay .invite-content .invite-input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.invite-overlay .invite-content .invite-input input {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: var(--font-regular);
+    line-height: 1;
+    border: 1px solid var(--grey-light-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: var(--bg-light-color);
+}
+
+.invite-overlay .invite-content .invite-input input:focus {
+    outline: none;
+}
+
+.invite-overlay .invite-content .invite-input button {
+    margin-left: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: var(--font-bold);
+    color: var(--grey-medium-color);
+    line-height: 1;
+    border: 1px solid var(--grey-light-color);
+    background-color: var(--bg-light-color);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.invite-overlay .invite-content .invite-input .invite-button.active {
+    background-color: var(--blue-light-color);
+    color: white;
+}
+
+.invite-overlay .invite-content .error-message {
+    color: rgb(211, 88, 88);
+    font-size: 12px;
+    font-family: var(--font-regular);
+    margin-bottom: 10px;
+}
+
+.invite-overlay .invite-content .members-list .member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.invite-overlay .invite-content .members-list .member-details {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+}
+
+.invite-overlay .invite-content .members-list .member-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+}
+
+.invite-overlay .invite-content .members-list .member-info div {
+    line-height: 1.2;
+}
+
+.invite-overlay .members-list .member-item .member-status {
+    position: relative;
+}
+
+.invite-overlay .members-list .member-item .member-status .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: auto;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-family: var(--font-regular);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.invite-overlay .members-list .member-item .member-status .status p {
+    margin: 0;
+}
+
+.invite-overlay .members-list .member-item .member-status .down-icon {
+    height: 14px;
+    width: 14px;
+}
+
+.invite-overlay .members-list .member-item .member-status.admin .status {
+    background-color: rgb(230, 209, 246);
+    color: var(--purple-color);
+}
+
+.invite-overlay .members-list .member-item .member-status.member .status {
+    background-color: rgb(218, 228, 248);
+    color: var(--blue-light-color);
+}
+
+.invite-overlay .members-list .member-item .member-status.pending .status {
+    background-color: var(--bg-light-color);
+    color: var(--grey-dark-color);
+    cursor: default;
+}
+
+.invite-overlay .members-list .member-item .member-status.admin .status .down-icon {
+    fill: var(--purple-color);
+}
+
+.invite-overlay .members-list .member-item .member-status.member .status .down-icon {
+    fill: var(--blue-light-color);
+}
+
+
+.invite-overlay .members-list .member-item .member-status .selection-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid var(--grey-light-color);
+    z-index: 10;
+    padding: 2px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.invite-overlay .members-list .member-item .member-status .selection-menu .status-option {
+    padding: 5px 8px;
+    font-size: 12px;
+    font-family: var(--font-regular);
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 3px;
+    color: var(--grey-dark-color);
+}
+
+.invite-overlay .members-list .member-item .member-status .selection-menu .status-option:hover {
+    background-color: var(--bg-light-color);
+}
+
+.invite-overlay .members-list .member-item .member-status .selection-menu .status-option.revoke {
+    color: rgb(211, 88, 88);
+    font-weight: 600;
+}
+
+
+
+
+

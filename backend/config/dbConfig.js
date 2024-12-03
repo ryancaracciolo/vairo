@@ -4,15 +4,14 @@ import dotenv from 'dotenv';
 import { S3Client } from '@aws-sdk/client-s3';
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 
-// Load environment variables (optional if you're using Lambda's environment variables)
-// if (process.env.NODE_ENV === 'production') {
-//   dotenv.config({ path: '.env.production' });
-// } else {
-//   dotenv.config({ path: '.env.development' });
-// }
+//Load environment variables
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env.production' });
+} else {
+  dotenv.config({ path: '.env.development' });
+}
 
-dotenv.config();
-
+// Configure AWS SDK v3 DynamoDB client
 const dbClient = new DynamoDBClient();
 const dynamodb = DynamoDBDocumentClient.from(dbClient);
 
@@ -22,5 +21,6 @@ const s3Client = new S3Client({
   credentials: fromNodeProviderChain(),
 });
 
+// Export the DynamoDB client and S3 client
 export default dynamodb;
 export { s3Client };

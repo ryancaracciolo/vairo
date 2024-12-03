@@ -2,9 +2,10 @@
 
 import dynamodb from '../config/dbConfig.js';
 import shortUUID from "short-uuid";
-import { PutCommand, GetCommand, QueryCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import Workspace from '../objects/Workspace.js';
 import User from '../objects/User.js';
+import { sendEmail } from './helpers/sendEmail.js';
 
 const tableName = 'vairo-table';
 
@@ -109,5 +110,164 @@ export const getWorkspaceByDomain = async (req, res) => {
   } catch (err) {
     console.error('Unable to retrieve workspaces. Error JSON:', JSON.stringify(err, null, 2));
     res.status(500).json({ error: 'An error occurred while retrieving the workspaces.' });
+  }
+};
+
+export const updateWorkspaceName = async (req, res) => {
+  const { id } = req.params;
+  const { newName } = req.body;
+
+  const updateParams = {
+    TableName: tableName,
+    Key: {
+      PK: `WORKSPACE#${id}`,
+      SK: 'METADATA',
+    },
+    UpdateExpression: 'set #name = :newName',
+    ExpressionAttributeNames: {
+      '#name': 'name',
+    },
+    ExpressionAttributeValues: {
+      ':newName': newName,
+    },
+    ReturnValues: 'UPDATED_NEW',
+  };
+
+  try {
+    const command = new UpdateCommand(updateParams);
+    const result = await dynamodb.send(command);
+    console.log('Updated workspace name:', JSON.stringify(result.Attributes, null, 2));
+    res.status(200).json({ message: 'Workspace name updated successfully.', updatedAttributes: result.Attributes });
+  } catch (err) {
+    console.error('Unable to update workspace name. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while updating the workspace name.' });
+  }
+};
+
+export const updateWorkspaceSubscription = async (req, res) => {
+  const { id } = req.params;
+  const { newSubscriptionType } = req.body;
+
+  const updateParams = {
+    TableName: tableName,
+    Key: {
+      PK: `WORKSPACE#${id}`,
+      SK: 'METADATA',
+    },
+    UpdateExpression: 'set #subscriptionType = :newSubscriptionType',
+    ExpressionAttributeNames: {
+      '#subscriptionType': 'subscriptionType',
+    },
+    ExpressionAttributeValues: {
+      ':newSubscriptionType': newSubscriptionType,
+    },
+    ReturnValues: 'UPDATED_NEW',
+  };
+
+  try {
+    const command = new UpdateCommand(updateParams);
+    const result = await dynamodb.send(command);
+    console.log('Updated workspace subscription type:', JSON.stringify(result.Attributes, null, 2));
+    res.status(200).json({ message: 'Workspace subscription type updated successfully.', updatedAttributes: result.Attributes });
+  } catch (err) {
+    console.error('Unable to update workspace subscription type. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while updating the workspace subscription type.' });
+  }
+};
+
+export const inviteMembers = async (req, res) => {
+  const { workspaceId, workspaceName, emails, senderName } = req.body;
+
+  if (workspaceId === undefined || workspaceName === undefined || !emails || emails.length === 0) {
+    return res.status(400).json({ error: 'Invalid request parameters.' });
+  }
+
+  try {
+    for (const email of emails) {
+      const inviteItemOne = {
+        PK: `WORKSPACE#${workspaceId}`,
+        SK: `INVITE#${email}`,
+        email,
+        workspaceId,
+        workspaceName,
+        senderName
+      };
+
+      const inviteItemTwo = {
+        PK: `INVITE#${email}`,
+        SK: `WORKSPACE#${workspaceId}`,
+        email,
+        workspaceId,
+        workspaceName,
+        senderName
+      };
+
+      const transactParams = {
+        TransactItems: [
+          {
+            Put: {
+              TableName: tableName,
+              Item: inviteItemOne,
+              ConditionExpression: 'attribute_not_exists(PK)', // Prevents overwriting existing items
+            },
+          },
+          {
+            Put: {
+              TableName: tableName,
+              Item: inviteItemTwo,
+              ConditionExpression: 'attribute_not_exists(PK)', // Prevents overwriting existing items
+            },
+          },
+        ],
+      };
+
+      try {
+        const transactCommand = new TransactWriteCommand(transactParams);
+        await dynamodb.send(transactCommand);
+
+        // Send email only if the database operation is successful
+        await sendEmail({
+          toEmail: email,
+          subject: `Invite to ${workspaceName}`,
+          body: `${senderName} has invited you to join the workspace ${workspaceName} on Vairo.<br><br>
+          Please click the link below to accept the invite and join the workspace:<br>
+          <a href="${process.env.APP_URL}/login?workspaceId=${workspaceId}">Join Workspace</a>`
+        });
+
+        // Wait for 5 seconds before sending the next email
+        if (emails.indexOf(email) < emails.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      } catch (err) {
+        console.error(`Failed to add invite for ${email}. Error:`, err);
+        return res.status(500).json({ error: `An error occurred while processing the invite for ${email}.` });
+      }
+    }
+    res.status(200).json({ message: 'Invitations sent successfully.' });
+  } catch (err) {
+    console.error('Unable to invite members. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while inviting members.' });
+  }
+};
+
+
+export const getInvitesSent = async (req, res) => {
+  const { workspaceId } = req.params;
+
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :skPrefix)',
+    ExpressionAttributeValues: {
+      ':pk': `WORKSPACE#${workspaceId}`,
+      ':skPrefix': 'INVITE#',
+    },
+  };
+
+  try {
+    const command = new QueryCommand(params);
+    const data = await dynamodb.send(command);
+    res.status(200).json(data.Items);
+  } catch (err) {
+    res.status(500).json({ error: 'An error occurred while retrieving the invites sent.' });
   }
 };

@@ -12,8 +12,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const PORT = process.env.PORT || 5000;
-
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/data-sources', dataSourceRoutes);
@@ -21,6 +19,17 @@ app.use('/api/threads', threadRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/airbyte', airByteRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-}); 
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Start the server if running locally
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Running in ${process.env.NODE_ENV} mode`);
+  });
+}
+  
+export default app;

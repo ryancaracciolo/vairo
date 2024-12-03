@@ -116,7 +116,8 @@
 }
 
 .user-profile hr {
-    width: 100%;
+    transform: translateX(-10px);
+    width: calc(100% + 20px);
     margin: 5px 0;
     background-color: var(--grey-light-color);
     border: none;

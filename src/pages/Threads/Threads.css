@@ -191,10 +191,20 @@
 .floating-wrapper .icon {
     width: 22px;
     height: 22px;
+    cursor: pointer;
+    fill: var(--grey-medium-color);
 }
 
 .floating-wrapper .icon.first {
     fill: var(--blue-light-color);
+}
+
+.floating-wrapper .icon.first:hover {
+    fill: var(--blue-medium-color);
+}
+
+.floating-wrapper .icon:hover {
+    fill: var(--grey-darks-color);
 }
 
 .message-input .floating-wrapper input {
@@ -217,8 +227,7 @@
 }
 
 .message-input button:hover {
-    background-color: #0056b3;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    color: var(--blue-medium-color);
 }
 
 .thinking-indicator {
@@ -302,7 +311,7 @@
     }
 }
 
-.threads-content .popup-overlay {
+.threads-content .dataSource-overlay {
     background-color: rgba(0, 0, 0, 0.5);
     position: absolute;
     top: 40px;
@@ -315,9 +324,11 @@
     align-items: flex-start;
     justify-content: flex-start;
     padding: 10px;
+    z-index: 10;
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.07);
 }
 
-.threads-content .popup-overlay .popup {
+.threads-content .dataSource-overlay .overlay-content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -327,7 +338,7 @@
     height: 100%;
 }
 
-.threads-content .popup-overlay .popup h2 {
+.threads-content .dataSource-overlay .overlay-content h2 {
     font-size: 18px;
     font-family: var(--font-bold);
     letter-spacing: 0.5px;
@@ -335,13 +346,13 @@
     margin: 0;
 }
 
-.threads-content .popup-overlay .popup ul {
+.threads-content .dataSource-overlay .overlay-content ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.threads-content .popup-overlay .popup ul li {
+.threads-content .dataSource-overlay .overlay-content ul li {
     font-size: 14px;
     font-family: var(--font-regular);
     letter-spacing: 0.5px;
@@ -351,7 +362,7 @@
     margin-bottom: 5px;
 }
 
-.threads-content .popup-overlay .popup button {
+.threads-content .dataSource-overlay .overlay-content button {
     background-color: var(--bg-light-color);
     font-family: var(--font-bold);
     letter-spacing: 0.5px;

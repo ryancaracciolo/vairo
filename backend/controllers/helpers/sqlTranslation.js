@@ -8,12 +8,3 @@ export function translatePostgresToSnowflake(query) {
     return query.replace(regex, (match) => `"${match}"`);
 }
 
-// Example usage:
-const postgresQuery = `
-    SELECT id, user_name
-    FROM users
-    WHERE created_at > '2023-01-01'
-`;
-
-const snowflakeQuery = translatePostgresToSnowflake(postgresQuery);
-console.log(snowflakeQuery);

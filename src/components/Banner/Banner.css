@@ -1,0 +1,11 @@
+.banner {
+    width: 100%;
+    background-color: var(--blue-light-color);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    z-index: 1000;
+    font-size: 12px;
+    font-family: var(--font-extraBold);
+    letter-spacing: 0.5px;
+}

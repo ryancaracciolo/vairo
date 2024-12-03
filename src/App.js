@@ -5,6 +5,7 @@ import { UserContext, ActiveMenuIndexContext } from './objects/Context';
 import { Navigate } from 'react-router-dom';
 
 // App Components
+import Banner from './components/Banner/Banner';
 import Header from './components/Header/Header';
 import Menu from './components/Menu/Menu';
 import Threads from './pages/Threads/Threads';
@@ -54,6 +55,7 @@ function App() {
     <div className="app-wrapper">
           {user?.id ? (
             <>
+              <Banner />
               <Header />
               <main className="product-main">
                 <Menu />

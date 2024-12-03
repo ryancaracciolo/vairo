@@ -2,7 +2,7 @@
 
 import dynamodb from '../config/dbConfig.js';
 import shortUUID from "short-uuid";
-import { PutCommand, GetCommand, QueryCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, GetCommand, QueryCommand, BatchGetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import User from '../objects/User.js';
 import Thread from '../objects/Thread.js';
 
@@ -174,3 +174,109 @@ export const getUserThreads = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while retrieving threads.' });
   }
 };
+
+export const getUsersByIds = async (req, res) => {
+  const { memberIds } = req.body; // Array of user IDs
+
+  if (!Array.isArray(memberIds) || memberIds.length === 0) {
+    return res.status(400).json({ error: 'Invalid input. memberIds should be a non-empty array.' });
+  }
+
+  try {
+    // Prepare keys for BatchGetItem
+    const keys = memberIds.map(id => ({
+      PK: `USER#${id}`,
+      SK: 'METADATA',
+    }));
+
+    // DynamoDB BatchGetItem allows a maximum of 100 items per request
+    const batches = [];
+    while (keys.length) {
+      batches.push(keys.splice(0, 100));
+    }
+
+    // Batch get user items
+    const users = [];
+    for (const batch of batches) {
+      const batchGetParams = {
+        RequestItems: {
+          [tableName]: {
+            Keys: batch,
+          },
+        },
+      };
+      const batchGetCommand = new BatchGetCommand(batchGetParams);
+      const batchGetResult = await dynamodb.send(batchGetCommand);
+      const batchUsers = batchGetResult.Responses[tableName];
+      users.push(...batchUsers);
+    }
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.error('Error retrieving users by IDs. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while retrieving users by IDs.' });
+  }
+};
+
+export const editUserName = async (req, res) => {
+  const { id } = req.params;
+  const { newName } = req.body;
+
+  const params = {
+    TableName: tableName,
+    Key: {
+      PK: `USER#${id}`,
+      SK: 'METADATA',
+    },
+    UpdateExpression: 'set #name = :newName',
+    ExpressionAttributeNames: {
+      '#name': 'name',
+    },
+    ExpressionAttributeValues: {
+      ':newName': newName,
+    },
+    ReturnValues: 'ALL_NEW',
+  };
+
+  try {
+    const command = new UpdateCommand(params);
+    const data = await dynamodb.send(command);
+    console.log('Updated user name:', JSON.stringify(data.Attributes, null, 2));
+    res.status(200).json({ message: 'User name updated successfully.', user: data.Attributes });
+  } catch (err) {
+    console.error('Unable to update user name. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while updating the user name.' });
+  }
+};
+
+export const checkUserEmailForInvite = async (req, res) => {
+  const { email } = req.params;
+
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'PK = :invitePk AND begins_with(SK, :workspacePrefix)',
+    ExpressionAttributeValues: {
+      ':invitePk': `INVITE#${email}`,
+      ':workspacePrefix': 'WORKSPACE#',
+    },
+  };
+
+  try {
+    const command = new QueryCommand(params);
+    const data = await dynamodb.send(command);
+
+    if (data.Items && data.Items.length > 0) {
+      console.log('Invite(s) found for email:', JSON.stringify(data.Items, null, 2));
+      res.status(200).json(data.Items);
+    } else {
+      res.status(404).json({ message: 'No invites found for this email.' });
+    }
+  } catch (err) {
+    console.error('Error checking invites for email. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while checking invites for the email.' });
+  }
+};
+
+
+
+

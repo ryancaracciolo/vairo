@@ -314,3 +314,63 @@ export const addSchema = async (req, res) => {
     return errorResponse;
   }
 };
+
+export const getDataSourceAccess = async (req, res) => {
+  const { id } = req.params;
+
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :skPrefix)',
+    ExpressionAttributeValues: {
+      ':pk': `DATASOURCE#${id}`,
+      ':skPrefix': 'USER#',
+    },
+  };
+
+  try {
+    const command = new QueryCommand(params);
+    const data = await dynamodb.send(command);
+
+    if (data.Items && data.Items.length > 0) {
+      // Retrieve user names for each access item
+      const accessItemsWithNames = await Promise.all(data.Items.map(async (accessItem) => {
+        const userParams = {
+          TableName: tableName,
+          Key: {
+            PK: `USER#${accessItem.userId}`,
+            SK: 'METADATA',
+          },
+          ProjectionExpression: '#name', // Use expression attribute name
+          ExpressionAttributeNames: {
+            '#name': 'name', // Map the reserved keyword
+          },
+        };
+
+        const userCommand = new GetCommand(userParams);
+        const userData = await dynamodb.send(userCommand);
+
+        return {
+          dataSourceId: accessItem.dataSourceId,
+          userId: accessItem.userId,
+          name: userData.Item ? userData.Item.name : 'Unknown',
+        };
+      }));
+
+      console.log(
+        'Retrieved data source access items with user names:',
+        JSON.stringify(accessItemsWithNames, null, 2)
+      );
+      res.status(200).json(accessItemsWithNames);
+    } else {
+      res.status(404).json({ message: 'No access items found for this data source.' });
+    }
+  } catch (err) {
+    console.error(
+      'Unable to retrieve data source access items. Error JSON:',
+      JSON.stringify(err, null, 2)
+    );
+    res
+      .status(500)
+      .json({ error: 'An error occurred while retrieving the data source access items.' });
+  }
+};

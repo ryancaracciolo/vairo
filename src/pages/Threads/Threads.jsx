@@ -6,7 +6,8 @@ import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import vairoLogo from '../../assets/images/stars.png';
 import Avatar from '../../components/CircleInitials/CircleInitials';
 import MessageFormatter from '../../components/MessageFormatter/MessageFormatter';
-import { ReactComponent as AddIcon } from '../../assets/icons/add-icon.svg';
+import Popup from '../../components/Popup/Popup';
+import Share from '../../components/Share/Share';
 import { ReactComponent as DataSourceIcon } from '../../assets/icons/upload-icon.svg';
 import { ReactComponent as ShareIcon } from '../../assets/icons/share-icon.svg';
 import { ReactComponent as ConnectionIcon } from '../../assets/icons/connect-icon.svg';
@@ -25,11 +26,11 @@ function Threads() {
   const [currentThreadId, setCurrentThreadId] = useState(null);
   const [thread, setThread] = useState(null);
   const [showDataSourcePopup, setShowDataSourcePopup] = useState(false);
+  const [showSharePopup, setShowSharePopup] = useState(false);
   const [dataSources, setDataSources] = useState([]);
   const [dataSource, setDataSource] = useState(null);
 
   const messagesEndRef = useRef(null);
-  const navigate = useNavigate();
   const location = useLocation();
 
   const scrollToBottom = () => {
@@ -53,8 +54,7 @@ function Threads() {
     } else {
       setCurrentThreadId(null);
       setThread(null);
-      setMessages([]); // Clear messages when no thread is selected
-      // Optionally, redirect or show a message to select a thread
+      setMessages([]);
     }
   }, [location.search, location.state]);
 
@@ -259,6 +259,42 @@ function Threads() {
     }
   }, [showDataSourcePopup, user.id]);
 
+
+  const handleShowSharePopup = () => {
+    if (showSharePopup) {
+      setShowSharePopup(false);
+    } else {
+      setShowSharePopup(true);
+    }
+  };
+
+  const renderDataSourcePopup = () => {
+    return (
+      <div className="dataSource-overlay">
+        <div className="overlay-content">
+          <h2>Select a Data Source</h2>
+          <ul>
+            {dataSources.map((ds) => (
+              <li key={ds.id} onClick={() => handleSelectDataSource(ds)}>
+                {ds.name}
+              </li>
+            ))}
+          </ul>
+          <button onClick={() => setShowDataSourcePopup(false)}>Cancel</button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderSharePopup = () => {
+    return (
+      <Popup
+        content={<Share handleCloseClick={() => handleShowSharePopup()} />}
+        onClose={() => setShowSharePopup(false)}
+      />
+    );
+  };
+
   return (
     <div className="threads-wrapper">
       {loading ? (
@@ -282,21 +318,7 @@ function Threads() {
               {isConnected ? 'Change Data Source' : 'Connect'}
             </button>
           </div>
-          {showDataSourcePopup && (
-            <div className="popup-overlay">
-              <div className="popup">
-                <h2>Select a Data Source</h2>
-                <ul>
-                  {dataSources.map((ds) => (
-                    <li key={ds.id} onClick={() => handleSelectDataSource(ds)}>
-                      {ds.name}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => setShowDataSourcePopup(false)}>Cancel</button>
-              </div>
-            </div>
-          )}
+          {showDataSourcePopup && renderDataSourcePopup()}
           <div className="messages">
             {messages.map((message, index) => {
               const isUser = message.direction === 'sent';
@@ -353,12 +375,13 @@ function Threads() {
               <button onClick={handleSendMessage}>Send</button>
             </div>
             <div className="floating-wrapper actions">
-              <DataSourceIcon className="icon first" />
-              <ShareIcon className="icon" />
+              <DataSourceIcon className={`icon first`} onClick={() => setShowDataSourcePopup(!showDataSourcePopup)} />
+              <ShareIcon className={`icon`} onClick={() => setShowSharePopup(!showSharePopup)} />
             </div>
           </div>
         </div>
       )}
+      {showSharePopup && renderSharePopup()}
     </div>
   );
 }

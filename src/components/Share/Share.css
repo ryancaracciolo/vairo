@@ -1,0 +1,120 @@
+.share-overlay {
+    background-color: transparent;
+    width: 400px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 10px;
+    font-family: var(--font-regular);
+    color: var(--grey-medium-color);
+    font-size: 12px;
+}
+
+.share-overlay .share-header {
+    flex: 0;
+    align-self: stretch;
+    padding: 0 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    position: relative;
+    border-bottom: 1px solid var(--grey-light-color);
+}
+
+.share-overlay .share-header h2 {
+    font-size: 14px;
+    color: var(--grey-dark-color);
+    font-family: var(--font-bold);
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+}
+
+.share-overlay .share-header h3 {
+    font-size: 11px;
+    color: var(--grey-medium-color);
+    font-family: var(--font-light);
+    margin: 5px 0;
+    margin-bottom: 12px;
+    padding: 0;
+}
+
+.share-overlay .share-header .close-icon {
+    fill: var(--grey-medium-color);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.share-overlay .share-content {
+    flex: 1;
+    align-self: stretch;
+    background-color: white;
+    padding: 0 15px;
+    position: relative;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.share-overlay .share-content .tabular-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    margin: 8px 0 8px 0;
+    position: relative;
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+.share-overlay .share-content .tabular-container .option {
+    cursor: pointer;
+    font-family: var(--font-regular);
+    color: var(--grey-medium-color);
+    width: 45px;
+    text-align: center;
+    border-radius: 5px;
+    padding: 4px 8px;
+}
+
+.share-overlay .share-content .tabular-container .option.active {
+    color: var(--grey-dark-color);
+    font-family: var(--font-bold);
+    background-color: var(--bg-light-color);
+    border: 1px solid rgb(236, 236, 236);
+}
+
+.share-overlay .share-footer {
+    flex: 0;
+    align-self: stretch;
+    background-color: var(--bg-light-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 15px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    cursor: pointer;
+}
+
+.share-overlay .share-footer .icon {
+    fill: var(--grey-medium-color);
+    height: 13px;
+    width: 13px;
+}
+
+.share-overlay .share-footer .text {
+    color: var(--grey-medium-color);
+    font-family: var(--font-light);
+    font-size: 10px;
+    margin-left: 5px;
+}

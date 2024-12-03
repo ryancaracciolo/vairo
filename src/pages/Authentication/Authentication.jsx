@@ -116,26 +116,69 @@ function Authentication() {
     );
   };
 
-  // Handle email and password submission
+  // Handle submission
   const handleSubmit = (e) => {
+    console.log('handleSubmit', e);
     e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
     setError(null);
+
     if (isSignIn) {
       handleSignIn();
     } else {
-      handleSignUp();
+      if (step === 1) {
+        handleSignUp();
+      } else if (step === 2) {
+        handleCodeSubmit({ code: e});
+      } else if (step === 3) {
+        handleRequestAccess();
+      } else if (step === 4) {
+        return;
+      } else if (step === 5) {
+        handleWorkspaceNameSubmit(e);
+      }
     }
   };
 
+  const isUserInvited = async () => {
+    // Check if user has invites
+    try {
+      const invitesResponse = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/users/check-user-invites/${email}`
+      );
+      if (invitesResponse.data.length > 0) {
+        return true;
+      }
+      return false;
+    } catch (invitesError) {
+      console.error('Error checking user invites:', invitesError);
+      return false;
+    }
+  }
+
+  const checkEmailDomain = async ({ email }) => {
+    const emailDomain = email.substring(email.lastIndexOf('@') + 1);
+    const genericDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com'];
+
+    if (!genericDomains.includes(emailDomain)) {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/api/workspaces/get-ws-by-domain/${emailDomain}`
+        );
+        if (response.data.exists) {
+          return response.data;
+        }
+      } catch (err) {
+        console.error('Error checking domain workspace:', err);
+        setError('An error occurred while checking workspace.');
+      }
+    } 
+    return { exists: false };
+  }
+
   // Handle confirmation code submission
-  const handleCodeSubmit = async (code) => {
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    setError(null);
-
+  const handleCodeSubmit = async ({ code }) => {
     const cognitoUser = new CognitoUser({
       Username: email,
       Pool: userPool,
@@ -149,29 +192,21 @@ function Authentication() {
       }
       console.log('Email confirmed');
 
-      // After confirming email, check if email domain exists
-      const emailDomain = email.substring(email.lastIndexOf('@') + 1);
-      const genericDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com'];
+      // Check if user has invites
+      const isInvited = await isUserInvited();
+      if (isInvited) {
+        await handleInvitedUser();
+        setIsSubmitting(false);
+        return;
+      }
 
-      if (!genericDomains.includes(emailDomain)) {
-        try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_API_BASE_URL}/api/workspaces/get-ws-by-domain/${emailDomain}`
-          );
-          if (response.data.exists) {
-            handleExistingWorkspace(response.data);
-          } else {
-            // Proceed to collect workspace name
-            setStep(5); // Step 5: Provide workspace name
-            setIsSubmitting(false);
-          }
-        } catch (err) {
-          console.error('Error checking domain workspace:', err);
-          setError('An error occurred while checking workspace.');
-          setIsSubmitting(false);
-        }
+      // If no invites, check if email domain exists
+      const response = await checkEmailDomain({ email });
+      if (response.exists) {
+        handleExistingWorkspace(response);
+        return;
       } else {
-        // If the domain is generic, skip the domain check
+        // Domain does not exist, proceed to collect workspace name
         setStep(5); // Step 5: Provide workspace name
         setIsSubmitting(false);
       }
@@ -185,6 +220,11 @@ function Authentication() {
     setStep(3); // Proceed to request access
     setIsSubmitting(false);
   };
+
+  const handleInvitedUser = async (data) => {
+    //setStep(6); // Step 6: User has invites
+    setIsSubmitting(false);
+  }
 
   // Handle requesting access to an existing workspace
   const handleRequestAccess = async () => {
@@ -211,7 +251,6 @@ function Authentication() {
           workspaceName: workspaceName,
         }
       );
-
       // Proceed to access request confirmation step
       setStep(4); // Step 4: Access requested confirmation
       setIsSubmitting(false);
@@ -224,12 +263,6 @@ function Authentication() {
 
   // Handle workspace name submission
   const handleWorkspaceNameSubmit = async (e) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    setError(null);
-
     try {
       // Create the workspace
       const workspaceResponse = await axios.post(
@@ -386,7 +419,7 @@ function Authentication() {
 
           {/* Step 2: Email Confirmation */}
           {step === 2 && !isSignIn && (
-            <ConfirmationCode onConfirm={handleCodeSubmit} />
+            <ConfirmationCode onConfirm={handleSubmit} />
           )}
 
           {/* Step 3: Request Access */}
@@ -395,7 +428,7 @@ function Authentication() {
               <button
                 className="submit-btn"
                 disabled={isSubmitting}
-                onClick={handleRequestAccess}
+                onClick={handleSubmit}
               >
                 {isSubmitting ? 'Processing...' : 'Request Access'}
               </button>
@@ -412,7 +445,7 @@ function Authentication() {
 
           {/* Step 5: Provide Workspace Name */}
           {step === 5 && !isSignIn && (
-            <form onSubmit={handleWorkspaceNameSubmit}>
+            <form onSubmit={handleSubmit}>
               <div className="input-wrapper workspace">
                 <WorkspaceNameIcon className="email-icon" />
                 <input

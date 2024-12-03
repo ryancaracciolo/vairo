@@ -9,10 +9,10 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
     const formattedDate = new Date(dataSourceData.createdAt).toLocaleDateString('en-US');
 
     // Example list of initials and colors
-    const initialsList = [
-        { text: "R C", color: "var(--blue-light-color)" },
-        { text: "E J", color: "var(--purple-light-color)" },
-        { text: "M S", color: "lightcoral" }
+    const colors = [
+        "var(--blue-light-color)",
+        "var(--purple-light-color)",
+        "lightcoral"
     ];
 
     // Mapping of data source types to image URLs
@@ -35,19 +35,21 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
             <td>{formattedDate}</td>
             <td>
                 <div className="user-container">
-                    {initialsList.map((initial, index) => (
+                    {dataSourceData.usersWithAccess.slice(0, 3).map((user, index) => (
                         <CircleInitials 
-                            key={index} 
+                            key={user.userId} 
                             classN="user-initials" 
-                            text={initial.text} 
-                            style={{ backgroundColor: initial.color }} 
+                            text={user.name} 
+                            style={{ backgroundColor: colors[index % colors.length] }} 
                         />
                     ))}
-                    <h4>+3</h4>
+                    {dataSourceData.usersWithAccess.length > 3 ? (
+                        <h4>+{dataSourceData.usersWithAccess.length - 3}</h4>
+                    ) : (
+                        <button className="add-users-button">Add +</button>
+                    )}
                 </div>
             </td>
-            <td>{dataSourceData.host}</td>
-            <td>{dataSourceData.port}</td>
             <td>
                 <div className="status-container">
                     <div className={`status-indicator ${dataSourceData.status}`}></div>

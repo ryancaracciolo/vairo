@@ -13,11 +13,6 @@ function StepThree({formData, setFormData, schema, selectedSchema, setSelectedSc
     const { user } = useContext(UserContext);
     const [descriptions, setDescriptions] = useState({});
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
     const handleRowSelect = (tableName, fieldName) => {
         setSelectedSchema((prevSelectedSchema) => {
             const table = schema[tableName];

@@ -1,0 +1,90 @@
+.people-share {
+    padding: 0px;
+    padding-bottom: 40px;
+    margin: 0px;
+}
+
+.people-share ul {
+    margin-top: 10px;
+    list-style-type: none;
+    padding: 0;
+}
+
+.people-share li {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.people-share li .person-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.people-share li .share-toggle {
+    width: 50px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.8;
+
+}
+
+.people-share li .share-toggle p {
+    font-size: 11px;
+    color: var(--grey-medium-color);
+}
+
+.people-share li .share-toggle .icon {
+    width: 14px;
+    height: 14px;
+    fill: var(--grey-medium-color);
+}
+
+.people-share li .share-toggle.active {
+    background-color: var(--purple-color);
+    border: none;
+}
+
+.people-share li .share-toggle.active p {
+    color: white;
+}
+
+.people-share li .share-toggle.active .icon {
+    fill: white;
+}
+
+.share-initials {
+    width: 28px;
+    height: 28px;
+    background-color: var(--purple-color);
+    opacity: 0.8;
+}
+
+.share-initials p {
+    font-size: 11px;
+}
+
+.share-invite-button {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    background-color: var(--blue-light-color);
+    font-family: var(--font-bold);
+    color: white;
+    padding: 3px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+

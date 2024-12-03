@@ -119,6 +119,21 @@
   cursor: pointer;
 }
 
+.data-source-row .add-users-button {
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--grey-dark-color);
+  font-family: var(--font-regular);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.data-source-row .add-users-button:hover {
+  font-weight: 600;
+}
+
 .data-source-row .status-container {
   display: flex;
   align-items: center;
