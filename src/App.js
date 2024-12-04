@@ -52,6 +52,7 @@ function App() {
     return <LoadingScreen isLoading={loading} />;
   }
 
+  //TEST COMMITTTT!
   return (
     <div className="app-wrapper">
           {user?.id ? (
