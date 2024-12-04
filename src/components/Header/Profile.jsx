@@ -2,8 +2,10 @@ import React from 'react';
 import CircleInitials from '../CircleInitials/CircleInitials';
 import { ReactComponent as LogoutIcon } from '../../assets/icons/logout-icon.svg';
 import './Profile.css';
+import { useNavigate } from 'react-router-dom';
 
-const Profile = ({ user, workspace, handleLogout }) => {
+const Profile = ({ user, workspace, setShowPopup, handleLogout }) => {
+    const navigate = useNavigate();
 
     function renameSubscription(subscription) {
         if (subscription === 'free') return 'Free Trial';
@@ -17,6 +19,11 @@ const Profile = ({ user, workspace, handleLogout }) => {
         if (role === 'admin') return 'Admin';
         if (role === 'member') return 'Member';
         return 'Member';
+    }
+
+    const handleUpgrade = () => {
+        setShowPopup(false);
+        navigate('/upgrade');
     }
 
     return (
@@ -41,7 +48,7 @@ const Profile = ({ user, workspace, handleLogout }) => {
                 <div className='workspace-details'>
                     <h3 className='workspace-leader'>Subscription</h3>
                     <h3 className='workspace-text'>{renameSubscription(workspace.subscriptionType)}</h3>
-                    {user.role === 'admin' && <div className='upgrade'>Upgrade</div>}
+                    <div className='upgrade' onClick={handleUpgrade}>Upgrade</div>
                 </div>
             </div> 
             <hr />

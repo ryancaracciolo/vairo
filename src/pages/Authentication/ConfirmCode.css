@@ -16,8 +16,8 @@
   }
   
   .code-input:focus {
-    border-color: var(--teal-medium-color);
-    box-shadow: 0 0 5px rgba(0, 128, 128, 0.5);
+    border-color: var(--blue-light-color);
+    box-shadow: 0 0 5px rgba(105, 132, 232, 0.5);
   }
 
   

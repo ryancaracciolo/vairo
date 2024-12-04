@@ -6,7 +6,7 @@ import { addUser,
     getUserThreads, 
     getUsersByIds, 
     editUserName, 
-    checkUserEmailForInvite 
+    getUserInvites
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.get('/get-user-by-email/:email', getUserByEmail);
 router.get('/get-data-sources/:id', getDataSources);
 router.get('/get-threads/:userId', getUserThreads);
 router.put('/update-name/:id', editUserName);
-router.get('/check-user-invites/:email', checkUserEmailForInvite);
+router.get('/get-user-invites/:email', getUserInvites);
 
 
 export default router;

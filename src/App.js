@@ -7,6 +7,7 @@ import { Navigate } from 'react-router-dom';
 // App Components
 import Banner from './components/Banner/Banner';
 import Header from './components/Header/Header';
+import Upgrade from './pages/Upgrade/Upgrade';
 import Menu from './components/Menu/Menu';
 import Threads from './pages/Threads/Threads';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -57,17 +58,23 @@ function App() {
             <>
               <Banner />
               <Header />
-              <main className="product-main">
-                <Menu />
+              {location.pathname === '/upgrade' ? (
                 <Routes>
-                  <Route path="/threads/action?" element={<Threads />} />
-                  <Route path="/dashboards/action?" element={<Dashboard />} />
-                  <Route path="/data-sources/action?" element={<DataSources />} />
-                  <Route path="/data-sources/add" element={<AddDataSource />} />
-                  <Route path="/resources" element={<Resources />} />
-                  <Route path="*" element={<Navigate to="/threads" />} />
+                  <Route path="/upgrade" element={<Upgrade />} />
                 </Routes>
-              </main>
+              ) : (
+                <main className="product-main">
+                  <Menu />
+                  <Routes>
+                    <Route path="/threads/action?" element={<Threads />} />
+                    <Route path="/dashboards/action?" element={<Dashboard />} />
+                    <Route path="/data-sources/action?" element={<DataSources />} />
+                    <Route path="/data-sources/add" element={<AddDataSource />} />
+                    <Route path="/resources" element={<Resources />} />
+                    <Route path="*" element={<Navigate to="/threads" />} />
+                  </Routes>
+                </main>
+              )}
             </>
           ) : (
             <Routes>

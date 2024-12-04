@@ -46,7 +46,8 @@ const InviteModal = ({ handleCloseClick, members, setMembers }) => {
                 .then((response) => {
                     console.log('Invitations sent', response);
                     setEmailInput('');
-                    //setInvitesSent([...invitesSent, ...inputEmails]);
+                    const newInvites = inputEmails.map(email => ({ email: email, role: 'pending', senderName: user.name, workspaceId: workspace.id, workspaceName: workspace.name }));
+                    setInvitesSent([...invitesSent, ...newInvites]);
                 })
                 .catch((error) => {
                     console.error('Error sending invitations', error);
@@ -66,11 +67,24 @@ const InviteModal = ({ handleCloseClick, members, setMembers }) => {
             });
     }
 
-    const handleStatusChange = (index, newStatus) => {
+    const handleStatusChange = (index, newRole) => {
         const updatedMembers = [...members];
-        updatedMembers[index].status = newStatus;
+        const currentRole = updatedMembers[index].role;
+
+        // Check if the current role is 'Admin' and the new role is not 'Admin'
+        if (currentRole === 'admin' && newRole !== 'admin') {
+            const adminCount = updatedMembers.filter(member => member.role === 'admin').length;
+            if (adminCount <= 1) {
+                setErrorMessage('There must be at least one admin.');
+                setSelectionOpen(null);
+                return;
+            }
+        }
+        // Proceed with the role change
+        updatedMembers[index].role = newRole;
         setMembers(updatedMembers);
         setSelectionOpen(null);
+        setErrorMessage('');
     };
 
     const handleStatusClick = (index) => {
@@ -86,18 +100,22 @@ const InviteModal = ({ handleCloseClick, members, setMembers }) => {
         fetchInvitesSent();
     }, []);
 
+    useEffect(() => {
+        console.log('Members', members);
+    }, [members]);
+
     const renderStatusSelection = () => {
         return (
             <div className="selection-menu">
                 <div
                     className="status-option"
-                    onClick={() => handleStatusChange(selectionOpen, 'Admin')}
+                    onClick={() => handleStatusChange(selectionOpen, 'admin')}
                 >
                     Admin
                 </div>
                 <div
                     className="status-option"
-                    onClick={() => handleStatusChange(selectionOpen, 'Member')}
+                    onClick={() => handleStatusChange(selectionOpen, 'member')}
                 >
                     Member
                 </div>
@@ -134,7 +152,6 @@ const InviteModal = ({ handleCloseClick, members, setMembers }) => {
                         Invite
                     </button>
                 </div>
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
                 <h3>Team Members</h3>
                 <div className="members-list">
                     {members && members.map((member, index) => (
@@ -166,14 +183,17 @@ const InviteModal = ({ handleCloseClick, members, setMembers }) => {
                                     <div>{invite.email}</div>
                                 </div>
                             </div>
-                            <div className={`member-status pending`}>
+                            <div className={`member-status ${invite.role}`}>
                                 <div className="status">
-                                    <p>Pending</p>
+                                    <p>{invite.role.charAt(0).toUpperCase() + invite.role.slice(1)}</p>
                                 </div>
                             </div>
                         </div>
                     )) : <div>None</div>}
                 </div>
+            </div>
+            <div className="invite-footer">
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
             </div>
         </div>
     );

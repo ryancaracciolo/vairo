@@ -95,10 +95,10 @@ const Header = () => {
                 </div>
             </div>
             {showPopup ? (
-                <Profile user={user} workspace={workspace} handleLogout={handleLogout} />
+                <Profile user={user} workspace={workspace} setShowPopup={setShowPopup} handleLogout={handleLogout} />
             ) : (null)}
             {showSettings ? (
-                <Settings user={user} workspace={workspace} handleLogout={handleLogout} />
+                <Settings setShowSettings={setShowSettings} />
             ) : (null)}
         </header>
     );

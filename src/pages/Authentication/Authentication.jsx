@@ -119,7 +119,10 @@ function Authentication() {
   // Handle submission
   const handleSubmit = (e) => {
     console.log('handleSubmit', e);
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      console.log("PREVENT DEFAULT");
+      e.preventDefault();
+    }
     if (isSubmitting) return;
     setIsSubmitting(true);
     setError(null);
@@ -141,19 +144,19 @@ function Authentication() {
     }
   };
 
-  const isUserInvited = async () => {
-    // Check if user has invites
+  const getUserInvites = async () => {
     try {
       const invitesResponse = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/users/check-user-invites/${email}`
+        `${process.env.REACT_APP_API_BASE_URL}/api/users/get-user-invites/${email}`
       );
       if (invitesResponse.data.length > 0) {
-        return true;
+        console.log('User invites', invitesResponse.data);
+        return invitesResponse.data;
       }
-      return false;
+      return 0;
     } catch (invitesError) {
       console.error('Error checking user invites:', invitesError);
-      return false;
+      return -1;
     }
   }
 
@@ -192,10 +195,14 @@ function Authentication() {
       }
       console.log('Email confirmed');
 
-      // Check if user has invites
-      const isInvited = await isUserInvited();
-      if (isInvited) {
-        await handleInvitedUser();
+      // Check if user is invited
+      const invites = await getUserInvites();
+      if (invites !== 0 && invites !== -1) {
+        await handleInvitedUser(invites);
+        setIsSubmitting(false);
+        return;
+      } else if (invites === -1) {
+        setError('An error occurred. Please try again later or contact support.');
         setIsSubmitting(false);
         return;
       }
@@ -221,9 +228,26 @@ function Authentication() {
     setIsSubmitting(false);
   };
 
-  const handleInvitedUser = async (data) => {
-    //setStep(6); // Step 6: User has invites
-    setIsSubmitting(false);
+  const handleInvitedUser = async (invites) => {
+    const wcId = invites[0].workspaceId;
+    const wcName = invites[0].workspaceName;
+    setWorkspaceId(wcId);
+    setWorkspaceName(wcName);
+    
+    // Accept the invite
+    try {
+      const inviteAccepted = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/workspaces/invite-accepted`, {
+        email: email,
+        workspaceId: wcId,
+        name: fullName,
+        role: 'member',
+      });
+      console.log('Invite accepted:', inviteAccepted);
+      handleSignIn();
+    } catch (err) {
+      console.error('Error accepting invite:', err);
+      setError('An error occurred. Please try again later or contact support.');
+    }
   }
 
   // Handle requesting access to an existing workspace

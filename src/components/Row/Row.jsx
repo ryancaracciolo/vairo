@@ -4,6 +4,7 @@ import CircleInitials from '../CircleInitials/CircleInitials';
 import postgresLogo from '../../assets/images/integrations/postgres.png';
 import quickbooksLogo from '../../assets/images/integrations/quickbooks.png';
 import excelLogo from '../../assets/images/integrations/excel.png';
+import { ReactComponent as AddIcon } from '../../assets/icons/add-noFill-icon.svg';
 
 const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) => {
     const formattedDate = new Date(dataSourceData.createdAt).toLocaleDateString('en-US');
@@ -46,7 +47,9 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
                     {dataSourceData.usersWithAccess.length > 3 ? (
                         <h4>+{dataSourceData.usersWithAccess.length - 3}</h4>
                     ) : (
-                        <button className="add-users-button">Add +</button>
+                        <button className="add-users-button">
+                            <AddIcon className='add-icon'/>
+                        </button>
                     )}
                 </div>
             </td>

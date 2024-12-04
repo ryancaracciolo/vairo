@@ -68,6 +68,11 @@ export const getUserByEmail = async (req, res) => {
     ExpressionAttributeValues: {
       ':email': email,
     },
+    FilterExpression: 'begins_with(PK, :userPrefix)',
+    ExpressionAttributeValues: {
+      ':email': email,
+      ':userPrefix': 'USER#',
+    },
   };
 
   try {
@@ -249,7 +254,7 @@ export const editUserName = async (req, res) => {
   }
 };
 
-export const checkUserEmailForInvite = async (req, res) => {
+export const getUserInvites = async (req, res) => {
   const { email } = req.params;
 
   const params = {
@@ -269,7 +274,7 @@ export const checkUserEmailForInvite = async (req, res) => {
       console.log('Invite(s) found for email:', JSON.stringify(data.Items, null, 2));
       res.status(200).json(data.Items);
     } else {
-      res.status(404).json({ message: 'No invites found for this email.' });
+      res.status(204).json({ message: 'No invites found for this email.' });
     }
   } catch (err) {
     console.error('Error checking invites for email. Error JSON:', JSON.stringify(err, null, 2));

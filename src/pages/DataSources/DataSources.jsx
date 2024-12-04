@@ -24,6 +24,7 @@ function DataSources() {
         try {
             const response = await axios.get(`/api/users/get-data-sources/${user.id}`);
             setDataSources(response.data);
+            console.log('Data sources', response.data);
         } catch (error) {
             console.error('Error fetching data sources:', error);
         }
@@ -133,6 +134,8 @@ function DataSources() {
     useEffect(() => {        
         if (dataSources.length > 0 && loading) {
             fetchUsersWithAccess();
+        } else if (dataSources.length === 0 && loading) {
+            setLoading(false);
         }
     }, [dataSources]);
 

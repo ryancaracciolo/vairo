@@ -190,7 +190,8 @@ export const inviteMembers = async (req, res) => {
         email,
         workspaceId,
         workspaceName,
-        senderName
+        senderName,
+        role: 'pending'
       };
 
       const inviteItemTwo = {
@@ -199,7 +200,8 @@ export const inviteMembers = async (req, res) => {
         email,
         workspaceId,
         workspaceName,
-        senderName
+        senderName,
+        role: 'pending'
       };
 
       const transactParams = {
@@ -269,5 +271,72 @@ export const getInvitesSent = async (req, res) => {
     res.status(200).json(data.Items);
   } catch (err) {
     res.status(500).json({ error: 'An error occurred while retrieving the invites sent.' });
+  }
+};
+
+export const inviteAccepted = async (req, res) => {
+  const { workspaceId, email, name, role } = req.body;
+
+  const userId = shortUUID().new();
+
+  const user = new User({ id: userId, email: email, name: name, role: role, workspaceId: workspaceId });
+  const userItem = user.toItem();
+
+  const deleteInviteItemOne = {
+    Delete: {
+      TableName: tableName,
+      Key: {
+        PK: `WORKSPACE#${workspaceId}`,
+        SK: `INVITE#${email}`,
+      },
+    },
+  };
+
+  const deleteInviteItemTwo = {
+    Delete: {
+      TableName: tableName,
+      Key: {
+        PK: `INVITE#${email}`,
+        SK: `WORKSPACE#${workspaceId}`,
+      },
+    },
+  };
+
+  const updateWorkspaceParams = {
+    Update: {
+      TableName: tableName,
+      Key: {
+        PK: `WORKSPACE#${workspaceId}`,
+        SK: 'METADATA',
+      },
+      UpdateExpression: 'SET memberIds = list_append(memberIds, :newMemberId)',
+      ExpressionAttributeValues: {
+        ':newMemberId': [userId],
+      },
+    },
+  };
+
+  const transactParams = {
+    TransactItems: [
+      deleteInviteItemOne,
+      deleteInviteItemTwo,
+      {
+        Put: {
+          TableName: tableName,
+          Item: userItem,
+          ConditionExpression: 'attribute_not_exists(PK)', // Prevents overwriting existing items
+        },
+      },
+      updateWorkspaceParams,
+    ],
+  };
+
+  try {
+    const command = new TransactWriteCommand(transactParams);
+    await dynamodb.send(command);
+    res.status(200).json({ message: 'Invite accepted and user added successfully.' });
+  } catch (err) {
+    console.error('Unable to accept invite and add user. Error JSON:', JSON.stringify(err, null, 2));
+    res.status(500).json({ error: 'An error occurred while accepting the invite and adding the user.' });
   }
 };

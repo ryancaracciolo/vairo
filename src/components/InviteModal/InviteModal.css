@@ -1,6 +1,6 @@
 .invite-overlay {
     background-color: transparent;
-    width: 400px;
+    width: 360px;
     max-width: 95%;
     height: 400px;
     display: flex;
@@ -113,11 +113,19 @@
     color: white;
 }
 
-.invite-overlay .invite-content .error-message {
+.invite-overlay .invite-footer {
+    align-self: stretch;
+    background-color: white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.invite-overlay .invite-footer .error-message {
     color: rgb(211, 88, 88);
     font-size: 12px;
     font-family: var(--font-regular);
-    margin-bottom: 10px;
+    padding-left: 15px;
+    margin: 8px 0;
 }
 
 .invite-overlay .invite-content .members-list .member-item {

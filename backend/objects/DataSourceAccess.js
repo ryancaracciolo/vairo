@@ -5,13 +5,13 @@ export default class DataSourceAccess {
    * @param {Object} params
    * @param {string} params.userId - The ID of the user.
    * @param {string} params.dataSourceId - The ID of the data source.
-   * @param {string} params.accessLevel - The access level (e.g., 'owner', 'read', 'write').
+   * @param {string} params.accessLevel - The access level (e.g., 'owner', 'contributor').
    * @param {string} params.partitionType - 'USER' or 'DATASOURCE' to determine PK and SK.
    */
   constructor({ userId, dataSourceId, accessLevel, partitionType }) {
     this.userId = userId;
     this.dataSourceId = dataSourceId;
-    this.accessLevel = accessLevel || 'read';
+    this.accessLevel = accessLevel || 'contributor';
     this.Type = 'DataSourceAccess';
 
     if (partitionType === 'USER') {

@@ -8,11 +8,13 @@ import axios from 'axios';
 import { UserContext, WorkspaceContext } from '../../objects/Context';
 import Popup from '../Popup/Popup';
 import InviteModal from '../InviteModal/InviteModal';
+import { useNavigate } from 'react-router-dom';
 
-const Settings = () => {
+const Settings = ({ setShowSettings }) => {
+    const navigate = useNavigate();
     const { user, setUser } = useContext(UserContext);
     const { workspace, setWorkspace } = useContext(WorkspaceContext);
-    const [members, setMembers] = useState([user, user]);
+    const [members, setMembers] = useState([user]);
     const [editingField, setEditingField] = useState(null);
     const [fieldValues, setFieldValues] = useState({name: user.name, workspaceName: workspace.name});
     const [firstLoad, setFirstLoad] = useState(true);
@@ -73,7 +75,6 @@ const Settings = () => {
                     </span>
                 )}
                 <div className='add-member-container' onClick={() => handleInvite()}>
-                    <p className='add-member-text'>Invite</p>
                     <PlusIcon className='add-member-icon' />
                 </div>
             </div>
@@ -136,6 +137,11 @@ const Settings = () => {
         }
     };
 
+    const handleUpgrade = () => {
+        setShowSettings(false);
+        navigate('/upgrade');
+    }
+
     return (
         <div className='settings-container'>
             <div className='user-details-container'>
@@ -190,7 +196,7 @@ const Settings = () => {
                 <div className='settings-item'>
                     <h3 className='item-leader'>Subscription</h3>
                     <h3 className='item-text'>{renameSubscription(workspace.subscriptionType)}</h3>
-                    {user.role === 'admin' && <div className='upgrade'>Upgrade</div>}
+                    <div className='upgrade' onClick={() => handleUpgrade()}>Upgrade</div>
                 </div>
             </div>
             {inviteModalOpen && renderInvitePopup()}
