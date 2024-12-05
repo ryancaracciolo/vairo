@@ -12,8 +12,13 @@ const tableName = 'vairo-table';
 export const addDataSource = async (req) => {
     const { id, creatorUserId, name, dataSourceType, createdAt, host, port, username, password, status, databaseName, schemaName } = req.body;
     
+    let dataSourceId = id;
+    if (dataSourceId === '' || dataSourceId === null || dataSourceId === undefined) {
+        dataSourceId = shortUUID().new();
+    }
+
     const dataSource = new DataSource({
-      id: id,
+      id: dataSourceId,
       creatorUserId: creatorUserId,
       name: name,
       dataSourceType: dataSourceType,
@@ -31,7 +36,7 @@ export const addDataSource = async (req) => {
     // Create DataSourceAccess items for the creator under both User and DataSource partitions
     const dataSourceAccessUnderUser = new DataSourceAccess({
       userId: creatorUserId,
-      dataSourceId: id,
+      dataSourceId: dataSourceId,
       accessLevel: 'owner',
       partitionType: 'USER',
     });
@@ -39,7 +44,7 @@ export const addDataSource = async (req) => {
   
     const dataSourceAccessUnderDataSource = new DataSourceAccess({
       userId: creatorUserId,
-      dataSourceId: id,
+      dataSourceId: dataSourceId,
       accessLevel: 'owner',
       partitionType: 'DATASOURCE',
     });
@@ -91,7 +96,7 @@ export const addDataSource = async (req) => {
       );
       return {
         success: true,
-        dataSourceId: id,
+        dataSourceId: dataSourceId,
       };
     } catch (err) {
       console.error(

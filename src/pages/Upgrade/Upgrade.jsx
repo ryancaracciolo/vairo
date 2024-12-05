@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { UserContext, WorkspaceContext } from '../../objects/Context';
 import './Upgrade.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import { ReactComponent as CheckIcon } from '../../assets/icons/checkmark-icon.svg';
 
 const Upgrade = () => {
@@ -9,6 +10,8 @@ const Upgrade = () => {
     const { workspace, setWorkspace } = useContext(WorkspaceContext);
     const [activePaymentType, setActivePaymentType] = useState('monthly');
     const navigate = useNavigate();
+    //const [searchParams, setSearchParams] = useSearchParams();
+    //const selectedPlan = searchParams.get("plan") || "base_monthly";
     
     const starterFeatures = [
         'Natural Languange Search',
@@ -21,7 +24,7 @@ const Upgrade = () => {
         '1 Seat',
         '2 Data Sources',
         '5 Threads',
-        '20 messages / day'
+        '20 Messages / Day'
     ]
 
     const baseFeatures = [
@@ -35,7 +38,7 @@ const Upgrade = () => {
         'Unlimited Seats',
         'Unlimited Data Sources',
         'Unlimited Threads',
-        'Unlimited messages / day'
+        'Unlimited Messages / Day'
     ]
 
     const comingSoonFeatures = [
@@ -47,8 +50,9 @@ const Upgrade = () => {
     ]
 
     const handlePlanSelect = (plan) => {
-        console.log(plan);
-        navigate('/upgrade/payment-process');
+        const p = plan + '_' + activePaymentType;
+        console.log(p);
+        navigate(`/upgrade/payment-process/${p}`);
     }
 
     return (
@@ -57,7 +61,7 @@ const Upgrade = () => {
                 <h1>Choose a plan that's right for you.</h1>
                 <div className='payment-type-toggle'>
                     <button className={`option ${activePaymentType === 'monthly' ? 'active' : ''}`} onClick={() => setActivePaymentType('monthly')}>Monthly Billing</button>
-                    <button className={`option ${activePaymentType === 'yearly' ? 'active' : ''}`} onClick={() => setActivePaymentType('yearly')}>Yearly (Save up to 30%)</button>
+                    <button className={`option ${activePaymentType === 'annual' ? 'active' : ''}`} onClick={() => setActivePaymentType('annual')}>Yearly (Save up to 30%)</button>
                 </div>
             </div>
             <div className='upgrade-content'>
@@ -67,8 +71,8 @@ const Upgrade = () => {
                         <p className='description'>What you need to get started.</p>
                         <div className='plan-card-price'>
                             <p>
-                                <span className='price-amount'>{activePaymentType === 'yearly' ? '$99' : '$9'}</span> 
-                                <span className='price-duration'> / {activePaymentType === 'yearly' ? 'year (save 20%)' : 'month'}</span>
+                                <span className='price-amount'>{activePaymentType === 'annual' ? '$99' : '$9'}</span> 
+                                <span className='price-duration'> / {activePaymentType === 'annual' ? 'year (save 20%)' : 'month'}</span>
                             </p>
                         </div>
                         <hr/>
@@ -90,7 +94,7 @@ const Upgrade = () => {
                         ))}
                     </div>
                     <div className='plan-card-footer'>
-                        <button className='select-plan' onClick={() => handlePlanSelect('free')}>{workspace.subscriptionType === 'starter' ? 'Current Plan' : 'Select'}</button>
+                        <button className='select-plan' onClick={() => handlePlanSelect('starter')}>{workspace.subscriptionType === 'starter' ? 'Current Plan' : 'Select'}</button>
                     </div>
                 </div>
                 <div className='plan-card base'>
@@ -99,8 +103,8 @@ const Upgrade = () => {
                         <p className='description'>For you and your team, with unlimited usage and support.</p>
                         <div className='plan-card-price'>
                             <p>
-                                <span className='price-amount'>{activePaymentType === 'yearly' ? '$499' : '$49'}</span> 
-                                <span className='price-duration'> / {activePaymentType === 'yearly' ? 'year (save 20%)' : 'month'}</span>
+                                <span className='price-amount'>{activePaymentType === 'annual' ? '$499' : '$49'}</span> 
+                                <span className='price-duration'> / {activePaymentType === 'annual' ? 'year (save 20%)' : 'month'}</span>
                             </p>
                         </div>
                         <hr/>

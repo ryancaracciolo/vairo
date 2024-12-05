@@ -16,3 +16,43 @@
 {"level":"INFO","message":"[11:22:00.556 AM]: Connection[id: ee8ec0ad-fc07-495d-a75d-bce08ef5863e] - connecting. Associated Snowflake domain: GLOBAL"}
 {"level":"INFO","message":"[11:22:00.559 AM]: Connection[id: ee8ec0ad-fc07-495d-a75d-bce08ef5863e] - authentication successful using: SNOWFLAKE"}
 {"level":"INFO","message":"[11:22:00.566 AM]: Connection[id: ee8ec0ad-fc07-495d-a75d-bce08ef5863e] - connected successfully after 10.401200000196695 milliseconds"}
+{"level":"INFO","message":"[5:24:13.984 PM]: Creating new connection object"}
+{"level":"INFO","message":"[5:24:14.152 PM]: Creating Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] with host: NOB52438.us-east-1.snowflakecomputing.com, account: NOB52438, accessUrl: https://NOB52438.us-east-1.snowflakecomputing.com, user: GENERAL, password is provided, role: undefined, database: undefined, schema: undefined, warehouse: VAIRO_WH, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[5:24:14.162 PM]: Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 1.15.0, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[5:24:14.165 PM]: Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] - connection object created successfully."}
+{"level":"INFO","message":"[5:24:14.175 PM]: Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[5:24:14.178 PM]: Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[5:24:14.184 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[5:24:14.205 PM]: No client config detected."}
+{"level":"INFO","message":"[5:24:14.209 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[5:24:14.211 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[5:24:14.234 PM]: Connection[id: be929e14-2920-42ab-afe8-e44942b878ec] - connected successfully after 59.41949999984354 milliseconds"}
+{"level":"INFO","message":"[2:33:18.578 PM]: Creating new connection object"}
+{"level":"INFO","message":"[2:33:18.608 PM]: Creating Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] with host: NOB52438.us-east-1.snowflakecomputing.com, account: NOB52438, accessUrl: https://NOB52438.us-east-1.snowflakecomputing.com, user: GENERAL, password is provided, role: undefined, database: undefined, schema: undefined, warehouse: VAIRO_WH, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[2:33:18.609 PM]: Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 1.15.0, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[2:33:18.610 PM]: Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] - connection object created successfully."}
+{"level":"INFO","message":"[2:33:18.610 PM]: Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[2:33:18.611 PM]: Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[2:33:18.612 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[2:33:18.616 PM]: No client config detected."}
+{"level":"INFO","message":"[2:33:18.617 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[2:33:18.618 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[2:33:18.624 PM]: Connection[id: e88d1c3f-20ca-4601-a61a-c43fb9d48cc2] - connected successfully after 13.185599999997066 milliseconds"}
+{"level":"INFO","message":"[2:57:27.436 PM]: Creating new connection object"}
+{"level":"INFO","message":"[2:57:27.487 PM]: Creating Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] with host: NOB52438.us-east-1.snowflakecomputing.com, account: NOB52438, accessUrl: https://NOB52438.us-east-1.snowflakecomputing.com, user: GENERAL, password is provided, role: undefined, database: undefined, schema: undefined, warehouse: VAIRO_WH, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[2:57:27.489 PM]: Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 1.15.0, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[2:57:27.490 PM]: Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] - connection object created successfully."}
+{"level":"INFO","message":"[2:57:27.492 PM]: Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[2:57:27.493 PM]: Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[2:57:27.494 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[2:57:27.503 PM]: No client config detected."}
+{"level":"INFO","message":"[2:57:27.504 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[2:57:27.505 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[2:57:27.517 PM]: Connection[id: 02404def-8f8f-4d13-99e9-f74aeb2c682e] - connected successfully after 24.900099999969825 milliseconds"}
+{"level":"INFO","message":"[3:05:12.646 PM]: Creating new connection object"}
+{"level":"INFO","message":"[3:05:12.657 PM]: Creating Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] with host: NOB52438.us-east-1.snowflakecomputing.com, account: NOB52438, accessUrl: https://NOB52438.us-east-1.snowflakecomputing.com, user: RCARACCIOLO, password is provided, role: undefined, database: customer_uNTUGUmZC3e8vRud3QTTpb, schema: schema_hVg37kR13WVHmEc62h2rGf, warehouse: VAIRO_WH, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[3:05:12.658 PM]: Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 1.15.0, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[3:05:12.660 PM]: Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] - connection object created successfully."}
+{"level":"INFO","message":"[3:05:12.662 PM]: Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[3:05:12.664 PM]: Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[3:05:12.669 PM]: Connection[id: 2a846fb9-0d8d-4819-a98b-34f91ffa9285] - connected successfully after 6.847999999998137 milliseconds"}

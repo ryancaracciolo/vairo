@@ -1,0 +1,38 @@
+.payment-process-wrapper {
+    flex: 1;
+    margin: 20px;
+    margin-top: 0;
+    padding: 10px;
+    background-color: var(--bg-light-color);
+    display: flex;
+    flex-direction: column; /* Added */
+    align-items: stretch;   /* Modified */
+    justify-content: flex-start; /* Modified */
+    box-sizing: border-box;
+    border-radius: 10px;
+    font-family: var(--font-regular);
+    scroll-behavior: smooth;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.payment-process-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.payment-process-wrapper iframe {
+    flex: 1;            /* Added */
+    width: 100%;        /* Added/ensured */
+    height: 100%;       /* Added/ensured */
+    border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .payment-process-wrapper {
+        margin: 0;
+        border-radius: 0;
+    }
+}

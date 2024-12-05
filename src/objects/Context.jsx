@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 // Create CurrentWorkspace Context
 export const WorkspaceContext = createContext();

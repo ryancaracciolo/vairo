@@ -104,7 +104,7 @@ async function getTableStructure(csvFilePath, csvHeaders) {
   const tableName = getTableName(csvFilePath);
   const columns = csvHeaders.map(header => ({ name: header, type: 'string' }));
   const tableData = {
-    tableName: {
+    [tableName]: {
       tableName: tableName,
       description: null,
       columns,

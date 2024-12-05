@@ -36,7 +36,7 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
             <td>{formattedDate}</td>
             <td>
                 <div className="user-container">
-                    {dataSourceData.usersWithAccess.slice(0, 3).map((user, index) => (
+                    {Array.isArray(dataSourceData.usersWithAccess) && dataSourceData.usersWithAccess.slice(0, 3).map((user, index) => (
                         <CircleInitials 
                             key={user.userId} 
                             classN="user-initials" 
@@ -44,7 +44,7 @@ const Row = ({dataSourceData, updateDataSource, dataSourceSelected, checked}) =>
                             style={{ backgroundColor: colors[index % colors.length] }} 
                         />
                     ))}
-                    {dataSourceData.usersWithAccess.length > 3 ? (
+                    {Array.isArray(dataSourceData.usersWithAccess) && dataSourceData.usersWithAccess.length > 3 ? (
                         <h4>+{dataSourceData.usersWithAccess.length - 3}</h4>
                     ) : (
                         <button className="add-users-button">

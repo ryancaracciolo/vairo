@@ -7,6 +7,7 @@ import dataSourceRoutes from './routes/dataSourceRoutes.js';
 import threadRoutes from './routes/threadRoutes.js';
 import connectionRoutes from './routes/connectionRoutes.js';
 import airByteRoutes from './routes/airByteRoutes.js';
+import stripeRoutes from './routes/stripeRoutes.js';
 
 const app = express();
 app.use(bodyParser.json());
@@ -18,6 +19,7 @@ app.use('/api/data-sources', dataSourceRoutes);
 app.use('/api/threads', threadRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/airbyte', airByteRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).send('OK');

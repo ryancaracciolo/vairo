@@ -8,6 +8,9 @@ import { Navigate } from 'react-router-dom';
 import Banner from './components/Banner/Banner';
 import Header from './components/Header/Header';
 import Upgrade from './pages/Upgrade/Upgrade';
+import PaymentProcess from './pages/Upgrade/PaymentProcess/PaymentProcess';
+import StripeReturn from './pages/Upgrade/PaymentProcess/StripeReturn';
+// App Main Components
 import Menu from './components/Menu/Menu';
 import Threads from './pages/Threads/Threads';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -16,6 +19,7 @@ import AddDataSource from './pages/DataSources/AddDataSource/AddDataSource';
 import Resources from './pages/Resources/Resources';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Authentication from './pages/Authentication/Authentication';
+
 
 function App() {
   const { setActiveMenuIndex } = useContext(ActiveMenuIndexContext);
@@ -52,16 +56,18 @@ function App() {
     return <LoadingScreen isLoading={loading} />;
   }
 
-  //TEST COMMITTTT!
   return (
     <div className="app-wrapper">
           {user?.id ? (
             <>
               <Banner />
               <Header />
-              {location.pathname === '/upgrade' ? (
+              {location.pathname.startsWith('/upgrade') ? (
                 <Routes>
                   <Route path="/upgrade" element={<Upgrade />} />
+                  <Route path="/upgrade/payment-process/:plan" element={<PaymentProcess />} />
+                  <Route path="/upgrade/stripe-return" element={<StripeReturn />} />
+                  /*<Route path="*" element={<Navigate to="/upgrade" />} />*/
                 </Routes>
               ) : (
                 <main className="product-main">

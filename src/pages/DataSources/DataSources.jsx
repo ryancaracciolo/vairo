@@ -17,16 +17,19 @@ function DataSources() {
     const [selectedDataSources, setSelectedDataSources] = useState({});
     const [itemSelected, setItemSelected] = useState(false);
     const [dataSources, setDataSources] = useState([]);
+    const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
     const [loading, setLoading] = useState(true);
 
 
     const fetchDataSources = async () => {
         try {
             const response = await axios.get(`/api/users/get-data-sources/${user.id}`);
-            setDataSources(response.data);
+            setDataSources([...response.data]);
             console.log('Data sources', response.data);
         } catch (error) {
             console.error('Error fetching data sources:', error);
+        } finally {
+            setDataSourcesLoaded(true);
         }
     };
 
@@ -131,10 +134,13 @@ function DataSources() {
         fetchDataSources();
     }, []);
 
-    useEffect(() => {        
+    useEffect(() => {  
+        console.log("dataSources length:", dataSources.length);      
         if (dataSources.length > 0 && loading) {
+            console.log("fetching users with access");
             fetchUsersWithAccess();
-        } else if (dataSources.length === 0 && loading) {
+        } else if (dataSourcesLoaded && loading) {
+            console.log("setting loading to false");
             setLoading(false);
         }
     }, [dataSources]);
