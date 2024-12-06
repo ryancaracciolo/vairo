@@ -4,7 +4,7 @@ import { PutCommand, QueryCommand, UpdateCommand, BatchWriteCommand, DeleteComma
 import { connectToSnowflake_customer, executeQuery } from './snowflakeController.js';
 import Thread from '../objects/Thread.js';
 import Message from '../objects/Message.js';
-import { translatePostgresToSnowflake } from './helpers/sqlTranslation.js';
+import { convertToSnowflakeSQL } from './helpers/sqlTranslation.js';
 import pkg from 'pg';
 
 const { Client } = pkg;
@@ -106,14 +106,15 @@ export const chatWithAI = async (req, res) => {
       return res.status(404).json({ error: 'Dataset not found for the given threadId.' });
     }
 
-    // Step 3: Construct AI Prompt Components
+    const dbType = getDatabaseType(dataSource.dataSourceType);
 
+    // Step 3: Construct AI Prompt Components
     const prompt = `
       You are a friendly AI data analyst dedicated to helping users understand and analyze their data based on the provided dataset structure.
 
       **Available Resources:**
       1. **Database Schema**: Tables, columns, and foreign keys.
-      2. **SQL Execution**: Use \`query_database(query)\` to run SQL queries and retrieve data.
+      2. **SQL Execution**: Use \`query_database(query)\` to run SQL queries and retrieve data from ${dbType}. NOTE: PLEASE USE THE RIGHT SYNTAX FOR THE DATABASE TYPE OF ${dbType}, including quotes around table names, column names, variables, etc.
       3. **Visualization**: Generate charts by providing chart.js JSON configurations (type, data, options) where charts should appear (NOTE: the user sees the chart, NOT the JSON, so don't mention the JSON in your response).
 
       **Your Responsibilities:**
@@ -124,14 +125,10 @@ export const chatWithAI = async (req, res) => {
       5. **Present Clearly**: Use Markdown for readability (headings, bullet points, bold text) and proper formatting for equations (\$ for inline and \$\$ for block).
       
       **Visualization Guidelines:**
-      - Correct Structure: Ensure that the JSON follows the expected format for Chart.js, including proper nesting.
-      - No Trailing Commas: Ensure there are no trailing commas after the last item in an object or array.
-      - Consistency in Keys: Make sure that all keys used in the configuration are valid and recognized by Chart.js.
-      - Data Types: Ensure that the data types (e.g., numbers, strings) are correctly formatted.
-
-      **SQL Execution Guidelines:**
-      - The query must be a valid SQL query for the given dataset (either PostgreSQL or Snowflake).
-      - Specifically, for Snowflake, be sure to use double quotes when necessary to ensure correct capitalization.
+      - **Correct Structure**: Ensure that the JSON follows the expected format for Chart.js, including proper nesting.
+      - **No Trailing Commas**: Ensure there are no trailing commas after the last item in an object or array.
+      - **Consistency in Keys**: Make sure that all keys used in the configuration are valid and recognized by Chart.js.
+      - **Data Types**: Ensure that the data types (e.g., numbers, strings) are correctly formatted.
       `;
 
     // a. Define AI Role and Purpose
@@ -141,7 +138,6 @@ export const chatWithAI = async (req, res) => {
     };
 
     // b. Format the Dataset Structure
-    const dbType = getDatabaseType(dataSource.dataSourceType);
     const datasetDescription = {
       role: 'system',
       content: `Here is the structure of your dataset in ${dbType}:\n\n${formatDataset(datasetItems)}`,
@@ -331,9 +327,11 @@ async function queryDatabase(query, dataSource) {
       }
     
     case 'Excel':
-      const translatedQuery = translatePostgresToSnowflake(query);
+      const translatedQuery = convertToSnowflakeSQL({postgresSQL: query});
       console.log("Translated query: ", translatedQuery);
       const snowflakeConnection = await connectToSnowflake_customer({databaseName: dataSource.databaseName, schemaName: dataSource.schemaName});
+      //await executeQuery({ connection: snowflakeConnection, query: `USE DATABASE "${dataSource.databaseName}"` });
+      //await executeQuery({ connection: snowflakeConnection, query: `USE SCHEMA "${dataSource.schemaName}"` });
       const res = await executeQuery({connection: snowflakeConnection, query: translatedQuery});
       console.log("Query result: ", res);
       return res;
@@ -344,6 +342,8 @@ function getDatabaseType(dataSourceType) {
   if (dataSourceType === 'PostgreSQL') {
     return 'PostgreSQL';
   } else if (dataSourceType === 'Excel') {
+    return 'Snowflake';
+  } else {
     return 'Snowflake';
   }
 }

@@ -18,8 +18,11 @@ function CSVForm({ formData, setFormData, setFile }) {
     };
 
     return (
-        <div className="form-wrapper">
-            <h3>Please upload your CSV file below.</h3>
+        <div className="form-wrapper csv">
+            <h3>Please upload your CSV or Excel file below.</h3>
+            <p className="csv-form-p">
+                {'Please ensure your file is formatted correctly before uploading (i.e., one row of headers followed by a table of data.).'}
+            </p>
             <div className="csv-form">
                 <div className="form-group">
                     <label htmlFor="connectionName">Connection Name</label>

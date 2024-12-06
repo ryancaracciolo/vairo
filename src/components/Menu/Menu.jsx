@@ -11,7 +11,6 @@ import { ReactComponent as DownIcon } from '../../assets/icons/down-icon.svg';
 import { ReactComponent as EditIcon } from '../../assets/icons/edit-icon.svg';
 import { ReactComponent as DeleteIcon } from '../../assets/icons/delete-icon.svg';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
 import './Menu.css';
 import { ActiveMenuIndexContext } from '../../objects/Context';
 
@@ -19,7 +18,7 @@ function Menu() {
   const { user } = useContext(UserContext);
   const { activeMenuIndex } = useContext(ActiveMenuIndexContext);
   const [contentItems, setContentItems] = useState([]);
-  const [currentContentId, setCurrentContentId] = useState();
+  const [currentContentId, setCurrentContentId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,6 +42,7 @@ function Menu() {
             item.id === threadId ? { ...item, label: newName, isSaved: true } : item
           );
         } else {
+          // If the thread isn't in the list, add it
           return [
             ...prevItems,
             {
@@ -61,7 +61,7 @@ function Menu() {
   }, []);
 
   useEffect(() => {
-    if (activeMenuIndex === 0) {
+    if (activeMenuIndex === 0 && user.id) {
       axios
         .get(`/api/users/get-threads/${user.id}`)
         .then((response) => {
@@ -70,7 +70,7 @@ function Menu() {
               label: thread.title || 'Untitled Thread',
               path: `/threads?thread=${thread.id}`,
               id: thread.id,
-              thread: thread, // Include the full thread object
+              thread: thread,
               isSaved: true,
             }))
           );
@@ -89,6 +89,7 @@ function Menu() {
         setCurrentContentId(threadId);
         const existingThread = contentItems.find((item) => item.id === threadId);
         if (!existingThread) {
+          // Add a placeholder "New Thread" if it doesn't exist
           setContentItems((prevItems) => [
             ...prevItems,
             {
@@ -99,6 +100,8 @@ function Menu() {
             },
           ]);
         }
+      } else {
+        setCurrentContentId(null);
       }
     }
   }, [activeMenuIndex, location.search, contentItems]);
@@ -131,12 +134,11 @@ function Menu() {
     const newTitle = prompt('Enter new title for the thread:');
     if (newTitle) {
       try {
-        const response = await axios.put(`/api/threads/edit-thread`, {
+        await axios.put(`/api/threads/edit-thread`, {
           userId: user.id,
           threadId,
           newTitle,
         });
-        console.log(response.data.message);
         setContentItems((prevItems) =>
           prevItems.map((item) => (item.id === threadId ? { ...item, label: newTitle } : item))
         );
@@ -148,8 +150,7 @@ function Menu() {
 
   const handleDelete = async (threadId) => {
     try {
-      const response = await axios.delete(`/api/threads/delete-thread/${user.id}/${threadId}`);
-      console.log(response.data.message);
+      await axios.delete(`/api/threads/delete-thread/${user.id}/${threadId}`);
       setContentItems((prevItems) => prevItems.filter((item) => item.id !== threadId));
       navigate('/threads');
     } catch (err) {
@@ -165,7 +166,7 @@ function Menu() {
             key={index}
             className={`menu-item ${activeMenuIndex === index ? 'active' : ''}`}
           >
-            <Link className='menu-item-link' to={item.path}>
+            <Link className="menu-item-link" to={item.path}>
               <item.icon className="menu-icon" />
               <p className={`menu-label ${activeMenuIndex === index ? 'active' : ''}`}>
                 {item.label}
@@ -195,18 +196,14 @@ function Menu() {
                     <Link
                       className="menu-item-container"
                       to={item.path}
-                      state={{ thread: item.thread }} // Pass the full thread object
+                      state={{ thread: item.thread }}
                     >
                       <div className="menu-line"></div>
                       <div
-                        className={`horiz-line${
-                          currentContentId === item.id ? '-active' : ''
-                        }`}
+                        className={`horiz-line${currentContentId === item.id ? '-active' : ''}`}
                       ></div>
                       <p
-                        className={`menu-label${
-                          currentContentId === item.id ? ' active' : ''
-                        }`}
+                        className={`menu-label${currentContentId === item.id ? ' active' : ''}`}
                       >
                         {item.label}
                       </p>

@@ -1,3 +1,17 @@
+.form-wrapper.csv h3 {
+    margin-bottom: 0px;
+}
+
+.form-wrapper.csv .csv-form-p {
+    margin-bottom: 0px;
+    color: var(--blue-medium-color);
+    margin-top: 0px;
+}
+
+.form-wrapper .csv-form {
+    margin-top: 10px;
+}
+
 .csv-form .form-group {
     display: flex;
     flex-direction: column;
@@ -5,7 +19,6 @@
     padding: 5px 10px 5px 5px;
     margin-bottom: 10px;
     width: 400px;
-
 }
 
 .csv-form .form-group label {
@@ -15,6 +28,7 @@
     color: var(--grey-light-color);
     padding-left: 4px;
     margin-bottom: 4px;
+    margin-top: 0px;
 }
 
 .csv-form .form-group input {

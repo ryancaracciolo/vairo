@@ -32,8 +32,8 @@ export async function connectToSnowflake_customer({databaseName, schemaName}) {
             account: process.env.SNOWFLAKE_ACCOUNT,
             username: process.env.SNOWFLAKE_CUSTOMER_USERNAME,
             password: process.env.SNOWFLAKE_CUSTOMER_PASSWORD,
-            database: databaseName,
-            schema: schemaName,
+            database: `"${databaseName}"`,
+            schema: `"${schemaName}"`,
             region: process.env.SNOWFLAKE_REGION,
             warehouse: process.env.SNOWFLAKE_WAREHOUSE,
         });
@@ -59,6 +59,8 @@ export async function executeQuery({connection, query}) {
         complete: (err, stmt, rows) => {
           if (err) {
             console.error('Failed to execute query:', err.message);
+            console.log("Query: ", query);
+            console.log("Error: ", err);
             reject(err);
           } else {
             console.log('Query executed successfully.');
@@ -141,7 +143,7 @@ export async function createSchemaIfNotExists({ connection, databaseName, schema
 }
 
 // Helper function to add the CSV file to the Snowflake database
-export async function addCSVToSnowflake({ connection, databaseName, schemaName, csvFilePath, csvHeaders, tableName }) {
+export async function addCSVToSnowflake({ connection, databaseName, schemaName, csvFilePath, csvHeaders, tableStructure, tableName }) {
     try {
         // Utility function to sanitize and quote column names
         function sanitizeColumnName(columnName) {
@@ -174,12 +176,15 @@ export async function addCSVToSnowflake({ connection, databaseName, schemaName, 
             throw new Error(`File ${fileName} was not uploaded successfully: ${putStatus}`);
         }
 
-        // Step 4: Create the target table
+        // Step 4: Create the target table using tableStructure
+        const tableData = tableStructure[tableName];
         const createTableCommand = `
             CREATE OR REPLACE TABLE "${tableName}" (
-                ${csvHeaders.map((header) => `${sanitizeColumnName(header)} STRING`).join(',\n')}
+                ${tableData.columns.map((column) => `${sanitizeColumnName(column.name)} ${column.type}`).join(',\n')}
             )
         `;
+
+        console.log("Create table command: ", createTableCommand);
         await executeQuery({ connection, query: createTableCommand });
 
         // Step 5: Copy the data from the stage into the table
@@ -207,7 +212,7 @@ export async function addCSVToSnowflake({ connection, databaseName, schemaName, 
     
         // Step 6: Cleanup - Remove the staged file
         const removeCommand = `REMOVE @${stageName}/${fileName}`;
-        await executeQuery({ connection, query: removeCommand });
+        //await executeQuery({ connection, query: removeCommand });
         console.log(`Staged file removed: ${fileName}`);
     } catch (error) {
         console.error('Error uploading CSV to Snowflake:', error.message);

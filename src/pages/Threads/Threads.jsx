@@ -14,6 +14,7 @@ import { ReactComponent as ConnectionIcon } from '../../assets/icons/connect-ico
 import { ReactComponent as XIcon } from '../../assets/icons/close-icon.svg';
 import { ReactComponent as CheckIcon } from '../../assets/icons/checkmark-icon.svg';
 import axios from 'axios';
+import shortUUID from 'short-uuid';
 
 function Threads() {
   const { user } = useContext(UserContext);
@@ -30,53 +31,83 @@ function Threads() {
   const [dataSources, setDataSources] = useState([]);
   const [dataSource, setDataSource] = useState(null);
 
+  const GREETING_MESSAGE = "Hello! How can I help you?";
+
   const messagesEndRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     let threadId = searchParams.get('thread');
-    const locationThread = location.state?.thread;
 
-    if (threadId) {
-      setCurrentThreadId(threadId);
-      if (locationThread) {
-        setThread(locationThread);
-      } else {
-        setThread(null); // Reset thread
-      }
-    } else {
-      setCurrentThreadId(null);
-      setThread(null);
-      setMessages([]);
+    if (!threadId) {
+      threadId = shortUUID().new();
+      navigate(`/threads?thread=${threadId}`);
     }
-  }, [location.search, location.state]);
+
+    setCurrentThreadId(threadId);
+  }, [location.search, navigate]);
 
   useEffect(() => {
-    if (currentThreadId) {
-      setThread(null); // Reset thread when thread ID changes
-      setDataSource(null); // Reset data source
-      const locationThread = location.state?.thread;
-      if (locationThread) {
-        setThread(locationThread);
-      } else {
-        axios
-          .get(`${process.env.REACT_APP_API_BASE_URL}/api/threads/get-thread/${user.id}/${currentThreadId}`)
-          .then((response) => {
-            setThread(response.data.thread);
-          })
-          .catch((error) => {
-            console.error('Error fetching thread:', error);
+    if (currentThreadId && user.id) {
+      setLoading(true);
+      setThread(null);
+      setDataSource(null);
+      setMessages([]);
+      axios
+        .get(`/api/threads/get-thread/${user.id}/${currentThreadId}`)
+        .then((response) => {
+          const fetchedThread = response.data.thread;
+          if (fetchedThread) {
+            setThread(fetchedThread);
+          } else {
+            setThread(null);
+          }
+          return axios.get(`/api/threads/get-messages/${currentThreadId}`);
+        })
+        .then((response) => {
+          let fetchedMessages = response.data;
+          if (!Array.isArray(fetchedMessages)) {
+            fetchedMessages = [];
+          }
+
+          // Always ensure the greeting message is at the start
+          // Remove any duplicates of the greeting message from fetchedMessages
+          fetchedMessages = fetchedMessages.filter(
+            (msg) => msg.content !== GREETING_MESSAGE
+          );
+
+          // Now add the greeting message at the start
+          fetchedMessages.unshift({
+            threadId: currentThreadId,
+            content: GREETING_MESSAGE,
+            direction: 'received',
+            timestamp: new Date().getTime(),
           });
-      }
+
+          setMessages(fetchedMessages);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching thread/messages:', error);
+          setLoading(false);
+          setMessages([
+            {
+              threadId: currentThreadId,
+              content: GREETING_MESSAGE,
+              direction: 'received',
+              timestamp: new Date().getTime(),
+            },
+          ]);
+        });
     }
-  }, [currentThreadId, user.id, location.state]);
+  }, [currentThreadId, user.id]);
 
   useEffect(() => {
     setIsConnected(thread && thread.dataSourceId != null);
@@ -85,7 +116,7 @@ function Threads() {
   useEffect(() => {
     if (isConnected && thread && thread.dataSourceId) {
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/api/data-sources/get-data-source/${thread.dataSourceId}`)
+        .get(`/api/data-sources/get-data-source/${thread.dataSourceId}`)
         .then((response) => {
           setDataSource(response.data);
         })
@@ -93,53 +124,9 @@ function Threads() {
           console.error('Error fetching data source:', error);
         });
     } else {
-      setDataSource(null); // Reset data source if not connected
+      setDataSource(null);
     }
   }, [isConnected, thread]);
-
-  useEffect(() => {
-    if (currentThreadId) {
-      setLoading(true);
-      setMessages([]);
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/api/threads/get-messages/${currentThreadId}`)
-        .then((response) => {
-          let fetchedMessages = response.data;
-
-          if (!Array.isArray(fetchedMessages)) {
-            fetchedMessages = [];
-          }
-
-          fetchedMessages = fetchedMessages.filter(
-            (msg) => msg.content !== 'Hello! How can I help you today?'
-          );
-
-          const greetingMessage = {
-            threadId: currentThreadId,
-            content: 'Hello! How can I help you today?',
-            direction: 'received',
-            timestamp: new Date().getTime(),
-          };
-
-          setMessages([greetingMessage, ...fetchedMessages]);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching messages:', error);
-          setError('Failed to fetch messages.');
-          setLoading(false);
-
-          setMessages([
-            {
-              threadId: currentThreadId,
-              content: 'Hello! How can I help you today?',
-              direction: 'received',
-              timestamp: new Date().getTime(),
-            },
-          ]);
-        });
-    }
-  }, [currentThreadId]);
 
   const updateThreadName = (threadId, newName) => {
     const event = new CustomEvent('updateThreadName', {
@@ -149,95 +136,120 @@ function Threads() {
   };
 
   const handleSendMessage = async () => {
-    setThinkingStep(1);
+    if (!inputValue.trim()) return;
 
+    setThinkingStep(1);
     setTimeout(() => {
       setThinkingStep(2);
     }, 1000);
 
-    if (inputValue.trim()) {
-      const newMessage = {
-        threadId: currentThreadId,
-        content: inputValue.trim(),
-        direction: 'sent',
-        timestamp: new Date().getTime(),
-      };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInputValue('');
+    const userMessageContent = inputValue.trim();
+    setInputValue('');
 
-      const userMessages = messages.filter((m) => m.direction === 'sent');
-      if (!thread) {
-        // Create the thread in the DB
-        const threadName =
-          inputValue.length > 30 ? inputValue.substring(0, 27) + '...' : inputValue;
+    const newMessage = {
+      threadId: currentThreadId,
+      content: userMessageContent,
+      direction: 'sent',
+      timestamp: new Date().getTime(),
+    };
 
-        try {
-          const response = await axios.post(
-            `${process.env.REACT_APP_API_BASE_URL}/api/threads/create-thread`,
-            {
-              id: currentThreadId,
-              userId: user.id,
-              title: threadName,
-            }
-          );
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
 
-          setThread(response.data.thread); // Update thread state
-          updateThreadName(currentThreadId, threadName);
-        } catch (error) {
-          console.error('Error creating thread:', error);
-        }
-      }
+    let newlyCreatedThread = false;
+    if (!thread) {
+      // Create thread now
+      const words = userMessageContent.trim().split(' ').slice(0, 5).join(' ');
+      const threadName = words.length > 0 ? words : 'New Thread';
 
       try {
-        if (!dataSource || !dataSource.id) {
-          setError('No Data Source Connected.');
-          setThinkingStep(0);
-          return;
-        }
-
-        console.log("dataSource: ", dataSource);
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_BASE_URL}/api/threads/chat`,
-          {
-            threadId: currentThreadId,
-            dataSource: dataSource,
-            message: newMessage,
-          }
-        );
-        const assistantMessage = response.data.assistantMessage;
-        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+        const response = await axios.post(`/api/threads/create-thread`, {
+          id: currentThreadId,
+          userId: user.id,
+          title: threadName,
+        });
+        newlyCreatedThread = true;
+        setThread(response.data.thread);
+        updateThreadName(currentThreadId, threadName);
       } catch (error) {
-        console.error('Error saving message:', error);
+        console.error('Error creating thread:', error);
       }
-      setThinkingStep(0);
     }
+
+    // Save the user message even if no data source is connected
+    try {
+      await axios.post(`/api/threads/add-message`, {
+        threadId: currentThreadId,
+        message: {
+          content: userMessageContent,
+          direction: 'sent',
+        },
+      });
+    } catch (error) {
+      console.error('Error saving user message:', error);
+    }
+
+    if (!dataSource || !dataSource.id) {
+      setError('No Data Source Connected.');
+      setThinkingStep(0);
+      // If we just created the thread, re-fetch it to ensure consistency
+      if (newlyCreatedThread) {
+        try {
+          const refetch = await axios.get(`/api/threads/get-thread/${user.id}/${currentThreadId}`);
+          setThread(refetch.data.thread);
+        } catch (err) {
+          console.error('Error re-fetching thread after creation:', err);
+        }
+      }
+      return;
+    }
+
+    // Call the assistant chat endpoint if data source is connected
+    try {
+      const response = await axios.post(`/api/threads/chat`, {
+        threadId: currentThreadId,
+        dataSource: dataSource,
+        message: newMessage,
+      });
+      const assistantMessage = response.data.assistantMessage;
+      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+    } catch (error) {
+      console.error('Error saving assistant message:', error);
+    }
+
+    // If we just created the thread, re-fetch it to ensure data source and naming correctness
+    if (newlyCreatedThread) {
+      try {
+        const refetch = await axios.get(`/api/threads/get-thread/${user.id}/${currentThreadId}`);
+        setThread(refetch.data.thread);
+      } catch (err) {
+        console.error('Error re-fetching thread after creation:', err);
+      }
+    }
+
+    setThinkingStep(0);
   };
 
   const handleSelectDataSource = async (selectedDataSource) => {
-    try {
-      if (!thread) {
-        // Create the thread in the DB
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_BASE_URL}/api/threads/create-thread`,
-          {
-            id: currentThreadId,
-            userId: user.id,
-            title: 'New Thread',
-          }
-        );
+    if (!thread) {
+      try {
+        const response = await axios.post(`/api/threads/create-thread`, {
+          id: currentThreadId,
+          userId: user.id,
+          title: 'New Thread',
+        });
         setThread(response.data.thread);
         updateThreadName(currentThreadId, 'New Thread');
+      } catch (error) {
+        console.error('Error creating thread before selecting data source:', error);
       }
+    }
 
-      // Update the thread with the selected data source
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/api/threads/update-thread`,
-        {
-          userId: user.id,
-          threadId: currentThreadId,
-          dataSourceId: selectedDataSource.id,
-        }
-      );
+    try {
+      const response = await axios.put(`/api/threads/update-thread`, {
+        userId: user.id,
+        threadId: currentThreadId,
+        dataSourceId: selectedDataSource.id,
+      });
       setThread(response.data.thread);
       setDataSource(selectedDataSource);
       setShowDataSourcePopup(false);
@@ -249,7 +261,7 @@ function Threads() {
   useEffect(() => {
     if (showDataSourcePopup) {
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/api/users/get-data-sources/${user.id}`)
+        .get(`/api/users/get-data-sources/${user.id}`)
         .then((response) => {
           setDataSources(response.data);
         })
@@ -259,13 +271,8 @@ function Threads() {
     }
   }, [showDataSourcePopup, user.id]);
 
-
   const handleShowSharePopup = () => {
-    if (showSharePopup) {
-      setShowSharePopup(false);
-    } else {
-      setShowSharePopup(true);
-    }
+    setShowSharePopup(!showSharePopup);
   };
 
   const renderDataSourcePopup = () => {
@@ -299,7 +306,7 @@ function Threads() {
     <div className="threads-wrapper">
       {loading ? (
         <LoadingScreen isLoading={loading} />
-      ) : error ? (
+      ) : error && !thread ? (
         <div>Error: {error}</div>
       ) : (
         <div className="threads-content">
@@ -330,11 +337,7 @@ function Threads() {
                     </div>
                   )}
                   <div className="message-bubble">
-                    {isUser ? (
-                      message.content
-                    ) : (
-                      <MessageFormatter message={message} />
-                    )}
+                    {isUser ? message.content : <MessageFormatter message={message} />}
                   </div>
                   {isUser && (
                     <div className="avatar">
@@ -344,19 +347,27 @@ function Threads() {
                 </div>
               );
             })}
-            {(thinkingStep > 0) && (
-                <div className="thinking-indicator">
-                  <div className={`thinking-step${thinkingStep > 1 ? ' completed' : ''}${thinkingStep === 1 ? ' active' : ''}`}>
-                    {thinkingStep === 1 && <div className="loader"></div>}
-                    {thinkingStep > 1 && <CheckIcon className="icon" />}
-                    <p>Analyzing Question</p>
-                  </div>
-                  <div className={`thinking-step${thinkingStep === 0 ? ' completed' : ''}${thinkingStep === 2 ? ' active' : ''}`}>
-                    {thinkingStep !== 1 && <div className="loader"></div>}
-                    {thinkingStep === 0 && <CheckIcon className="icon" />}
-                    <p>Crafting Response</p>
-                  </div>
+            {thinkingStep > 0 && (
+              <div className="thinking-indicator">
+                <div
+                  className={`thinking-step${thinkingStep > 1 ? ' completed' : ''}${
+                    thinkingStep === 1 ? ' active' : ''
+                  }`}
+                >
+                  {thinkingStep === 1 && <div className="loader"></div>}
+                  {thinkingStep > 1 && <CheckIcon className="icon" />}
+                  <p>Analyzing Question</p>
                 </div>
+                <div
+                  className={`thinking-step${thinkingStep === 0 ? ' completed' : ''}${
+                    thinkingStep === 2 ? ' active' : ''
+                  }`}
+                >
+                  {thinkingStep !== 1 && <div className="loader"></div>}
+                  {thinkingStep === 0 && <CheckIcon className="icon" />}
+                  <p>Crafting Response</p>
+                </div>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -375,8 +386,11 @@ function Threads() {
               <button onClick={handleSendMessage}>Send</button>
             </div>
             <div className="floating-wrapper actions">
-              <DataSourceIcon className={`icon first`} onClick={() => setShowDataSourcePopup(!showDataSourcePopup)} />
-              <ShareIcon className={`icon`} onClick={() => setShowSharePopup(!showSharePopup)} />
+              <DataSourceIcon
+                className="icon first"
+                onClick={() => setShowDataSourcePopup(!showDataSourcePopup)}
+              />
+              <ShareIcon className="icon" onClick={() => setShowSharePopup(!showSharePopup)} />
             </div>
           </div>
         </div>

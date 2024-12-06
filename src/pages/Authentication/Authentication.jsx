@@ -44,6 +44,7 @@ function Authentication() {
       );
       console.log('User fetched:', response.data);
       localStorage.setItem('user', JSON.stringify(response.data[0]));
+      setIsSubmitting(false);
       window.location.href = '/';
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -67,7 +68,7 @@ function Authentication() {
     }
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     const authenticationDetails = new AuthenticationDetails({
       Username: email,
       Password: password,
@@ -82,7 +83,6 @@ function Authentication() {
       onSuccess: (result) => {
         console.log('Successfully signed in:', result);
         fetchUserData(email); // Fetch user data
-        setIsSubmitting(false);
       },
       onFailure: (err) => {
         setError(err.message || 'An error occurred during sign-in.');

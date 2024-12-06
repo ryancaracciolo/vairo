@@ -3,7 +3,7 @@ import XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
 import csv from 'fast-csv';
-import { addDataSource, addSchema } from '../dataSourceController.js';
+import { addDataSource } from '../dataSourceController.js';
 import { connectToSnowflake_general, createDatabaseIfNotExists, createSchemaIfNotExists, addCSVToSnowflake } from '../snowflakeController.js';
 
 
@@ -40,13 +40,11 @@ export const handleExcel = async (req, res) => {
     await createDatabaseIfNotExists({connection: snowflakeConnection, databaseName: databaseName});
     await createSchemaIfNotExists({connection: snowflakeConnection, databaseName: databaseName, schemaName: schemaName});
 
-    // Add the CSV file to the Snowflake database
-    await addCSVToSnowflake({connection: snowflakeConnection, databaseName: databaseName, schemaName: schemaName, csvFilePath: csvFilePath, csvHeaders: csvHeaders, tableName: tableName});
-
-    // Add tables to the dataSource in dynamoDB
     const tableStructure = await getTableStructure(csvFilePath, csvHeaders);
-    const schemaInput = {body: {dataSourceId: dataSourceId, tables: tableStructure}};
-    await addSchema(schemaInput);
+
+    // Add the CSV file to the Snowflake database
+    await addCSVToSnowflake({connection: snowflakeConnection, databaseName: databaseName, schemaName: schemaName, csvFilePath: csvFilePath, csvHeaders: csvHeaders, tableStructure: tableStructure, tableName: tableName});
+
 
      // Clean up local files
      fs.unlinkSync(excelFilePath);
@@ -62,13 +60,16 @@ export const handleExcel = async (req, res) => {
 
 // Helper function to convert Excel to CSV
 async function convertExcelToCSV(excelFilePath) {
-  if (path.extname(excelFilePath).toLowerCase() === '.xlsx' || path.extname(excelFilePath).toLowerCase() === '.xls') {
+  const ext = path.extname(excelFilePath).toLowerCase();
+  if (ext === '.xlsx' || ext === '.xls') {
     const workbook = XLSX.readFile(excelFilePath);
     const sheetName = workbook.SheetNames[0];
-    const csvData = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+    const rawCsvData = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
 
-    const csvFilePath = excelFilePath.replace(path.extname(excelFilePath), '.csv');
-    fs.writeFileSync(csvFilePath, csvData);
+    const cleanedCsvData = await removeCommasFromNumericFields(rawCsvData);
+
+    const csvFilePath = excelFilePath.replace(ext, '.csv');
+    fs.writeFileSync(csvFilePath, cleanedCsvData);
 
     return csvFilePath;
   } else {
@@ -76,10 +77,41 @@ async function convertExcelToCSV(excelFilePath) {
   }
 }
 
+// Helper function to remove commas from numeric fields in a CSV string
+function removeCommasFromNumericFields(csvData) {
+  return new Promise((resolve, reject) => {
+    const rows = [];
+    csv.parseString(csvData, { headers: false })
+      .on('error', (error) => reject(error))
+      .on('data', (row) => {
+        const cleanedRow = row.map((field) => {
+          const trimmedField = field.trim();
+          // Regex to match a numeric value possibly containing commas:
+          // ^\d{1,3}(\,\d{3})*(\.\d+)?$ will match numbers like "1,234", "12,345,678.90", etc.
+          if (/^\d{1,3}(\,\d{3})*(\.\d+)?$/.test(trimmedField)) {
+            return trimmedField.replace(/,/g, '');
+          }
+          return trimmedField;
+        });
+        rows.push(cleanedRow);
+      })
+      .on('end', () => {
+        // Re-stringify the parsed rows back into CSV
+        const csvStream = csv.format({ headers: false });
+        let result = '';
+        csvStream
+          .on('data', chunk => { result += chunk.toString(); })
+          .on('end', () => resolve(result));
+
+        rows.forEach(row => csvStream.write(row));
+        csvStream.end();
+      });
+  });
+}
+
 // Helper: Extract headers from a CSV file
 function getCsvHeaders(csvFilePath) {
   return new Promise((resolve, reject) => {
-    // Use fast-csv's "headers: true" configuration to extract headers automatically
     fs.createReadStream(csvFilePath)
       .pipe(csv.parse({ headers: true }))
       .on('headers', (headerList) => {
@@ -102,7 +134,8 @@ function getTableName(csvFilePath) {
 // Helper function to create table metadata from CSV
 async function getTableStructure(csvFilePath, csvHeaders) {
   const tableName = getTableName(csvFilePath);
-  const columns = csvHeaders.map(header => ({ name: header, type: 'string' }));
+  const columnTypes = await inferColumnTypes(csvFilePath, csvHeaders);
+  const columns = csvHeaders.map((header, index) => ({ name: header, type: columnTypes[index] }));
   const tableData = {
     [tableName]: {
       tableName: tableName,
@@ -115,4 +148,83 @@ async function getTableStructure(csvFilePath, csvHeaders) {
   return tableData;
 }
 
+// Helper function to infer column types from a CSV file
+async function inferColumnTypes(csvFilePath, csvHeaders) {
+  return new Promise((resolve, reject) => {
+    const columnSamples = {};
+    csvHeaders.forEach(header => columnSamples[header] = []);
+
+    fs.createReadStream(csvFilePath)
+      .pipe(csv.parse({ headers: true }))
+      .on('data', (row) => {
+        csvHeaders.forEach(header => {
+          if (columnSamples[header].length < 10) { // Sample up to 10 rows
+            columnSamples[header].push(row[header] || '');
+          }
+        });
+      })
+      .on('end', () => {
+        const columnTypes = csvHeaders.map(header => inferSnowflakeType(columnSamples[header]));
+        resolve(columnTypes);
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
+}
+
+// Infer Snowflake-compatible data type from samples
+function inferSnowflakeType(samples) {
+  // Trim all samples for consistency
+  samples = samples.map(s => (s || '').trim());
+
+  // Check if all are boolean
+  if (allBoolean(samples)) {
+    return 'BOOLEAN';
+  }
+
+  // Check if all are numeric
+  if (allNumeric(samples)) {
+    // Determine if there is any decimal
+    const anyDecimal = samples.some(val => val.replace(/,/g, '').includes('.'));
+    if (anyDecimal) {
+      return 'FLOAT'; // or 'NUMBER(38, 4)', etc., as needed
+    } else {
+      return 'NUMBER(38,0)';
+    }
+  }
+
+  // Check if all are valid dates/timestamps
+  const allDates = samples.every(isValidDate);
+  if (allDates) {
+    const anyHasTime = samples.some(hasTimeComponent);
+    return anyHasTime ? 'TIMESTAMP_NTZ' : 'DATE';
+  }
+
+  // If none of the above conditions match, default to VARCHAR
+  return 'VARCHAR';
+}
+
+// Check if all samples are boolean-like ('true'/'false')
+function allBoolean(samples) {
+  return samples.every(val => /^(true|false)$/i.test(val.trim()));
+}
+
+// Check if all samples are numeric (after removing commas)
+function allNumeric(samples) {
+  return samples.every(val => {
+    const cleanVal = val.replace(/,/g, '').trim();
+    return cleanVal !== '' && !isNaN(cleanVal);
+  });
+}
+
+// Check if a value is a valid date or timestamp
+function isValidDate(value) {
+  return !isNaN(Date.parse(value));
+}
+
+// Check if a string includes a time component (rough check)
+function hasTimeComponent(value) {
+  return /\b\d{1,2}:\d{2}(:\d{2})?\b/.test(value);
+}
 
