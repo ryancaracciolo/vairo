@@ -65,9 +65,6 @@ export const getUserByEmail = async (req, res) => {
     TableName: tableName,
     IndexName: 'email-index', // Replace with your GSI name
     KeyConditionExpression: 'email = :email',
-    ExpressionAttributeValues: {
-      ':email': email,
-    },
     FilterExpression: 'begins_with(PK, :userPrefix)',
     ExpressionAttributeValues: {
       ':email': email,
